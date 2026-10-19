@@ -26,7 +26,6 @@
             background-attachment: fixed;
         }
 
-        /* Парящие частицы */
         .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.3; animation: float linear infinite; }
         @keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
@@ -40,7 +39,6 @@
 
         .balance { background: var(--surface); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 14px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
 
-        /* Табы категорий */
         .tabs-container { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tabs-container::-webkit-scrollbar { display: none; }
         .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: 0.3s; }
@@ -55,31 +53,26 @@
 
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); }
         
-        /* Навигация */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 100; }
         .nav-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; transition: 0.3s; }
         .nav-btn .icon { font-size: 20px; }
         .nav-btn.active { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); }
 
-        /* Кнопки */
         .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-secondary { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
         
-        /* Формы */
         input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
         textarea { height: 100px; resize: none; }
 
-        /* История */
         .tx-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
         .tx-item:last-child { border-bottom: none; }
         .tx-status { font-size: 11px; color: var(--muted); }
 
         .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #FFD700, #B8860B); display: flex; justify-content: center; align-items: center; font-size: 30px; color: #000; font-weight: 900; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
 
-        /* Модальное окно игр */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); display: none; flex-direction: column; z-index: 200; overflow-y: auto; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -105,6 +98,14 @@
         .playing-card.back { background: repeating-linear-gradient(45deg, #111, #111 5px, #333 5px, #333 10px); border: 2px solid #fff; }
         .playing-card .suit { font-size: 24px; text-align: right; line-height: 1; }
 
+        /* Касса Стили */
+        .wallet-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+        .wallet-btn { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .wallet-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group input { margin-bottom: 0; }
+        .input-group .min-label { position: absolute; bottom: -18px; left: 5px; font-size: 11px; color: var(--muted); }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -125,28 +126,43 @@
             <button class="tab-btn" onclick="switchTab('table')">🃏 Настольные</button>
             <button class="tab-btn" onclick="switchTab('slots')">🎰 Слоты</button>
         </div>
-
-        <div class="games-grid" id="gamesGrid">
-            <!-- Заполняется через JS -->
-        </div>
+        <div class="games-grid" id="gamesGrid"></div>
     </div>
 
     <!-- КАССА -->
     <div id="view-cash" class="hidden">
         <div class="card" style="text-align: center;">
-            <div style="font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px;">Баланс</div>
+            <div style="font-size: 14px; color: var(--muted); text-transform: uppercase;">Баланс</div>
             <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.3);" id="cashBalance">$0.00</div>
         </div>
 
+        <!-- ПОПОЛНЕНИЕ -->
         <div class="card">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Пополнение</div>
-            <input type="number" id="depAmount" value="1000" placeholder="Сумма">
+            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Пополнение</div>
+            <div class="wallet-selector" id="depMethods">
+                <div class="wallet-btn active" onclick="selectMethod('dep', 'USDT', this)">USDT</div>
+                <div class="wallet-btn" onclick="selectMethod('dep', 'BTC', this)">Bitcoin</div>
+                <div class="wallet-btn" onclick="selectMethod('dep', 'ETH', this)">Ethereum</div>
+            </div>
+            <div class="input-group">
+                <input type="number" id="depAmount" value="20" placeholder="Сумма">
+                <div class="min-label" id="depMinLabel">Мин. сумма: $15</div>
+            </div>
             <button class="btn btn-primary" onclick="doDeposit()">Пополнить</button>
         </div>
 
+        <!-- ВЫВОД -->
         <div class="card">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Вывод средств</div>
-            <input type="number" id="wdAmount" value="500" placeholder="Сумма">
+            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Вывод средств</div>
+            <div class="wallet-selector" id="wdMethods">
+                <div class="wallet-btn active" onclick="selectMethod('wd', 'USDT', this)">USDT</div>
+                <div class="wallet-btn" onclick="selectMethod('wd', 'BTC', this)">Bitcoin</div>
+                <div class="wallet-btn" onclick="selectMethod('wd', 'ETH', this)">Ethereum</div>
+            </div>
+            <div class="input-group">
+                <input type="number" id="wdAmount" value="20" placeholder="Сумма">
+                <div class="min-label" id="wdMinLabel">Мин. сумма: $15</div>
+            </div>
             <button class="btn btn-secondary" onclick="doWithdraw()">Создать заявку</button>
         </div>
     </div>
@@ -154,9 +170,7 @@
     <!-- ИСТОРИЯ -->
     <div id="view-history" class="hidden">
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">История операций</div>
-        <div class="card" id="txList">
-            <div style="text-align: center; color: var(--muted); padding: 20px;">Загрузка...</div>
-        </div>
+        <div class="card" id="txList"></div>
     </div>
 
     <!-- ПРОФИЛЬ -->
@@ -185,7 +199,6 @@
     <div id="view-support" class="hidden">
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Поддержка</div>
         <div class="card">
-            <p style="font-size: 13px; color: var(--muted); margin-bottom: 15px;">Опишите проблему. Сообщение придет администратору.</p>
             <textarea id="supMessage" placeholder="Ваше сообщение..."></textarea>
             <button class="btn btn-primary" onclick="sendSupport()">Отправить</button>
         </div>
@@ -219,6 +232,11 @@
         let state = { balance: 0, total_rounds: 0, best_result: 0 };
         let isPlaying = false;
         let currentBet = 100;
+        
+        // Переменные кассы
+        let depMethod = 'USDT';
+        let wdMethod = 'USDT';
+        const minLimits = { 'USDT': 15, 'BTC': 50, 'ETH': 20 };
 
         // МУЗЫКА
         const music = document.getElementById('bgMusic');
@@ -259,7 +277,6 @@
             document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2);
         }
 
-        // НАВИГАЦИЯ
         function switchView(view) {
             document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById('view-' + view).classList.remove('hidden');
@@ -268,54 +285,68 @@
             if (view === 'history') loadHistory();
         }
 
-        // ВКЛАДКИ ИГР
+        // ВКЛАДКИ
         const gamesData = {
-            pop: [
-                { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' },
-                { id: 'slots', icon: '🎰', name: 'Слоты', desc: 'Классика' },
-                { id: 'roulette', icon: '🎡', name: 'Рулетка', desc: 'Европейская' }
-            ],
-            table: [
-                { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' },
-                { id: 'roulette', icon: '🎡', name: 'Рулетка', desc: 'Европейская' }
-            ],
-            slots: [
-                { id: 'slots', icon: '🎰', name: 'Слоты', desc: 'Классика' },
-                { id: 'wheel', icon: '☸️', name: 'Колесо', desc: 'Удача' }
-            ]
+            pop: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' }, { id: 'slots', icon: '🎰', name: 'Слоты', desc: 'Скоро' } ],
+            table: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' } ],
+            slots: [ { id: 'slots', icon: '🎰', name: 'Слоты', desc: 'Скоро' } ]
         };
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            
             const grid = document.getElementById('gamesGrid');
             grid.innerHTML = gamesData[tab].map(g => `
                 <div class="game-card" onclick="openGame('${g.id}')">
-                    <span class="icon">${g.icon}</span>
-                    <h3>${g.name}</h3>
-                    <p>${g.desc}</p>
+                    <span class="icon">${g.icon}</span><h3>${g.name}</h3><p>${g.desc}</p>
                 </div>
             `).join('');
         }
 
         // КАССА
+        function selectMethod(type, method, el) {
+            if(type === 'dep') {
+                depMethod = method;
+                document.querySelectorAll('#depMethods .wallet-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('depMinLabel').innerText = `Мин. сумма: $${minLimits[method]}`;
+                document.getElementById('depAmount').value = minLimits[method];
+            } else {
+                wdMethod = method;
+                document.querySelectorAll('#wdMethods .wallet-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('wdMinLabel').innerText = `Мин. сумма: $${minLimits[method]}`;
+                document.getElementById('wdAmount').value = minLimits[method];
+            }
+            el.classList.add('active');
+        }
+
         async function doDeposit() {
             const amt = parseFloat(document.getElementById('depAmount').value);
-            if(!amt || amt <= 0) return tg.showAlert('Введите сумму');
+            if(!amt || amt < minLimits[depMethod]) return tg.showAlert(`Минимальная сумма для ${depMethod} - $${minLimits[depMethod]}`);
+            
             try {
-                await fetch('/api/deposit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt }) });
-                state.balance += amt; updateUI(); tg.showAlert(`✅ Пополнено на $${amt}`);
+                const res = await fetch('/api/deposit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: depMethod }) });
+                const data = await res.json();
+                if(res.ok) {
+                    state.balance += amt; updateUI(); tg.showAlert(`✅ Пополнено на $${amt} через ${depMethod}`);
+                } else {
+                    tg.showAlert(data.error);
+                }
             } catch(e) { tg.showAlert('Ошибка'); }
         }
 
         async function doWithdraw() {
             const amt = parseFloat(document.getElementById('wdAmount').value);
-            if(!amt || amt <= 0) return tg.showAlert('Введите сумму');
+            if(!amt || amt < minLimits[wdMethod]) return tg.showAlert(`Минимальная сумма для ${wdMethod} - $${minLimits[wdMethod]}`);
             if(state.balance < amt) return tg.showAlert('Недостаточно средств');
+            
             try {
-                const res = await fetch('/api/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt }) });
-                if(res.ok) { state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод $${amt} создана!`); } else { tg.showAlert('Ошибка'); }
+                const res = await fetch('/api/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: wdMethod }) });
+                const data = await res.json();
+                if(res.ok) {
+                    state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод $${amt} (${wdMethod}) создана!`);
+                } else {
+                    tg.showAlert(data.error);
+                }
             } catch(e) { tg.showAlert('Ошибка'); }
         }
 
@@ -330,7 +361,7 @@
                     const color = tx.type === 'Deposit' ? 'var(--gold)' : '#ff4444';
                     const sign = tx.type === 'Deposit' ? '+' : '-';
                     return `<div class="tx-item">
-                        <div><div style="font-weight:bold;">${tx.type === 'Deposit' ? 'Пополнение' : 'Вывод'}</div><div class="tx-status">${tx.date} • ${tx.status === 'Pending' ? 'В обработке' : 'Выполнено'}</div></div>
+                        <div><div style="font-weight:bold;">${tx.type === 'Deposit' ? 'Пополнение' : 'Вывод'} (${tx.method || 'USDT'})</div><div class="tx-status">${tx.date} • ${tx.status === 'Pending' ? 'В обработке' : 'Выполнено'}</div></div>
                         <div style="color: ${color}; font-weight: bold;">${sign}$${tx.amount.toFixed(2)}</div>
                     </div>`;
                 }).join('');
@@ -346,7 +377,7 @@
             } catch(e) { tg.showAlert('Ошибка'); }
         }
 
-        // --- ЛОГИКА ИГР ---
+        // --- BLACKJACK ---
         function renderBetChips(containerId) {
             const el = document.getElementById(containerId);
             if(!el) return;
@@ -391,65 +422,31 @@
             }
         }
 
-        function closeGame() {
-            document.getElementById('gameModal').classList.remove('open');
-        }
+        function closeGame() { document.getElementById('gameModal').classList.remove('open'); }
 
-        // --- BLACKJACK ЛОГИКА ---
-        let deck = [];
-        let pHand = [];
-        let dHand = [];
-        let isGameActive = false;
-
+        let deck = [], pHand = [], dHand = [], isGameActive = false;
         function createDeck() {
             const suits = ['♠', '♥', '♦', '♣'];
             const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             deck = [];
-            for (let s of suits) {
-                for (let v of values) {
-                    deck.push({ v, s });
-                }
-            }
-            // Перемешиваем
-            for (let i = deck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [deck[i], deck[j]] = [deck[j], deck[i]];
-            }
+            for (let s of suits) for (let v of values) deck.push({ v, s });
+            for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
         }
-
-        function getCardValue(card) {
-            if (['J','Q','K'].includes(card.v)) return 10;
-            if (card.v === 'A') return 11;
-            return parseInt(card.v);
-        }
-
+        function getCardValue(card) { return ['J','Q','K'].includes(card.v) ? 10 : (card.v === 'A' ? 11 : parseInt(card.v)); }
         function calcScore(hand) {
-            let score = 0;
-            let aces = 0;
-            for (let c of hand) {
-                score += getCardValue(c);
-                if (c.v === 'A') aces++;
-            }
-            while (score > 21 && aces > 0) {
-                score -= 10;
-                aces--;
-            }
+            let score = 0, aces = 0;
+            for (let c of hand) { score += getCardValue(c); if (c.v === 'A') aces++; }
+            while (score > 21 && aces > 0) { score -= 10; aces--; }
             return score;
         }
-
         function renderCard(card, hidden = false) {
             const isRed = ['♥', '♦'].includes(card.s);
             if (hidden) return `<div class="playing-card back"></div>`;
-            return `<div class="playing-card ${isRed ? 'red' : 'black'}">
-                <div>${card.v}</div>
-                <div class="suit">${card.s}</div>
-            </div>`;
+            return `<div class="playing-card ${isRed ? 'red' : 'black'}"><div>${card.v}</div><div class="suit">${card.s}</div></div>`;
         }
-
         function updateBjUI() {
             document.getElementById('playerCards').innerHTML = pHand.map(c => renderCard(c)).join('');
             document.getElementById('pScore').innerText = calcScore(pHand);
-
             const hideDealer = isGameActive;
             document.getElementById('dealerCards').innerHTML = dHand.map((c, i) => renderCard(c, hideDealer && i === 1)).join('');
             document.getElementById('dScore').innerText = hideDealer ? getCardValue(dHand[0]) : calcScore(dHand);
@@ -457,78 +454,45 @@
 
         async function startBlackjack() {
             if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
-            
-            // Списываем ставку
-            state.balance -= currentBet;
-            state.total_rounds++;
-            updateUI();
+            state.balance -= currentBet; state.total_rounds++; updateUI();
             await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
 
-            isGameActive = true;
-            createDeck();
-            pHand = [deck.pop(), deck.pop()];
-            dHand = [deck.pop(), deck.pop()];
-
-            updateBjUI();
-
+            isGameActive = true; createDeck(); pHand = [deck.pop(), deck.pop()]; dHand = [deck.pop(), deck.pop()]; updateBjUI();
             const controls = document.getElementById('bjControls');
-            
-            // Проверка на мгновенный Блэкджек
             if (calcScore(pHand) === 21) {
                 controls.innerHTML = `<button class="btn btn-primary" onclick="endBlackjack('blackjack')">У меня Блэкджек!</button>`;
             } else {
-                controls.innerHTML = `
-                    <button class="btn btn-secondary" style="flex:1; margin-right:5px;" onclick="hit()">Взять</button>
-                    <button class="btn btn-primary" style="flex:1; margin-left:5px;" onclick="stand()">Хватит</button>
-                `;
+                controls.innerHTML = `<button class="btn btn-secondary" style="flex:1; margin-right:5px;" onclick="hit()">Взять</button><button class="btn btn-primary" style="flex:1; margin-left:5px;" onclick="stand()">Хватит</button>`;
             }
         }
-
         function hit() {
             if (!isGameActive) return;
-            pHand.push(deck.pop());
-            updateBjUI();
-
+            pHand.push(deck.pop()); updateBjUI();
             if (calcScore(pHand) > 21) {
-                isGameActive = false;
-                tg.showAlert('😢 Перебор! Вы проиграли.');
+                isGameActive = false; tg.showAlert('😢 Перебор! Вы проиграли.');
                 document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">Играть снова</button>`;
             }
         }
-
         async function stand() {
             if (!isGameActive) return;
-            isGameActive = false;
+            isGameActive = false; updateBjUI();
+            while (calcScore(dHand) < 17) { dHand.push(deck.pop()); }
             updateBjUI();
-
-            // Дилер добирает до 17
-            while (calcScore(dHand) < 17) {
-                dHand.push(deck.pop());
-            }
-            updateBjUI();
-
-            const p = calcScore(pHand);
-            const d = calcScore(dHand);
-            let winAmount = 0;
-            let msg = '';
-
+            const p = calcScore(pHand), d = calcScore(dHand);
+            let winAmount = 0, msg = '';
             if (d > 21) { winAmount = currentBet * 2; msg = '🎉 У дилера перебор! Вы выиграли!'; }
             else if (p > d) { winAmount = currentBet * 2; msg = '🎉 Вы выиграли!'; }
             else if (p < d) { msg = '😢 Дилер выиграл.'; }
             else { winAmount = currentBet; msg = '🤝 Ничья.'; }
-
             if (winAmount > 0) {
-                state.balance += winAmount;
-                if (winAmount > state.best_result) state.best_result = winAmount;
+                state.balance += winAmount; if (winAmount > state.best_result) state.best_result = winAmount;
                 await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
                 updateUI();
             }
-
             tg.showAlert(msg);
             document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">Играть снова</button>`;
         }
 
-        // Инициализация первой вкладки при загрузке
         switchTab('pop');
         loadUser();
     </script>
