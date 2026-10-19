@@ -6,7 +6,6 @@ import random
 import secrets
 from flask import Flask, send_file, request, jsonify
 
-# Токен берется из настроек Render
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '')
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
@@ -25,7 +24,6 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS transactions 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type TEXT, method TEXT, amount REAL, status TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     
-    # Добавляем колонки для мультивалютности
     for col, typ in [('phone', 'TEXT'), ('reg_name', 'TEXT'), ('registered', 'INTEGER DEFAULT 0'), ('balance_uah', 'REAL DEFAULT 0')]:
         try:
             c.execute(f"ALTER TABLE users ADD COLUMN {col} {typ}")
@@ -42,7 +40,6 @@ def init_db():
 
 init_db()
 
-# ============ ХЕЛПЕРЫ ДЛЯ БАЛАНСА ============
 def get_user_bal(c, uid, currency):
     if currency == 'UAH':
         c.execute("SELECT balance_uah FROM users WHERE id=?", (uid,))
@@ -59,7 +56,6 @@ def set_user_bal(c, uid, currency, new_bal, best_win=None):
         if best_win and best_win > 0:
             c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (best_win, uid))
 
-# ============ ОБРАБОТЧИК КНОПОК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
     try:
@@ -135,7 +131,6 @@ def handle_admin_action(call):
     except Exception as e:
         print("Callback error:", e)
 
-# ============ API ============
 @app.route('/api/user', methods=['GET'])
 def get_user():
     user_id = request.args.get('id')
@@ -259,7 +254,7 @@ def withdraw():
         
         if bal >= amount:
             if currency == 'UAH':
-                c.execute("UPDATE users SET balance_uah = balance_uah - ? WHERE id=?", (amount, user_id))
+                c.execute("UPDATE users SET\n balance_uah{ = balance_uah - ?data WHERE id=?", (.getamount, user_id))
             else:
                 c.execute("UPDATE users SET balance = balance - ? WHERE id=?", (amount, user_id))
                 
@@ -282,13 +277,12 @@ def withdraw():
 @app.route('/api/support', methods=['POST'])
 def support():
     data = request.json
-    text = f"📩 Поддержка\nОт: @{data.get('username')} (ID: {data.get('id')})\n\n{data.get('message')}"
+    text = f"📩 Поддержка\nОт: @{data.get('username')} (ID: {data.get('id')})\n('message')}"
     try:
         bot.send_message(ADMIN_ID, text)
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
-# ============ ИГРЫ (Мультивалютные) ============
 @app.route('/api/slots/classic', methods=['POST'])
 def slots_classic():
     try:
@@ -296,7 +290,10 @@ def slots_classic():
         user_id, bet, currency = int(data['id']), float(data['bet']), data.get('currency', 'USD')
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
-        if bal < bet: conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
+        
+        if bal < bet: 
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
         
         symbols = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣']; weights = [30, 25, 20, 15, 8, 2]
         reels = []
@@ -322,7 +319,10 @@ def slots_lucky7():
         user_id, bet, currency = int(data['id']), float(data['bet']), data.get('currency', 'USD')
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
-        if bal < bet: conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
+        
+        if bal < bet: 
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
         
         symbols = ['🍒', '🍋', '7️⃣']; weights = [45, 40, 15]; reels = []
         for _ in range(3):
@@ -353,7 +353,10 @@ def roulette_spin():
         
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
-        if bal < bet: conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
+        
+        if bal < bet: 
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
         
         result = random.randint(0, 36)
         color = 'green' if result == 0 else ('red' if result in RED_ROULETTE_NUMBERS else 'black')
@@ -388,7 +391,10 @@ def mines_start():
         
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
-        if bal < bet: conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
+        
+        if bal < bet: 
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
         
         new_bal = round(bal - bet, 2)
         set_user_bal(c, user_id, currency, new_bal)
@@ -448,15 +454,18 @@ def baccarat_play():
         user_id, bet, bet_on = int(data['id']), float(data['bet']), data.get('bet_on', 'player')
         currency = data.get('currency', 'USD')
         
-        conn = sqlite3 if.connect('casino.db', timeout=15); c ps = conn.cursor()
-        bal > = get_user_bal(c, user bs_id, currency)
-        if bal else < bet: conn.close(); ' return jsonify({'error': 'Недостаточно средств'}), 400
+        conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
+        bal = get_user_bal(c, user_id, currency)
+        
+        if bal < bet: 
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
         
         p_cards = [random.choice(['2','3','4','5','6','7','8','9','10','J','Q','K','A']) for _ in range(2)]
         b_cards = [random.choice(['2','3','4','5','6','7','8','9','10','J','Q','K','A']) for _ in range(2)]
         ps = sum([1 if x=='A' else 0 if x in ('10','J','Q','K') else int(x) for x in p_cards]) % 10
         bs = sum([1 if x=='A' else 0 if x in ('10','J','Q','K') else int(x) for x in b_cards]) % 10
-        winner = 'player'banker' if bs > ps else 'tie'
+        winner = 'player' if ps > bs else 'banker' if bs > ps else 'tie'
         profit = 0
         if bet_on == winner: profit = bet * (8 if winner=='tie' else 0.95 if winner=='banker' else 1)
         elif winner == 'tie' and bet_on != 'tie': profit = 0
@@ -486,6 +495,5 @@ if __name__ == "__main__":
     import threading
     try: bot.remove_webhook()
     except: pass
-    # Запускаем бота в фоновом режиме
     threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), threaded=True)
