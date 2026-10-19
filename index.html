@@ -1908,5 +1908,284 @@
     }
     loadUser();
     </script>
+<script>
+(function() {
+    // Ждем 1.5 секунды, чтобы основной код казино точно загрузился
+    setTimeout(() => {
+        if (typeof gamesData === 'undefined') return;
+
+        // 1. Вживляем игры в массив
+        if (!gamesData.pop.find(g => g.id === 'dice')) {
+            gamesData.pop.unshift({ id: 'dice', icon: '🎲', nameKey: 'Кости', descKey: 'Угадай число' });
+        }
+        if (!gamesData.pop.find(g => g.id === 'coinflip')) {
+            gamesData.pop.unshift({ id: 'coinflip', icon: '🪙', nameKey: 'Монетка', descKey: 'Орел или Решка' });
+        }
+
+        // Перерисовываем текущую вкладку, чтобы игры сразу появились
+        if (typeof currentTab !== 'undefined') switchTab(currentTab);
+
+        // 2. Перехватываем клик по игре
+        const originalOpenGame = window.openGame;
+        window.openGame = function(gameId) {
+            if (gameId === 'dice') {
+                if (typeof state !== 'undefined' && !state.registered) {
+                    tg.showAlert('Сначала зарегистрируйтесь');
+                    checkRegistration();
+                    return;
+                }
+                openDiceModal();
+            } else if (gameId === 'coinflip') {
+                if (typeof state !== 'undefined' && !state.registered) {
+                    tg.showAlert('Сначала зарегистрируйтесь');
+                    checkRegistration();
+                    return;
+                }
+                openCoinModal();
+            } else {
+                originalOpenGame(gameId);
+            }
+        };
+
+        // 3. Создаем стили (все классы уникальные, чтобы не сломать твой дизайн)
+        const style = document.createElement('style');
+        style.innerHTML = `
+            /* Кости */
+            .custom-dice-wrap { width: 100%; max-width: 400px; background: #0a0a0f; border: 2px solid rgba(255,215,0,0.3); border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: inset 0 0 30px rgba(0,0,0,0.8); }
+            .custom-dice-result { font-size: 64px; font-weight: 900; color: #FFD700; text-align: center; font-family: 'Cinzel', serif; margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,215,0,0.5); height: 80px; display: flex; justify-content: center; align-items: center; }
+            .custom-dice-slider { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 10px; background: linear-gradient(to right, #4CAF50 0%, #4CAF50 50%, #E53935 50%, #E53935 100%); outline: none; margin-bottom: 10px; }
+            .custom-dice-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 30px; height: 30px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 0 15px rgba(255,255,255,0.8); border: 3px solid #FFD700; }
+            .custom-dice-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+            .custom-dice-btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: 900; border: 2px solid rgba(255,215,0,0.3); background: rgba(0,0,0,0.5); color: #8b8b93; font-size: 14px; transition: 0.3s; }
+            .custom-dice-btn.active-under { border-color: #4CAF50; color: #fff; background: rgba(0,76,25,0.4); box-shadow: 0 0 15px rgba(76,175,80,0.4); }
+            .custom-dice-btn.active-over { border-color: #E53935; color: #fff; background: rgba(229,57,53,0.2); box-shadow: 0 0 15px rgba(229,57,53,0.4); }
+            .custom-dice-info { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+            .custom-dice-lbl { font-size: 11px; color: #8b8b93; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
+            .custom-dice-val { font-size: 20px; font-weight: 900; color: #FFD700; }
+            
+            /* Монетка */
+            .custom-coin-wrap { width: 100%; max-width: 400px; background: #0a0a0f; border: 2px solid rgba(255,215,0,0.3); border-radius: 20px; padding: 25px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; }
+            .custom-coin-scene { width: 150px; height: 150px; perspective: 600px; margin-bottom: 30px; }
+            .custom-coin { width: 100%; height: 100%; position: relative; transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+            .custom-coin.flipping { transition: transform 3s cubic-bezier(0.2, 0.8, 0.3, 1); }
+            .custom-coin-face { position: absolute; width: 100%; height: 100%; border-radius: 50%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; font-size: 60px; font-weight: 900; box-shadow: 0 0 20px rgba(255,215,0,0.5), inset 0 0 20px rgba(0,0,0,0.5); border: 4px solid #B8860B; }
+            .custom-coin-front { background: linear-gradient(135deg, #FFD700, #DAA520); color: #8B4500; }
+            .custom-coin-back { background: linear-gradient(135deg, #DAA520, #B8860B); color: #5a2e00; transform: rotateY(180deg); }
+            .custom-coin-btns { display: flex; gap: 15px; width: 100%; margin-bottom: 20px; }
+            .custom-coin-btn { flex: 1; padding: 15px; border-radius: 15px; font-weight: 900; border: 2px solid rgba(255,215,0,0.3); background: rgba(0,0,0,0.5); color: #8b8b93; font-size: 14px; transition: 0.3s; }
+            .custom-coin-btn.active { border-color: #FFD700; color: #FFD700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+
+            /* Чипсы ставок */
+            .custom-chips { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; width: 100%; max-width: 340px;}
+            .custom-chip { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,215,0,0.3); color: #fff; padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+            .custom-chip.active { background: #FFD700; color: #000; border-color: #FFD700; box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        `;
+        document.head.appendChild(style);
+
+        // =============== ЛОГИКА КОСТЕЙ ===============
+        let diceTarget = 50;
+        let diceCondition = 'under';
+        let customBet = 100;
+
+        window.renderCustomChips = function(containerId) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            const sym = currentCurrency === 'UAH' ? '₴' : '$';
+            el.innerHTML = [10, 50, 100, 500, 1000].map(val => 
+                `<div class="custom-chip ${customBet === val ? 'active' : ''}" onclick="window.customBet=${val}; window.renderCustomChips('${containerId}'); if(document.getElementById('customDiceMult')) window.updateDiceUI();">${sym}${val}</div>`
+            ).join('');
+        };
+
+        window.updateDiceUI = function() {
+            if (!document.getElementById('customDiceSlider')) return;
+            diceTarget = parseFloat(document.getElementById('customDiceSlider').value);
+            const chance = diceCondition === 'over' ? (100 - diceTarget) : diceTarget;
+            const mult = (99 / chance).toFixed(2);
+            document.getElementById('customDiceMult').innerText = mult + 'x';
+            document.getElementById('customDiceChance').innerText = chance.toFixed(1) + '%';
+            const sym = currentCurrency === 'UAH' ? '₴' : '$';
+            document.getElementById('customDicePay').innerText = sym + (customBet * mult).toFixed(2);
+            
+            const slider = document.getElementById('customDiceSlider');
+            if (diceCondition === 'over') {
+                slider.style.background = `linear-gradient(to right, #4CAF50 0%, #4CAF50 ${diceTarget}%, #E53935 ${diceTarget}%, #E53935 100%)`;
+            } else {
+                slider.style.background = `linear-gradient(to right, #E53935 0%, #E53935 ${diceTarget}%, #4CAF50 ${diceTarget}%, #4CAF50 100%)`;
+            }
+        };
+
+        window.setDiceCondition = function(cond) {
+            diceCondition = cond;
+            document.getElementById('customDiceUnder').className = 'custom-dice-btn' + (cond === 'under' ? ' active-under' : '');
+            document.getElementById('customDiceOver').className = 'custom-dice-btn' + (cond === 'over' ? ' active-over' : '');
+            updateDiceUI();
+        };
+
+        window.openDiceModal = function() {
+            document.getElementById('gameModal').classList.add('open');
+            document.getElementById('modalTitle').innerText = '🎲 Кости';
+            document.getElementById('modalContent').innerHTML = `
+                <div class="custom-dice-wrap">
+                    <div class="custom-dice-result" id="customDiceResult">50.00</div>
+                    <div style="position: relative; margin-bottom: 25px; padding: 0 10px;">
+                        <input type="range" min="2" max="98" value="50" class="custom-dice-slider" id="customDiceSlider" oninput="updateDiceUI()">
+                        <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; color: #fff;"><span>2</span><span>50</span><span>98</span></div>
+                    </div>
+                    <div class="custom-dice-btns">
+                        <button class="custom-dice-btn active-under" id="customDiceUnder" onclick="setDiceCondition('under')">МЕНЬШЕ</button>
+                        <button class="custom-dice-btn" id="customDiceOver" onclick="setDiceCondition('over')">БОЛЬШЕ</button>
+                    </div>
+                    <div class="custom-dice-info">
+                        <div><div class="custom-dice-lbl">Множитель</div><div class="custom-dice-val" id="customDiceMult">1.98x</div></div>
+                        <div><div class="custom-dice-lbl">Шанс</div><div class="custom-dice-val" id="customDiceChance">49.5%</div></div>
+                        <div><div class="custom-dice-lbl">Выплата</div><div class="custom-dice-val" id="customDicePay">$0.00</div></div>
+                    </div>
+                    <div class="custom-chips" id="customDiceChips"></div>
+                    <button class="btn btn-primary" id="customDicePlayBtn" onclick="playDice()">СДЕЛАТЬ СТАВКУ</button>
+                </div>
+            `;
+            customBet = 100;
+            diceTarget = 50;
+            diceCondition = 'under';
+            renderCustomChips('customDiceChips');
+            setDiceCondition('under');
+        };
+
+        window.playDice = async function() {
+            const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+            if (bal < customBet) return tg.showAlert('Недостаточно средств!');
+            
+            const btn = document.getElementById('customDicePlayBtn');
+            btn.disabled = true; btn.innerText = 'КРУТИМ...';
+            const resEl = document.getElementById('customDiceResult');
+            resEl.style.color = '#8b8b93';
+            
+            let anim = setInterval(() => { resEl.innerText = (Math.random() * 100).toFixed(2); }, 50);
+
+            setTimeout(async () => {
+                clearInterval(anim);
+                const result = parseFloat((Math.random() * 99.99).toFixed(2));
+                const chance = diceCondition === 'over' ? (100 - diceTarget) : diceTarget;
+                const mult = 99 / chance;
+                let win = 0;
+                
+                if (diceCondition === 'over' && result > diceTarget) win = customBet * mult;
+                else if (diceCondition === 'under' && result < diceTarget) win = customBet * mult;
+
+                if (currentCurrency === 'UAH') state.balance_uah = state.balance_uah - customBet + win;
+                else state.balance = state.balance - customBet + win;
+                
+                state.total_rounds++;
+                if (win > state.best_result) state.best_result = win;
+                
+                await saveUserBalance();
+                updateUI();
+
+                resEl.innerText = result.toFixed(2);
+                if (win > 0) {
+                    resEl.style.color = '#4CAF50';
+                    resEl.style.textShadow = '0 0 30px #4CAF50';
+                    bigWin(win, 'x' + mult.toFixed(2));
+                } else {
+                    resEl.style.color = '#E53935';
+                    resEl.style.textShadow = '0 0 30px #E53935';
+                    bigLoss(customBet);
+                }
+                
+                btn.disabled = false; btn.innerText = 'СДЕЛАТЬ СТАВКУ';
+            }, 800);
+        };
+
+        // =============== ЛОГИКА МОНЕТКИ ===============
+        let coinChoice = 'heads';
+        let coinFlipping = false;
+
+        window.openCoinModal = function() {
+            document.getElementById('gameModal').classList.add('open');
+            document.getElementById('modalTitle').innerText = '🪙 Монетка';
+            document.getElementById('modalContent').innerHTML = `
+                <div class="custom-coin-wrap">
+                    <div class="custom-coin-scene">
+                        <div class="custom-coin" id="customCoin">
+                            <div class="custom-coin-face custom-coin-front">👑</div>
+                            <div class="custom-coin-face custom-coin-back">🦅</div>
+                        </div>
+                    </div>
+                    <div class="custom-coin-btns">
+                        <button class="custom-coin-btn active" id="customCoinHeads" onclick="setCoinChoice('heads')">👑 Орел (x1.95)</button>
+                        <button class="custom-coin-btn" id="customCoinTails" onclick="setCoinChoice('tails')">🦅 Решка (x1.95)</button>
+                    </div>
+                    <div class="custom-chips" id="customCoinChips"></div>
+                    <button class="btn btn-primary" id="customCoinPlayBtn" onclick="playCoin()">ПОДБРОСИТЬ</button>
+                </div>
+            `;
+            customBet = 100;
+            coinChoice = 'heads';
+            document.getElementById('customCoin').style.transform = 'rotateY(0deg)';
+            renderCustomChips('customCoinChips');
+            setCoinChoice('heads');
+        };
+
+        window.setCoinChoice = function(choice) {
+            if (coinFlipping) return;
+            coinChoice = choice;
+            document.getElementById('customCoinHeads').className = 'custom-coin-btn' + (choice === 'heads' ? ' active' : '');
+            document.getElementById('customCoinTails').className = 'custom-coin-btn' + (choice === 'tails' ? ' active' : '');
+        };
+
+        window.playCoin = async function() {
+            if (coinFlipping) return;
+            const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+            if (bal < customBet) return tg.showAlert('Недостаточно средств!');
+            
+            coinFlipping = true;
+            const btn = document.getElementById('customCoinPlayBtn');
+            btn.disabled = true; btn.innerText = 'КРУТИМ...';
+            
+            const coinEl = document.getElementById('customCoin');
+            coinEl.classList.add('flipping');
+            
+            const isHeads = Math.random() < 0.5;
+            const result = isHeads ? 'heads' : 'tails';
+            
+            // Вращаем 5 раз + 1 если решка, чтобы она повернулась нужной стороной
+            const spins = 5 + (isHeads ? 0 : 1);
+            coinEl.style.transform = `rotateY(${spins * 180}deg)`;
+
+            setTimeout(async () => {
+                const isWin = (coinChoice === result);
+                const win = isWin ? customBet * 1.95 : 0;
+                
+                if (currentCurrency === 'UAH') state.balance_uah = state.balance_uah - customBet + win;
+                else state.balance = state.balance - customBet + win;
+                
+                state.total_rounds++;
+                if (win > state.best_result) state.best_result = win;
+                
+                await saveUserBalance();
+                updateUI();
+
+                if (isWin) {
+                    bigWin(win, 'x1.95');
+                    tg.showAlert('🎉 Вы угадали!');
+                } else {
+                    bigLoss(customBet);
+                    tg.showAlert('😔 Не угадали!');
+                }
+                
+                btn.disabled = false; btn.innerText = 'ПОДБРОСИТЬ';
+                coinFlipping = false;
+                
+                setTimeout(() => {
+                    coinEl.classList.remove('flipping');
+                    coinEl.style.transform = `rotateY(0deg)`;
+                }, 500);
+
+            }, 3000); // Ждем пока монетка прокрутится
+        };
+
+    }, 1500); 
+})();
+</script>
 </body>
 </html>
