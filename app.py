@@ -543,7 +543,17 @@ def baccarat_play():
 
 @app.route('/')
 def index():
-    return send_file('index.html')
+    # Читаем твой index.html
+    with open('index.html', 'r', encoding='utf-8') as f:
+        html = f.read()
+    
+    # Если скрипта костей еще нет в HTML, автоматически вставляем его перед закрывающим тегом </body>
+    script_tag = '<script src="dice.js"></script>'
+    if script_tag not in html:
+        html = html.replace('</body>', f'{script_tag}\n</body>')
+        
+    # Отдаем готовую страницу
+    return html
 
 @app.errorhandler(404)
 def not_found(e): return jsonify({'error': 'not_found'}), 404
