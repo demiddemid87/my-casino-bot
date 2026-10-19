@@ -22,8 +22,7 @@
         .lang-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 5px 7px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: inherit; }
         .lang-btn.active { color: var(--gold); border-color: var(--gold); background: rgba(255,215,0,0.1); }
         .balance-container { display: flex; align-items: center; gap: 5px; }
-        .balance { background: var(--surface); border: 1px solid var(--border); padding: 6px 10px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 13px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); transition: 0.3s; }
-        .balance.flash { box-shadow: 0 0 25px rgba(76, 175, 80, 0.9); border-color: var(--green); color: var(--green); }
+        .balance { background: var(--surface); border: 1px solid var(--border); padding: 6px 10px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 13px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
         .refresh-btn { background: var(--surface); border: 1px solid var(--border); color: var(--gold); width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 13px; }
         .tabs-container { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tabs-container::-webkit-scrollbar { display: none; }
@@ -122,11 +121,6 @@
         .roul-zero { width: 100%; max-width: 340px; padding: 10px; margin-bottom: 6px; font-size: 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-family: inherit; border: 1px solid rgba(0,0,0,0.3); color: #fff; transition: 0.2s; background: #0a4a0a; }
         .roul-zero.selected { outline: 3px solid var(--gold); outline-offset: -1px; }
 
-        /* REGISTRATION */
-        #registerModal { z-index: 500; background: rgba(5,5,5,0.98); }
-        #registerModal .reg-form { width: 100%; max-width: 400px; margin: auto; }
-        .reg-label { font-size: 12px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 6px; font-weight: 700; letter-spacing: 0.5px; }
-
         #audioPrompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate; pointer-events: none; text-align: center; }
         @keyframes bounce { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
     </style>
@@ -201,7 +195,6 @@
                 <div style="font-size: 20px; font-weight: 800;" id="profName">Игрок</div>
                 <div style="font-size: 13px; color: var(--gold); font-weight: 600; margin-top: 4px;">VIP: <span id="profVip">Bronze</span></div>
                 <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">ID: <span id="profId">0</span></div>
-                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;" data-i18n="profPhoneLbl">Телефон:</span> <span id="profPhone">—</span></div>
             </div>
         </div>
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
@@ -237,29 +230,6 @@
             <button class="close-btn" onclick="closeGame()">×</button>
         </div>
         <div class="modal-content" id="modalContent"></div>
-    </div>
-
-    <!-- REGISTRATION MODAL -->
-    <div class="modal-overlay" id="registerModal">
-        <div class="reg-form" style="padding: 30px 20px;">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <div style="font-size: 60px; margin-bottom: 10px;">🎰</div>
-                <h1 class="logo" style="font-size: 26px;">MADGEK</h1>
-                <div style="color: var(--muted); font-size: 13px; margin-top: 8px;" data-i18n="regWelcome">Добро пожаловать! Зарегистрируйтесь, чтобы начать</div>
-            </div>
-            <div class="card">
-                <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="regTitle">Регистрация</div>
-                <label class="reg-label" data-i18n="regName">Имя</label>
-                <input type="text" id="regNameInput" placeholder="Ivan" maxlength="50" autocomplete="name">
-                <label class="reg-label" data-i18n="regPhone">Номер телефона</label>
-                <input type="tel" id="regPhoneInput" placeholder="+380..." maxlength="20" autocomplete="tel">
-                <button class="btn btn-secondary" onclick="requestPhoneFromTelegram()" style="margin-bottom: 10px;" data-i18n="regUseTelegram">📱 Взять номер из Telegram</button>
-                <button class="btn btn-primary" onclick="doRegister()" data-i18n="regSubmit">Зарегистрироваться</button>
-                <div style="font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.5;" data-i18n="regNote">
-                    Регистрируясь, вы подтверждаете, что вам 18+
-                </div>
-            </div>
-        </div>
     </div>
 
     <audio id="bgMusic" loop>
@@ -321,9 +291,11 @@
             wdCreated:'✅ Заявка на вывод создана!',
             insufficientBal:'Недостаточно. Баланс: ${0}',
             betPositive:'Ставка должна быть больше 0',
+            // Mines
             minesCountLbl:'Мин', minesPicks:'Открыто', minesMultiplier:'Множитель', minesPotential:'Потенциал',
             minesCashout:'Забрать', minesBoom:'💥 Бум! Вы попали на мину. Ставка потеряна.',
             minesCashed:'🎉 Забрано ${0} (x{1})!',
+            // Roulette
             rouletteSpin:'Крутить', rouletteSpinning:'Крутим...',
             rouletteSelectBet:'Выберите ставку',
             rouletteWin:'🎉 Выигрыш ${0}!', rouletteLose:'😔 Проигрыш ${0}',
@@ -332,20 +304,6 @@
             rouletteDozen1:'1-я 12', rouletteDozen2:'2-я 12', rouletteDozen3:'3-я 12',
             rouletteCol1:'Кол. 1', rouletteCol2:'Кол. 2', rouletteCol3:'Кол. 3',
             rouletteNumber:'Число', rouletteSelected:'Выбрано',
-            profPhoneLbl:'Телефон',
-            regWelcome:'Добро пожаловать! Зарегистрируйтесь, чтобы начать',
-            regTitle:'Регистрация',
-            regName:'Имя',
-            regPhone:'Номер телефона',
-            regUseTelegram:'📱 Взять номер из Telegram',
-            regSubmit:'Зарегистрироваться',
-            regNote:'Регистрируясь, вы подтверждаете, что вам 18+',
-            regSuccess:'✅ Регистрация успешна!',
-            regErrName:'Введите имя (минимум 2 символа)',
-            regErrPhone:'Введите корректный номер телефона',
-            regPhoneTaken:'Этот номер уже зарегистрирован',
-            regRequired:'Сначала зарегистрируйтесь',
-            balanceSynced:'🔄 Баланс обновлён',
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile',
@@ -410,20 +368,6 @@
             rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12',
             rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3',
             rouletteNumber:'Number', rouletteSelected:'Selected',
-            profPhoneLbl:'Phone',
-            regWelcome:'Welcome! Please register to start',
-            regTitle:'Registration',
-            regName:'Name',
-            regPhone:'Phone number',
-            regUseTelegram:'📱 Use my Telegram phone',
-            regSubmit:'Register',
-            regNote:'By registering you confirm you are 18+',
-            regSuccess:'✅ Registration successful!',
-            regErrName:'Enter a name (min 2 characters)',
-            regErrPhone:'Enter a valid phone number',
-            regPhoneTaken:'This phone is already registered',
-            regRequired:'Please register first',
-            balanceSynced:'🔄 Balance updated',
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil',
@@ -488,20 +432,6 @@
             rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12',
             rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3',
             rouletteNumber:'Liczba', rouletteSelected:'Wybrano',
-            profPhoneLbl:'Telefon',
-            regWelcome:'Witamy! Zarejestruj się, aby rozpocząć',
-            regTitle:'Rejestracja',
-            regName:'Imię',
-            regPhone:'Numer telefonu',
-            regUseTelegram:'📱 Użyj numeru z Telegrama',
-            regSubmit:'Zarejestruj się',
-            regNote:'Rejestrując się potwierdzasz, że masz 18+',
-            regSuccess:'✅ Rejestracja udana!',
-            regErrName:'Wpisz imię (min 2 znaki)',
-            regErrPhone:'Wpisz poprawny numer telefonu',
-            regPhoneTaken:'Ten numer jest już zarejestrowany',
-            regRequired:'Najpierw się zarejestruj',
-            balanceSynced:'🔄 Saldo zaktualizowane',
         }
     };
 
@@ -516,12 +446,10 @@
         document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
         document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
         document.querySelectorAll('.lang-btn').forEach(b => { b.classList.toggle('active', b.dataset.lang === lang); });
-        const dep = document.getElementById('depMinLabel');
-        if (dep) dep.textContent = t('minAmountPrefix') + minLimits[depMethod];
-        const wd = document.getElementById('wdMinLabel');
-        if (wd) wd.textContent = t('minAmountPrefix') + minLimits[wdMethod];
+        document.getElementById('depMinLabel').textContent = t('minAmountPrefix') + minLimits[depMethod];
+        document.getElementById('wdMinLabel').textContent = t('minAmountPrefix') + minLimits[wdMethod];
         if (typeof state !== 'undefined') updateUI();
-        if (typeof currentTab !== 'undefined' && currentTab && registered) switchTab(currentTab);
+        if (typeof currentTab !== 'undefined' && currentTab) switchTab(currentTab);
         if (document.getElementById('gameModal').classList.contains('open')) closeGame();
     }
 
@@ -538,8 +466,6 @@
     if (tg) tg.expand();
     let user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок', username: 'guest' };
     let state = { balance: 0, total_rounds: 0, best_result: 0 };
-    let registered = false;
-    let lastKnownBalance = 0;
     let isPlaying = false;
     let currentBet = 100;
     let currentTab = 'pop';
@@ -611,73 +537,13 @@
         try {
             const res = await fetch(`/api/user?id=${user.id}&username=${user.username}`);
             const data = await res.json();
-            const prevBalance = state.balance;
             state.balance = data.balance;
             state.total_rounds = data.total_rounds;
             state.best_result = data.best_result;
-            registered = !!data.registered;
-            if (data.reg_name) {
-                document.getElementById('profName').innerText = data.reg_name;
-                document.getElementById('avatarLetter').innerText = data.reg_name.charAt(0).toUpperCase();
-            }
-            document.getElementById('profPhone').innerText = data.phone || '—';
             updateUI();
-            // Подсветка при изменении баланса (например, депозит одобрен)
-            if (prevBalance !== state.balance && prevBalance > 0 && state.balance > prevBalance) {
-                const el = document.getElementById('headerBalance');
-                el.classList.add('flash');
-                setTimeout(() => el.classList.remove('flash'), 3000);
-                if (!manual && hasGreeted) tg.showAlert(t('balanceSynced') + ' +$' + (state.balance - prevBalance).toFixed(2));
-            }
-            checkRegistration();
             if (manual) tg.showAlert(t('balanceUpdated'));
         } catch (e) {
             if (manual) tg.showAlert(t('serverSleep'));
-        }
-    }
-
-    function checkRegistration() {
-        const modal = document.getElementById('registerModal');
-        if (!modal) return;
-        if (registered) {
-            modal.classList.remove('open');
-        } else {
-            modal.classList.add('open');
-        }
-    }
-
-    async function doRegister() {
-        const name = document.getElementById('regNameInput').value.trim();
-        const phone = document.getElementById('regPhoneInput').value.trim();
-        if (name.length < 2) return tg.showAlert(t('regErrName'));
-        if (!/^[+\d][\d\s\-()]{6,}$/.test(phone)) return tg.showAlert(t('regErrPhone'));
-        try {
-            const res = await fetch('/api/register', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: user.id, phone, name })
-            });
-            const data = await res.json();
-            if (!res.ok || data.error) return tg.showAlert(data.error || t('netErr'));
-            registered = true;
-            document.getElementById('registerModal').classList.remove('open');
-            await loadUser();
-            tg.showAlert(t('regSuccess'));
-        } catch (e) {
-            tg.showAlert(t('netErr'));
-        }
-    }
-
-    function requestPhoneFromTelegram() {
-        if (tg && tg.requestContact) {
-            tg.requestContact((sent, contact) => {
-                if (sent && contact && contact.phone_number) {
-                    let ph = contact.phone_number.replace(/\D/g, '');
-                    document.getElementById('regPhoneInput').value = '+' + ph;
-                }
-            });
-        } else {
-            tg.showAlert(t('regErrPhone'));
         }
     }
 
@@ -685,28 +551,16 @@
         const balStr = '$' + state.balance.toFixed(2);
         document.getElementById('headerBalance').innerText = balStr;
         document.getElementById('cashBalance').innerText = balStr;
-        if (!document.getElementById('profName').innerText || document.getElementById('profName').innerText === 'Игрок') {
-            document.getElementById('profName').innerText = user.first_name;
-            document.getElementById('avatarLetter').innerText = (user.first_name || 'U').charAt(0).toUpperCase();
-        }
+        document.getElementById('profName').innerText = user.first_name;
         document.getElementById('profId').innerText = user.id;
+        document.getElementById('avatarLetter').innerText = (user.first_name || 'U').charAt(0).toUpperCase();
         document.getElementById('profRounds').innerText = state.total_rounds;
         document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2);
     }
 
-    // Синхронизация: каждые 5 сек, плюс при возврате в приложение
     setInterval(() => {
-        if (!document.getElementById('gameModal').classList.contains('open') && !document.hidden && registered) {
-            loadUser(false);
-        }
+        if (!document.getElementById('gameModal').classList.contains('open') && !document.hidden) loadUser(false);
     }, 5000);
-
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && registered) loadUser(false);
-    });
-    window.addEventListener('focus', () => {
-        if (registered) loadUser(false);
-    });
 
     function switchView(view) {
         document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
@@ -765,8 +619,6 @@
         if (!msg) return t('netErr');
         if (msg.includes('Недостаточно средств')) return t('insufficient');
         if (msg.includes('Ставка должна')) return t('betPositive');
-        if (msg.includes('зарегистр')) return t('regRequired');
-        if (msg.includes('уже зарегистр')) return t('regPhoneTaken');
         return msg;
     }
 
@@ -851,7 +703,6 @@
     }
 
     function openGame(gameId) {
-        if (!registered) { checkRegistration(); return; }
         document.getElementById('gameModal').classList.add('open');
         const title = document.getElementById('modalTitle');
         const content = document.getElementById('modalContent');
@@ -936,4 +787,611 @@
                     </div>
                     <div class="bj-zone">
                         <div class="hand-cards" id="playerHand"></div>
-                        <div class="bj-score" style="margin-top:10px;">${t('playerGame
+                        <div class="bj-score" style="margin-top:10px;">${t('playerGame')}: <span id="playerScore">0</span></div>
+                    </div>
+                </div>
+                <div id="baccaratResult" style="margin-bottom:15px; font-size:16px; min-height:24px; text-align:center;"></div>
+                <div id="baccaratControls" style="width:100%; max-width:400px; display:flex; flex-direction:column; align-items:center;"></div>
+            `;
+            renderBetChips('betChips');
+            renderBaccaratControls();
+        } else if (gameId === 'mines') {
+            title.innerText = '💣 ' + t('mines');
+            content.innerHTML = `
+                ${rulesHTML('rulesMines')}
+                ${chipsHTML}
+                <div class="mines-count-grid" id="minesCountGrid"></div>
+                <div class="mines-grid" id="minesGrid"></div>
+                <div class="mines-info" id="minesInfo"></div>
+                <div id="minesCashoutBtn" style="width:100%; max-width:340px;"></div>
+            `;
+            renderBetChips('betChips');
+            resetMinesState();
+            minesBet = 0;
+            buildMinesCountButtons();
+            renderMinesGrid();
+            updateMinesInfo();
+        } else if (gameId === 'roulette') {
+            title.innerText = '🎡 ' + t('roulette');
+            content.innerHTML = `
+                ${rulesHTML('rulesRoulette')}
+                ${chipsHTML}
+                <div class="roulette-reel-container" id="rouletteReelContainer">
+                    <div class="roulette-pointer">▼</div>
+                    <div class="roulette-reel" id="rouletteReel"></div>
+                </div>
+                <div class="roulette-result-display" id="rouletteResult" style="background: transparent; color: var(--muted);">—</div>
+                <div class="roulette-bet-info" id="rouletteBetInfo">—</div>
+                <div class="roul-grid-3" id="rouletteOutside"></div>
+                <div class="roul-grid-3" id="rouletteDozens"></div>
+                <div class="roul-grid-3" id="rouletteColumns"></div>
+                <button class="roul-zero" data-num="0" onclick="selectRouletteNumber(0)">0</button>
+                <div class="roul-numbers" id="rouletteNumberGrid"></div>
+                <div id="rouletteSpinBtn" style="width:100%; max-width:340px; margin-top:8px;">
+                    <button class="btn btn-primary" onclick="spinRoulette()">${t('rouletteSpin')}</button>
+                </div>
+            `;
+            renderBetChips('betChips');
+            selectedRouletteBet = null;
+            selectedRouletteValue = null;
+            buildRouletteReel();
+            buildRouletteOutside();
+            buildRouletteDozens();
+            buildRouletteColumns();
+            buildRouletteNumbers();
+            updateRouletteBetDisplay();
+            refreshRouletteSelection();
+        }
+    }
+
+    function renderBaccaratControls() {
+        const c = document.getElementById('baccaratControls');
+        if (!c) return;
+        c.innerHTML = `
+            <button class="btn btn-secondary" style="margin-bottom:8px; width:100%;" onclick="startBaccarat('player')">${t('betOnPlayer')}</button>
+            <button class="btn btn-secondary" style="margin-bottom:8px; width:100%;" onclick="startBaccarat('banker')">${t('betOnBanker')}</button>
+            <button class="btn btn-secondary" style="width:100%;" onclick="startBaccarat('tie')">${t('betOnTie')}</button>
+        `;
+    }
+
+    async function startBaccarat(betOn) {
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const controls = document.getElementById('baccaratControls');
+        const result = document.getElementById('baccaratResult');
+        if (!controls || !result) return;
+        controls.innerHTML = '<button class="btn btn-primary" disabled>...</button>';
+        result.innerText = '';
+        const d = await postApi('/api/baccarat/play', { bet: currentBet, bet_on: betOn });
+        if (d.error || !d.player_hand) {
+            renderBaccaratControls();
+            return tg.showAlert(translateErr(d.error));
+        }
+        document.getElementById('playerHand').innerHTML = d.player_hand.map(c => renderCard(c)).join('');
+        document.getElementById('bankerHand').innerHTML = d.banker_hand.map(c => renderCard(c)).join('');
+        document.getElementById('playerScore').innerText = d.player_score;
+        document.getElementById('bankerScore').innerText = d.banker_score;
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+        const winnerName = d.winner === 'player' ? t('playerGame') : d.winner === 'banker' ? t('banker') : t('tiedLbl');
+        if (d.profit > 0) {
+            result.innerText = t('baccWin', winnerName, d.profit.toFixed(2));
+            result.style.color = 'var(--green)';
+        } else if (d.profit < 0) {
+            result.innerText = t('baccLose', winnerName, Math.abs(d.profit).toFixed(2));
+            result.style.color = 'var(--red)';
+        } else {
+            result.innerText = t('baccTie');
+            result.style.color = 'var(--gold)';
+        }
+        controls.innerHTML = `<button class="btn btn-primary" onclick="openGame('baccarat')">${t('playAgain')}</button>`;
+    }
+
+    function closeGame() {
+        document.getElementById('gameModal').classList.remove('open');
+        if (crashRunning) { clearInterval(crashInterval); crashRunning = false; }
+        minesRoundId = null;
+    }
+
+    // ---------- MINES ----------
+    let minesRoundId = null;
+    let minesGrid = Array(25).fill('hidden');
+    let minesBet = 0;
+    let minesCount = 3;
+    let minesPicks = 0;
+    let minesMult = 1.0;
+
+    function resetMinesState() {
+        minesRoundId = null;
+        minesGrid = Array(25).fill('hidden');
+        minesBet = 0;
+        minesPicks = 0;
+        minesMult = 1.0;
+    }
+
+    function buildMinesCountButtons() {
+        const el = document.getElementById('minesCountGrid');
+        if (!el) return;
+        const counts = [1, 2, 3, 5, 10, 15, 24];
+        el.innerHTML = counts.map(n =>
+            `<button class="mines-count-btn ${n === minesCount ? 'selected' : ''}" data-mines="${n}" onclick="selectMinesCount(${n})">${n}</button>`
+        ).join('');
+    }
+
+    function selectMinesCount(n) {
+        if (minesRoundId) return;
+        minesCount = n;
+        document.querySelectorAll('.mines-count-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.mines) === n));
+    }
+
+    function renderMinesGrid() {
+        const grid = document.getElementById('minesGrid');
+        if (!grid) return;
+        let html = '';
+        for (let i = 0; i < 25; i++) {
+            const s = minesGrid[i];
+            let cls = 'mines-cell';
+            let content = '';
+            if (s === 'safe') { cls += ' safe'; content = '💎'; }
+            else if (s === 'mine') { cls += ' mine'; content = '💣'; }
+            else if (s === 'mine-hit') { cls += ' mine-hit'; content = '💥'; }
+            html += `<div class="${cls}" onclick="minesClickCell(${i})">${content}</div>`;
+        }
+        grid.innerHTML = html;
+    }
+
+    function updateMinesInfo() {
+        const el = document.getElementById('minesInfo');
+        if (!el) return;
+        const potential = minesBet * minesMult;
+        el.innerHTML = `
+            <div>${t('minesPicks')}: ${minesPicks}</div>
+            <div>${t('minesMultiplier')}: x${minesMult.toFixed(2)}</div>
+            <div>${t('minesPotential')}: $${potential.toFixed(2)}</div>
+        `;
+        const btn = document.getElementById('minesCashoutBtn');
+        if (btn) {
+            if (minesRoundId && minesPicks > 0) {
+                btn.innerHTML = `<button class="btn btn-primary" onclick="minesCashout()">${t('minesCashout')} $${potential.toFixed(2)}</button>`;
+            } else {
+                btn.innerHTML = `<button class="btn btn-secondary" disabled>${t('minesCashout')} $0.00</button>`;
+            }
+        }
+    }
+
+    async function minesClickCell(idx) {
+        if (!minesRoundId) {
+            if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+            const r = await postApi('/api/mines/start', { bet: currentBet, mines: minesCount });
+            if (r.error) return tg.showAlert(translateErr(r.error));
+            minesRoundId = r.round_id;
+            minesBet = currentBet;
+            minesGrid = Array(25).fill('hidden');
+            minesPicks = 0;
+            minesMult = 1.0;
+            state.balance = r.balance;
+            updateUI();
+            await revealMinesCell(idx);
+        } else {
+            if (minesGrid[idx] !== 'hidden') return;
+            await revealMinesCell(idx);
+        }
+    }
+
+    async function revealMinesCell(idx) {
+        const r = await postApi('/api/mines/reveal', { round_id: minesRoundId, cell: idx });
+        if (r.error) return tg.showAlert(translateErr(r.error));
+        if (r.mine) {
+            minesGrid[idx] = 'mine-hit';
+            for (const m of r.mines) {
+                if (minesGrid[m] === 'hidden' || minesGrid[m] === 'safe') minesGrid[m] = 'mine';
+            }
+            renderMinesGrid();
+            minesRoundId = null;
+            minesPicks = 0;
+            minesMult = 1.0;
+            updateMinesInfo();
+            tg.showAlert(t('minesBoom'));
+            return;
+        }
+        minesGrid[idx] = 'safe';
+        minesPicks = r.picks;
+        minesMult = r.multiplier;
+        renderMinesGrid();
+        updateMinesInfo();
+    }
+
+    async function minesCashout() {
+        if (!minesRoundId || minesPicks === 0) return;
+        const r = await postApi('/api/mines/cashout', { round_id: minesRoundId });
+        if (r.error) return tg.showAlert(translateErr(r.error));
+        state.balance = r.balance;
+        state.total_rounds++;
+        updateUI();
+        for (const m of r.mines) {
+            if (minesGrid[m] === 'hidden') minesGrid[m] = 'mine';
+        }
+        renderMinesGrid();
+        tg.showAlert(t('minesCashed', r.win.toFixed(2), r.multiplier));
+        minesRoundId = null;
+        minesPicks = 0;
+        minesMult = 1.0;
+        updateMinesInfo();
+    }
+
+    // ---------- ROULETTE ----------
+    let selectedRouletteBet = null;
+    let selectedRouletteValue = null;
+    let rouletteSpinning = false;
+
+    function buildRouletteReel() {
+        const reel = document.getElementById('rouletteReel');
+        if (!reel) return;
+        const REPS = 8;
+        let html = '';
+        for (let r = 0; r < REPS; r++) {
+            for (const n of WHEEL_ORDER) {
+                const c = n === 0 ? 'green' : (RED_SET.has(n) ? 'red' : 'black');
+                html += `<div class="roulette-cell-strip ${c}">${n}</div>`;
+            }
+        }
+        reel.innerHTML = html;
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateX(0px)';
+    }
+
+    function buildRouletteOutside() {
+        const el = document.getElementById('rouletteOutside');
+        if (!el) return;
+        el.innerHTML = `
+            <button class="roul-btn" data-bet="red" onclick="selectRouletteBet('red')">${t('rouletteRed')}</button>
+            <button class="roul-btn" data-bet="black" onclick="selectRouletteBet('black')">${t('rouletteBlack')}</button>
+            <button class="roul-btn" data-bet="odd" onclick="selectRouletteBet('odd')">${t('rouletteOdd')}</button>
+            <button class="roul-btn" data-bet="even" onclick="selectRouletteBet('even')">${t('rouletteEven')}</button>
+            <button class="roul-btn" data-bet="low" onclick="selectRouletteBet('low')">1-18</button>
+            <button class="roul-btn" data-bet="high" onclick="selectRouletteBet('high')">19-36</button>
+        `;
+    }
+
+    function buildRouletteDozens() {
+        const el = document.getElementById('rouletteDozens');
+        if (!el) return;
+        el.innerHTML = `
+            <button class="roul-btn" data-bet="dozen1" onclick="selectRouletteBet('dozen1')">${t('rouletteDozen1')}</button>
+            <button class="roul-btn" data-bet="dozen2" onclick="selectRouletteBet('dozen2')">${t('rouletteDozen2')}</button>
+            <button class="roul-btn" data-bet="dozen3" onclick="selectRouletteBet('dozen3')">${t('rouletteDozen3')}</button>
+        `;
+    }
+
+    function buildRouletteColumns() {
+        const el = document.getElementById('rouletteColumns');
+        if (!el) return;
+        el.innerHTML = `
+            <button class="roul-btn" data-bet="column1" onclick="selectRouletteBet('column1')">${t('rouletteCol1')}</button>
+            <button class="roul-btn" data-bet="column2" onclick="selectRouletteBet('column2')">${t('rouletteCol2')}</button>
+            <button class="roul-btn" data-bet="column3" onclick="selectRouletteBet('column3')">${t('rouletteCol3')}</button>
+        `;
+    }
+
+    function buildRouletteNumbers() {
+        const el = document.getElementById('rouletteNumberGrid');
+        if (!el) return;
+        let html = '';
+        for (let i = 1; i <= 36; i++) {
+            const c = RED_SET.has(i) ? 'red' : 'black';
+            html += `<button class="roul-num ${c}" data-num="${i}" onclick="selectRouletteNumber(${i})">${i}</button>`;
+        }
+        el.innerHTML = html;
+    }
+
+    function selectRouletteBet(type, value = null) {
+        if (rouletteSpinning) return;
+        selectedRouletteBet = type;
+        selectedRouletteValue = value;
+        updateRouletteBetDisplay();
+        refreshRouletteSelection();
+    }
+
+    function selectRouletteNumber(n) {
+        selectRouletteBet('number', n);
+    }
+
+    function updateRouletteBetDisplay() {
+        const el = document.getElementById('rouletteBetInfo');
+        if (!el) return;
+        if (!selectedRouletteBet) { el.innerText = '—'; return; }
+        const labels = {
+            'red': t('rouletteRed') + ' (1:1)',
+            'black': t('rouletteBlack') + ' (1:1)',
+            'odd': t('rouletteOdd') + ' (1:1)',
+            'even': t('rouletteEven') + ' (1:1)',
+            'low': '1-18 (1:1)',
+            'high': '19-36 (1:1)',
+            'dozen1': t('rouletteDozen1') + ' (2:1)',
+            'dozen2': t('rouletteDozen2') + ' (2:1)',
+            'dozen3': t('rouletteDozen3') + ' (2:1)',
+            'column1': t('rouletteCol1') + ' (2:1)',
+            'column2': t('rouletteCol2') + ' (2:1)',
+            'column3': t('rouletteCol3') + ' (2:1)',
+            'number': t('rouletteNumber') + ' ' + selectedRouletteValue + ' (35:1)'
+        };
+        el.innerText = t('rouletteSelected') + ': ' + (labels[selectedRouletteBet] || selectedRouletteBet);
+    }
+
+    function refreshRouletteSelection() {
+        document.querySelectorAll('.roul-btn').forEach(b => {
+            b.classList.toggle('selected', b.dataset.bet === selectedRouletteBet);
+        });
+        document.querySelectorAll('.roul-num, .roul-zero').forEach(b => {
+            const n = parseInt(b.dataset.num);
+            b.classList.toggle('selected', selectedRouletteBet === 'number' && selectedRouletteValue === n);
+        });
+    }
+
+    async function animateRouletteWheel(number) {
+        const reel = document.getElementById('rouletteReel');
+        const container = document.getElementById('rouletteReelContainer');
+        if (!reel || !container) return;
+        const CELL_W = 60;
+        const WHEEL_LEN = WHEEL_ORDER.length;
+        const targetIdx = WHEEL_ORDER.indexOf(number);
+        const targetRep = 5 + Math.floor(Math.random() * 2);
+        const globalIdx = targetRep * WHEEL_LEN + targetIdx;
+        const containerW = container.clientWidth;
+        const targetPx = globalIdx * CELL_W - containerW / 2 + CELL_W / 2;
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateX(0px)';
+        void reel.offsetWidth;
+        reel.style.transition = 'transform 4.2s cubic-bezier(0.12, 0.8, 0.15, 1)';
+        reel.style.transform = `translateX(-${targetPx}px)`;
+        await new Promise(r => setTimeout(r, 4400));
+    }
+
+    async function spinRoulette() {
+        if (!selectedRouletteBet) return tg.showAlert(t('rouletteSelectBet'));
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        if (rouletteSpinning) return;
+        rouletteSpinning = true;
+        document.getElementById('rouletteSpinBtn').innerHTML = `<button class="btn btn-primary" disabled>${t('rouletteSpinning')}</button>`;
+        const resultEl = document.getElementById('rouletteResult');
+        if (resultEl) { resultEl.innerText = '—'; resultEl.style.background = 'transparent'; resultEl.style.color = 'var(--muted)'; }
+
+        const body = { bet: currentBet, bet_type: selectedRouletteBet };
+        if (selectedRouletteBet === 'number') body.bet_value = selectedRouletteValue;
+        const d = await postApi('/api/roulette/spin', body);
+
+        if (d.error) {
+            tg.showAlert(translateErr(d.error));
+            rouletteSpinning = false;
+            restoreRouletteSpinBtn();
+            return;
+        }
+
+        await animateRouletteWheel(d.number);
+
+        const rEl = document.getElementById('rouletteResult');
+        if (rEl) {
+            const bg = d.color === 'red' ? '#8B0000' : d.color === 'black' ? '#1a1a1a' : '#0a4a0a';
+            rEl.innerText = d.number + ' ' + (d.color === 'red' ? '🔴' : d.color === 'black' ? '⚫' : '🟢');
+            rEl.style.background = bg;
+            rEl.style.color = '#fff';
+        }
+
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+
+        if (d.profit > 0) tg.showAlert(t('rouletteWin', d.profit.toFixed(2)));
+        else tg.showAlert(t('rouletteLose', Math.abs(d.profit).toFixed(2)));
+
+        rouletteSpinning = false;
+        restoreRouletteSpinBtn();
+    }
+
+    function restoreRouletteSpinBtn() {
+        const el = document.getElementById('rouletteSpinBtn');
+        if (el) el.innerHTML = `<button class="btn btn-primary" onclick="spinRoulette()">${t('rouletteSpin')}</button>`;
+    }
+
+    // ---------- BLACKJACK ----------
+    let deck = [], pHand = [], dHand = [], isGameActive = false;
+    function createDeck() {
+        const suits = ['♠', '♥', '♦', '♣']; const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        deck = [];
+        for (let s of suits) for (let v of values) deck.push({ v, s });
+        for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    }
+    function getCardValue(card) { return ['J','Q','K'].includes(card.v) ? 10 : (card.v === 'A' ? 11 : parseInt(card.v)); }
+    function calcScore(hand) {
+        let score = 0, aces = 0;
+        for (let c of hand) { score += getCardValue(c); if (c.v === 'A') aces++; }
+        while (score > 21 && aces > 0) { score -= 10; aces--; }
+        return score;
+    }
+    function updateBjUI() {
+        document.getElementById('playerCards').innerHTML = pHand.map(c => renderCard(c)).join('');
+        document.getElementById('pScore').innerText = calcScore(pHand);
+        const hideDealer = isGameActive;
+        document.getElementById('dealerCards').innerHTML = dHand.map((c, i) => renderCard(c, hideDealer && i === 1)).join('');
+        document.getElementById('dScore').innerText = hideDealer ? getCardValue(dHand[0]) : calcScore(dHand);
+    }
+    async function startBlackjack() {
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        state.balance -= currentBet; state.total_rounds++; updateUI();
+        await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+        isGameActive = true; createDeck(); pHand = [deck.pop(), deck.pop()]; dHand = [deck.pop(), deck.pop()]; updateBjUI();
+        const controls = document.getElementById('bjControls');
+        if (calcScore(pHand) === 21) { controls.innerHTML = `<button class="btn btn-primary" onclick="endBlackjack('blackjack')">Blackjack!</button>`; }
+        else { controls.innerHTML = `<button class="btn btn-secondary" style="flex:1; margin-right:5px;" onclick="hit()">${t('take')}</button><button class="btn btn-primary" style="flex:1; margin-left:5px;" onclick="stand()">${t('stand')}</button>`; }
+    }
+    function hit() {
+        if (!isGameActive) return;
+        pHand.push(deck.pop()); updateBjUI();
+        if (calcScore(pHand) > 21) {
+            isGameActive = false; tg.showAlert(t('bjBust'));
+            document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">${t('playAgain')}</button>`;
+        }
+    }
+    async function stand() {
+        if (!isGameActive) return;
+        isGameActive = false; updateBjUI();
+        while (calcScore(dHand) < 17) { dHand.push(deck.pop()); }
+        updateBjUI();
+        const p = calcScore(pHand), d = calcScore(dHand);
+        let winAmount = 0, msg = '';
+        if (d > 21) { winAmount = currentBet * 2; msg = t('bjDealerBust'); }
+        else if (p > d) { winAmount = currentBet * 2; msg = t('bjWin', (currentBet * 2).toFixed(2)); }
+        else if (p < d) { msg = t('bjDealerWin'); }
+        else { winAmount = currentBet; msg = t('bjTieMsg', currentBet.toFixed(2)); }
+        if (winAmount > 0) {
+            state.balance += winAmount; if (winAmount > state.best_result) state.best_result = winAmount;
+            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+            updateUI();
+        }
+        tg.showAlert(msg);
+        document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">${t('playAgain')}</button>`;
+    }
+
+    // ---------- CRASH ----------
+    let crashRunning = false, crashMult = 1.00, crashInterval, currentCrashBet = 0;
+    async function startCrash() {
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        if (crashRunning) return;
+        state.balance -= currentBet; state.total_rounds++; updateUI();
+        await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+        crashRunning = true;
+        currentCrashBet = currentBet;
+        crashMult = 1.00;
+        const multEl = document.getElementById('crashMult');
+        const statusEl = document.getElementById('crashStatus');
+        const rocketEl = document.getElementById('crashRocket');
+        const controls = document.getElementById('crashControls');
+        multEl.style.color = 'var(--gold)';
+        multEl.innerText = '1.00x';
+        statusEl.innerText = t('flying');
+        rocketEl.style.display = 'block';
+        rocketEl.style.bottom = '10%';
+        rocketEl.style.left = '10%';
+        rocketEl.classList.remove('crash-boom');
+        rocketEl.innerText = '🚀';
+        controls.innerHTML = `<button class="btn btn-secondary" style="background:var(--green); color:#fff; border:none;" onclick="cashoutCrash()">${t('cashoutNow', '1.00')}</button>`;
+        const crashPoint = 1.1 + Math.random() * 8.9;
+        crashInterval = setInterval(() => {
+            crashMult += 0.03;
+            multEl.innerText = crashMult.toFixed(2) + 'x';
+            controls.innerHTML = `<button class="btn btn-secondary" style="background:var(--green); color:#fff; border:none;" onclick="cashoutCrash()">${t('cashoutNow', crashMult.toFixed(2))}</button>`;
+            const progress = Math.min((crashMult - 1) / 9, 1);
+            rocketEl.style.bottom = `${10 + progress * 70}%`;
+            rocketEl.style.left = `${10 + progress * 70}%`;
+            if (crashMult >= crashPoint) {
+                clearInterval(crashInterval);
+                crashRunning = false;
+                multEl.innerText = t('crashed');
+                multEl.style.color = 'var(--red)';
+                statusEl.innerText = `${crashPoint.toFixed(2)}x`;
+                rocketEl.innerText = '💥';
+                rocketEl.classList.add('crash-boom');
+                controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">${t('playAgain')}</button>`;
+                tg.showAlert(t('crashedMsg', crashPoint.toFixed(2)));
+            }
+        }, 100);
+    }
+
+    async function cashoutCrash() {
+        if (!crashRunning) return;
+        crashRunning = false;
+        clearInterval(crashInterval);
+        const winAmount = currentCrashBet * crashMult;
+        state.balance += winAmount;
+        if (winAmount > state.best_result) state.best_result = winAmount;
+        updateUI();
+        await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+        const multEl = document.getElementById('crashMult');
+        const statusEl = document.getElementById('crashStatus');
+        const rocketEl = document.getElementById('crashRocket');
+        const controls = document.getElementById('crashControls');
+        multEl.innerText = t('won');
+        multEl.style.color = 'var(--green)';
+        statusEl.innerText = `+$${winAmount.toFixed(2)} (x${crashMult.toFixed(2)})`;
+        rocketEl.innerText = '✅';
+        controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">${t('playAgain')}</button>`;
+        tg.showAlert(t('cashoutMsg', winAmount.toFixed(2), crashMult.toFixed(2)));
+    }
+
+    // ---------- SLOTS ----------
+    async function startSlotsClassic() {
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const btn = document.getElementById('slotControls');
+        const reels = document.getElementById('slotReels');
+        const res = document.getElementById('slotResult');
+        if (!btn || !reels || !res) return;
+        btn.innerHTML = `<button class="btn btn-primary" disabled>${t('spinning')}</button>`;
+        res.innerText = '';
+        const animSyms = ['🍒','🍋','🍊','🍇','💎','7️⃣'];
+        const anim = setInterval(() => {
+            const el = document.getElementById('slotReels');
+            if (!el) { clearInterval(anim); return; }
+            el.innerHTML = `<span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span>`;
+        }, 80);
+        const d = await postApi('/api/slots/classic', { bet: currentBet });
+        clearInterval(anim);
+        if (d.error || !d.reels) {
+            btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsClassic()">${t('spin')}</button>`;
+            return tg.showAlert(translateErr(d.error));
+        }
+        reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+        if (d.win > 0) {
+            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
+            res.style.color = 'var(--green)';
+        } else {
+            res.innerText = t('missed');
+            res.style.color = 'var(--red)';
+        }
+        btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsClassic()">${t('spinAgain')}</button>`;
+    }
+
+    async function startSlotsLucky7() {
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const btn = document.getElementById('luckyControls');
+        const reels = document.getElementById('luckyReels');
+        const res = document.getElementById('luckyResult');
+        if (!btn || !reels || !res) return;
+        btn.innerHTML = `<button class="btn btn-primary" disabled>${t('spinning')}</button>`;
+        res.innerText = '';
+        const animSyms = ['🍒','🍋','7️⃣'];
+        const anim = setInterval(() => {
+            const el = document.getElementById('luckyReels');
+            if (!el) { clearInterval(anim); return; }
+            el.innerHTML = `<span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span>`;
+        }, 80);
+        const d = await postApi('/api/slots/lucky7', { bet: currentBet });
+        clearInterval(anim);
+        if (d.error || !d.reels) {
+            btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spin')}</button>`;
+            return tg.showAlert(translateErr(d.error));
+        }
+        reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+        if (d.win > 0) {
+            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
+            res.style.color = 'var(--green)';
+        } else {
+            res.innerText = t('missed');
+            res.style.color = 'var(--red)';
+        }
+        btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spinAgain')}</button>`;
+    }
+
+    // ============ INIT ============
+    document.documentElement.lang = lang;
+    applyLang();
+    switchTab('pop');
+    loadUser();
+    </script>
+</body>
+</html>
