@@ -8,71 +8,46 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050505;
-            --surface: rgba(20, 20, 25, 0.85);
-            --gold: #FFD700;
-            --gold-dark: #B8860B;
-            --text: #ffffff;
-            --muted: #8b8b93;
-            --border: rgba(255, 215, 0, 0.3);
-            --red: #E53935;
+            --bg: #050505; --surface: rgba(20, 20, 25, 0.85); --gold: #FFD700; --gold-dark: #B8860B;
+            --text: #ffffff; --muted: #8b8b93; --border: rgba(255, 215, 0, 0.3); --red: #E53935;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
-        
-        body {
-            background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif;
-            padding: 15px 15px 90px; min-height: 100vh; overflow-x: hidden;
-            background-image: radial-gradient(circle at top, #1a1508 0%, #050505 60%);
-            background-attachment: fixed;
-        }
-
+        body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; padding: 15px 15px 90px; min-height: 100vh; overflow-x: hidden; background-image: radial-gradient(circle at top, #1a1508 0%, #050505 60%); background-attachment: fixed; }
         .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.3; animation: float linear infinite; }
         @keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
-
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
         .logo { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 900; background: linear-gradient(to right, #FFD700, #FDB931); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
-        
         .music-btn { background: var(--surface); border: 1px solid var(--gold); color: var(--gold); width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; cursor: pointer; margin-right: auto; margin-left: 15px; }
         .music-btn.playing { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
-
         .balance { background: var(--surface); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 14px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
-
         .tabs-container { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tabs-container::-webkit-scrollbar { display: none; }
         .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: rgba(255,215,0,0.1); color: var(--gold); border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
-
         .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 15px; text-align: center; transition: 0.2s; cursor: pointer; }
         .game-card:active { transform: scale(0.96); border-color: var(--gold); }
         .game-card .icon { font-size: 36px; margin-bottom: 10px; display: block; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); }
         .game-card h3 { font-size: 14px; font-weight: 800; color: var(--gold); }
         .game-card p { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); }
-        
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 100; }
         .nav-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; transition: 0.3s; }
         .nav-btn .icon { font-size: 20px; }
         .nav-btn.active { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-
         .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-secondary { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
-        
         input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
         textarea { height: 100px; resize: none; }
-
         .tx-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
         .tx-item:last-child { border-bottom: none; }
         .tx-status { font-size: 11px; color: var(--muted); }
-
         .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #FFD700, #B8860B); display: flex; justify-content: center; align-items: center; font-size: 30px; color: #000; font-weight: 900; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
-
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); display: none; flex-direction: column; z-index: 200; overflow-y: auto; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -80,17 +55,15 @@
         .modal-header h2 { font-family: 'Cinzel', serif; font-size: 20px; color: var(--gold); }
         .close-btn { background: none; border: none; color: var(--text); font-size: 30px; cursor: pointer; }
         .modal-content { padding: 20px; flex: 1; display: flex; flex-direction: column; align-items: center; }
-        
         .bet-selector { display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 340px; margin-bottom: 15px; flex-wrap: wrap; }
         .chip { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
         .chip.active { background: var(--gold); color: #000; border-color: var(--gold); }
-
+        
         /* Blackjack CSS */
         .bj-table { display: flex; flex-direction: column; width: 100%; max-width: 400px; background: #0a2a1a; border: 4px solid #3a1a0a; border-radius: 20px; padding: 20px 10px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); margin-bottom: 20px; }
         .bj-zone { text-align: center; margin-bottom: 15px; min-height: 120px; }
         .bj-score { display: inline-block; background: #000; color: var(--gold); padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 14px; border: 1px solid var(--border); margin-bottom: 10px; }
         .hand-cards { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
-        
         .playing-card { width: 60px; height: 85px; background: #fff; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; padding: 5px; font-size: 20px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.6); position: relative; animation: dealCard 0.3s ease-out; }
         @keyframes dealCard { from { transform: translateY(-50px) rotate(10deg); opacity: 0; } to { transform: translateY(0) rotate(0); opacity: 1; } }
         .playing-card.red { color: var(--red); }
@@ -98,11 +71,11 @@
         .playing-card.back { background: repeating-linear-gradient(45deg, #111, #111 5px, #333 5px, #333 10px); border: 2px solid #fff; }
         .playing-card .suit { font-size: 24px; text-align: right; line-height: 1; }
 
-        /* Касса Стили */
+        /* Касса */
         .wallet-selector { display: flex; gap: 10px; margin-bottom: 15px; }
         .wallet-btn { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
         .wallet-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
-        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group { position: relative; margin-bottom: 25px; }
         .input-group input { margin-bottom: 0; }
         .input-group .min-label { position: absolute; bottom: -18px; left: 5px; font-size: 11px; color: var(--muted); }
 
@@ -129,16 +102,15 @@
         <div class="games-grid" id="gamesGrid"></div>
     </div>
 
-    <!-- КАССА -->
+    <!-- КАССА и ИСТОРИЯ -->
     <div id="view-cash" class="hidden">
         <div class="card" style="text-align: center;">
             <div style="font-size: 14px; color: var(--muted); text-transform: uppercase;">Баланс</div>
             <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.3);" id="cashBalance">$0.00</div>
         </div>
 
-        <!-- ПОПОЛНЕНИЕ -->
         <div class="card">
-            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Пополнение</div>
+            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Пополнение (Заявка)</div>
             <div class="wallet-selector" id="depMethods">
                 <div class="wallet-btn active" onclick="selectMethod('dep', 'USDT', this)">USDT</div>
                 <div class="wallet-btn" onclick="selectMethod('dep', 'BTC', this)">Bitcoin</div>
@@ -148,10 +120,9 @@
                 <input type="number" id="depAmount" value="20" placeholder="Сумма">
                 <div class="min-label" id="depMinLabel">Мин. сумма: $15</div>
             </div>
-            <button class="btn btn-primary" onclick="doDeposit()">Пополнить</button>
+            <button class="btn btn-primary" onclick="doDeposit()">Создать заявку</button>
         </div>
 
-        <!-- ВЫВОД -->
         <div class="card">
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Вывод средств</div>
             <div class="wallet-selector" id="wdMethods">
@@ -165,11 +136,8 @@
             </div>
             <button class="btn btn-secondary" onclick="doWithdraw()">Создать заявку</button>
         </div>
-    </div>
 
-    <!-- ИСТОРИЯ -->
-    <div id="view-history" class="hidden">
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">История операций</div>
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">История</div>
         <div class="card" id="txList"></div>
     </div>
 
@@ -208,7 +176,7 @@
     <div class="nav-bar">
         <button class="nav-btn active" id="nav-games" onclick="switchView('games')"><span class="icon">🎮</span>Игры</button>
         <button class="nav-btn" id="nav-cash" onclick="switchView('cash')"><span class="icon">💰</span>Касса</button>
-        <button class="nav-btn" id="nav-history" onclick="switchView('history')"><span class="icon">📜</span>История</button>
+        <button class="nav-btn" id="nav-support" onclick="switchView('support')"><span class="icon">💬</span>Помощь</button>
         <button class="nav-btn" id="nav-profile" onclick="switchView('profile')"><span class="icon">👤</span>Профиль</button>
     </div>
 
@@ -233,12 +201,10 @@
         let isPlaying = false;
         let currentBet = 100;
         
-        // Переменные кассы
         let depMethod = 'USDT';
         let wdMethod = 'USDT';
         const minLimits = { 'USDT': 15, 'BTC': 50, 'ETH': 20 };
 
-        // МУЗЫКА
         const music = document.getElementById('bgMusic');
         const musicBtn = document.getElementById('musicBtn');
         function toggleMusic() {
@@ -247,7 +213,6 @@
             isPlaying = !isPlaying;
         }
 
-        // ЧАСТИЦЫ
         const particlesContainer = document.getElementById('particles');
         for (let i = 0; i < 20; i++) {
             const p = document.createElement('div'); p.className = 'particle';
@@ -256,7 +221,6 @@
             particlesContainer.appendChild(p);
         }
 
-        // API
         async function loadUser() {
             try {
                 const res = await fetch(`/api/user?id=${user.id}&username=${user.username}`);
@@ -282,10 +246,9 @@
             document.getElementById('view-' + view).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('nav-' + view).classList.add('active');
-            if (view === 'history') loadHistory();
+            if (view === 'cash') loadHistory(); // Загружаем историю при открытии кассы
         }
 
-        // ВКЛАДКИ
         const gamesData = {
             pop: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' }, { id: 'slots', icon: '🎰', name: 'Слоты', desc: 'Скоро' } ],
             table: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' } ],
@@ -303,7 +266,6 @@
             `).join('');
         }
 
-        // КАССА
         function selectMethod(type, method, el) {
             if(type === 'dep') {
                 depMethod = method;
@@ -321,33 +283,36 @@
 
         async function doDeposit() {
             const amt = parseFloat(document.getElementById('depAmount').value);
-            if(!amt || amt < minLimits[depMethod]) return tg.showAlert(`Минимальная сумма для ${depMethod} - $${minLimits[depMethod]}`);
+            if(!amt || amt < minLimits[depMethod]) return tg.showAlert(`Мин. сумма для ${depMethod} - $${minLimits[depMethod]}`);
             
             try {
                 const res = await fetch('/api/deposit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: depMethod }) });
                 const data = await res.json();
                 if(res.ok) {
-                    state.balance += amt; updateUI(); tg.showAlert(`✅ Пополнено на $${amt} через ${depMethod}`);
+                    tg.showAlert(`✅ Заявка на пополнение $${amt} (${depMethod}) создана! Ожидайте подтверждения.`);
+                    loadHistory();
                 } else {
-                    tg.showAlert(data.error);
+                    tg.showAlert(data.error || 'Ошибка сервера');
                 }
-            } catch(e) { tg.showAlert('Ошибка'); }
+            } catch(e) { tg.showAlert('Ошибка сети'); }
         }
 
         async function doWithdraw() {
             const amt = parseFloat(document.getElementById('wdAmount').value);
-            if(!amt || amt < minLimits[wdMethod]) return tg.showAlert(`Минимальная сумма для ${wdMethod} - $${minLimits[wdMethod]}`);
+            if(!amt || amt < minLimits[wdMethod]) return tg.showAlert(`Мин. сумма для ${wdMethod} - $${minLimits[wdMethod]}`);
             if(state.balance < amt) return tg.showAlert('Недостаточно средств');
             
             try {
                 const res = await fetch('/api/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: wdMethod }) });
                 const data = await res.json();
                 if(res.ok) {
-                    state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод $${amt} (${wdMethod}) создана!`);
+                    state.balance -= amt; updateUI();
+                    tg.showAlert(`✅ Заявка на вывод $${amt} (${wdMethod}) создана!`);
+                    loadHistory();
                 } else {
-                    tg.showAlert(data.error);
+                    tg.showAlert(data.error || 'Ошибка сервера');
                 }
-            } catch(e) { tg.showAlert('Ошибка'); }
+            } catch(e) { tg.showAlert('Ошибка сети'); }
         }
 
         async function loadHistory() {
@@ -360,8 +325,10 @@
                 list.innerHTML = data.map(tx => {
                     const color = tx.type === 'Deposit' ? 'var(--gold)' : '#ff4444';
                     const sign = tx.type === 'Deposit' ? '+' : '-';
+                    let statusColor = tx.status === 'Pending' ? '#FFA500' : (tx.status === 'Completed' ? '#4CAF50' : '#E53935');
                     return `<div class="tx-item">
-                        <div><div style="font-weight:bold;">${tx.type === 'Deposit' ? 'Пополнение' : 'Вывод'} (${tx.method || 'USDT'})</div><div class="tx-status">${tx.date} • ${tx.status === 'Pending' ? 'В обработке' : 'Выполнено'}</div></div>
+                        <div><div style="font-weight:bold;">${tx.type === 'Deposit' ? 'Пополнение' : 'Вывод'} (${tx.method || 'USDT'})</div>
+                        <div class="tx-status" style="color:${statusColor}">${tx.date} • ${tx.status === 'Pending' ? 'В обработке' : (tx.status === 'Completed' ? 'Выполнено' : 'Отклонено')}</div></div>
                         <div style="color: ${color}; font-weight: bold;">${sign}$${tx.amount.toFixed(2)}</div>
                     </div>`;
                 }).join('');
@@ -377,7 +344,7 @@
             } catch(e) { tg.showAlert('Ошибка'); }
         }
 
-        // --- BLACKJACK ---
+        // --- BLACKJACK (Без изменений) ---
         function renderBetChips(containerId) {
             const el = document.getElementById(containerId);
             if(!el) return;
