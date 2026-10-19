@@ -8,7 +8,7 @@ TOKEN = os.environ.get('TELEGRAM_TOKEN', '8879662302:AAGUpOTng02XIMIRZe7xf154qKa
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-ADMIN_ID = '7695713296' # Твой ID
+ADMIN_ID = '7695713296'
 
 def init_db():
     conn = sqlite3.connect('casino.db')
@@ -26,19 +26,28 @@ def get_user():
     user_id = request.args.get('id')
     username = request.args.get('username', 'Игрок')
     if not user_id: return jsonify({'error': 'No ID'}), 400
-    
     conn = sqlite3.connect('casino.db')
     c = conn.cursor()
     c.execute("SELECT balance, total_rounds, best_result FROM users WHERE id=?", (user_id,))
     user = c.fetchone()
-    
     if not user:
-        c.execute("INSERT INTO users (id, username, balance, total_rounds, best_result) VALUES (?, ?, ?, ?, ?)", 
-                  (user_id, username, 10000.0, 0, 0.0))
+        c.execute("INSERT INTO users (id, username, balance, total_rounds, best_result) VALUES (?, ?, ?, ?, ?)", (user_id, username, 10000.0, 0, 0.0))
         conn.commit()
         user = (10000.0, 0, 0.0)
     conn.close()
     return jsonify({'balance': user[0], 'total_rounds': user[1], 'best_result': user[2]})
+
+# ВАЖНО: Возвращаем функцию сохранения для Блэкджека
+@app.route('/api/save', methods=['POST'])
+def save_user():
+    data = request.json
+    conn = sqlite3.connect('casino.db')
+    c = conn.cursor()
+    c.execute("UPDATE users SET balance=?, total_rounds=?, best_result=? WHERE id=?", 
+              (data['balance'], data['total_rounds'], data['best_result'], data['id']))
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'ok'})
 
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
@@ -54,45 +63,36 @@ def get_transactions():
 def deposit():
     data = request.json
     user_id, amount, method = data['id'], float(data['amount']), data.get('method', 'USDT')
-    
     min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0}
     if amount < min_limits.get(method, 15.0):
         return jsonify({'error': f'Минимальная сумма для {method} - ${min_limits.get(method, 15.0)}'}), 400
-
     conn = sqlite3.connect('casino.db')
     c = conn.cursor()
-    # Создаем заявку, но НЕ начисляем баланс
     c.execute("INSERT INTO transactions (user_id, type, method, amount, status) VALUES (?, 'Deposit', ?, ?, 'Pending')", (user_id, method, amount))
     tx_id = c.lastrowid
     conn.commit()
     conn.close()
     
-    # Отправляем тебе сообщение с кнопками
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_dep_{tx_id}"), 
-               types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_dep_{tx_id}"))
+    markup.add(types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_dep_{tx_id}"), types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_dep_{tx_id}"))
     try:
         bot.send_message(ADMIN_ID, f"💰 **Заявка на пополнение #{tx_id}**\nID: {user_id}\nСумма: ${amount}\nСеть: {method}", reply_markup=markup, parse_mode='Markdown')
     except Exception as e: print(e)
-    
     return jsonify({'status': 'ok'})
 
 @app.route('/api/withdraw', methods=['POST'])
 def withdraw():
     data = request.json
-    user_id, amount, method не = data['id'], float(data[' потamount']), data.get('method', 'USDT')
-    
+    user_id, amount, method = data['id'], float(data['amount']), data.get('method', 'USDT')
     min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0}
     if amount < min_limits.get(method, 15.0):
         return jsonify({'error': f'Минимальная сумма для {method} - ${min_limits.get(method, 15.0)}'}), 400
-
     conn = sqlite3.connect('casino.db')
     c = conn.cursor()
     c.execute("SELECT balance FROM users WHERE id=?", (user_id,))
     bal = c.fetchone()[0]
     
     if bal >= amount:
-        # Сразу списываем средства, чтобы игрократил их дважды
         c.execute("UPDATE users SET balance = balance - ? WHERE id=?", (amount, user_id))
         c.execute("INSERT INTO transactions (user_id, type, method, amount, status) VALUES (?, 'Withdrawal', ?, ?, 'Pending')", (user_id, method, amount))
         tx_id = c.lastrowid
@@ -100,35 +100,26 @@ def withdraw():
         conn.close()
         
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("✅ Выплачено", callback_data=f"app_wd_{tx_id}"), 
-                   types.InlineKeyboardButton("❌ Отклонить (Возврат)", callback_data=f"rej_wd_{tx_id}"))
+        markup.add(types.InlineKeyboardButton("✅ Выплачено", callback_data=f"app_wd_{tx_id}"), types.InlineKeyboardButton("❌ Отклонить (Возврат)", callback_data=f"rej_wd_{tx_id}"))
         try:
             bot.send_message(ADMIN_ID, f"💸 **Заявка на вывод #{tx_id}**\nID: {user_id}\nСумма: ${amount}\nСеть: {method}", reply_markup=markup, parse_mode='Markdown')
         except Exception as e: print(e)
         return jsonify({'status': 'ok'})
-    
     conn.close()
     return jsonify({'error': 'Недостаточно средств'}), 400
 
-# --- ОБРАБОТКА КНОПОК АДМИНА ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
-    if str(call.from_user.id) != ADMIN_ID:
-        return bot.answer_callback_query(call.id, "У вас нет прав.")
-        
+    if str(call.from_user.id) != ADMIN_ID: return bot.answer_callback_query(call.id, "Нет прав.")
     action, tx_type, tx_id = call.data.split('_')[0], call.data.split('_')[1], call.data.split('_')[2]
-    
     conn = sqlite3.connect('casino.db')
     c = conn.cursor()
     c.execute("SELECT user_id, amount, status FROM transactions WHERE id=?", (tx_id,))
     tx = c.fetchone()
-    
     if not tx or tx[2] != 'Pending':
         conn.close()
-        return bot.edit_message_text("❌ Эта заявка уже обработана или не существует.", call.message.chat.id, call.message.message_id)
-        
+        return bot.edit_message_text("❌ Заявка уже обработана.", call.message.chat.id, call.message.message_id)
     user_id, amount = tx[0], tx[1]
-    
     if action == 'app' and tx_type == 'dep':
         c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (amount, user_id))
         c.execute("UPDATE transactions SET status = 'Completed' WHERE id=?", (tx_id,))
@@ -140,11 +131,9 @@ def handle_admin_action(call):
         c.execute("UPDATE transactions SET status = 'Completed' WHERE id=?", (tx_id,))
         new_text = call.message.text + "\n\n✅ **Вывод выплачен**"
     elif action == 'rej' and tx_type == 'wd':
-        # Возвращаем деньги игроку
         c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (amount, user_id))
         c.execute("UPDATE transactions SET status = 'Rejected' WHERE id=?", (tx_id,))
         new_text = call.message.text + "\n\n❌ **Вывод отклонен (средства возвращены)**"
-        
     conn.commit()
     conn.close()
     bot.edit_message_text(new_text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
@@ -156,8 +145,7 @@ def support():
     try:
         bot.send_message(ADMIN_ID, text, parse_mode='Markdown')
         return jsonify({'status': 'ok'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/')
 def index():
