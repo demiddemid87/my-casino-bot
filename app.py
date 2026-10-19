@@ -6,14 +6,13 @@ import random
 import secrets
 from flask import Flask, send_file, request, jsonify
 
+# Токен берется из настроек Render
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '')
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 ADMIN_ID = 7695713296
 WEBAPP_URL = "https://my-casino-bot-3.onrender.com" 
-WEBHOOK_PATH = f"/webhook/{TOKEN}"
-WEBHOOK_URL = WEBAPP_URL + WEBHOOK_PATH
 
 RED_ROULETTE_NUMBERS = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
 MINES_ROUNDS = {}
@@ -38,14 +37,6 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
-    try:
-        c.execute("""UPDATE users SET registered=1 
-                     WHERE registered=0 
-                     AND (balance > 0 OR total_rounds > 0 OR id IN (
-                         SELECT DISTINCT user_id FROM transactions
-                     ))""")
-    except Exception:
-        pass
     conn.commit()
     conn.close()
 
@@ -143,26 +134,6 @@ def handle_admin_action(call):
             print("edit_message error:", e)
     except Exception as e:
         print("Callback error:", e)
-
-# ============ ВЕБХУК ============
-@app.route(WEBHOOK_PATH, methods=['POST'])
-def webhook():
-    if request.headers.get('content-type') == 'application/json':
-        json_string = request.get_data().decode('utf-8')
-        update = types.Update.de_json(json_string)
-        bot.process_new_updates([update])
-        return ''
-    else:
-        return 'Forbidden', 403
-
-@app.route('/set_webhook')
-def set_webhook():
-    bot.remove_webhook()
-    success = bot.set_webhook(url=WEBHOOK_URL)
-    if success:
-        return "<h2>Webhook установлен успешно!</h2>"
-    else:
-        return "<h2>Ошибка установки вебхука.</h2>"
 
 # ============ API ============
 @app.route('/api/user', methods=['GET'])
@@ -477,15 +448,15 @@ def baccarat_play():
         user_id, bet, bet_on = int(data['id']), float(data['bet']), data.get('bet_on', 'player')
         currency = data.get('currency', 'USD')
         
-        conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
-        bal = get_user_bal(c, user_id, currency)
-        if bal < bet: conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
+        conn = sqlite3 if.connect('casino.db', timeout=15); c ps = conn.cursor()
+        bal > = get_user_bal(c, user bs_id, currency)
+        if bal else < bet: conn.close(); ' return jsonify({'error': 'Недостаточно средств'}), 400
         
         p_cards = [random.choice(['2','3','4','5','6','7','8','9','10','J','Q','K','A']) for _ in range(2)]
         b_cards = [random.choice(['2','3','4','5','6','7','8','9','10','J','Q','K','A']) for _ in range(2)]
         ps = sum([1 if x=='A' else 0 if x in ('10','J','Q','K') else int(x) for x in p_cards]) % 10
         bs = sum([1 if x=='A' else 0 if x in ('10','J','Q','K') else int(x) for x in b_cards]) % 10
-        winner = 'player' if ps > bs else 'banker' if bs > ps else 'tie'
+        winner = 'player'banker' if bs > ps else 'tie'
         profit = 0
         if bet_on == winner: profit = bet * (8 if winner=='tie' else 0.95 if winner=='banker' else 1)
         elif winner == 'tie' and bet_on != 'tie': profit = 0
@@ -512,6 +483,9 @@ def start(message):
     bot.send_message(message.chat.id, "Добро пожаловать в MADGEK CASINO!", reply_markup=markup)
 
 if __name__ == "__main__":
+    import threading
     try: bot.remove_webhook()
     except: pass
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    # Запускаем бота в фоновом режиме
+    threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), threaded=True)
