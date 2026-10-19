@@ -13,49 +13,40 @@
         .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.3; animation: float linear infinite; }
         @keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
-        
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
         .logo { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 900; background: linear-gradient(to right, #FFD700, #FDB931); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
         .music-btn { background: var(--surface); border: 1px solid var(--gold); color: var(--gold); width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; cursor: pointer; margin-right: auto; margin-left: 15px; }
         .music-btn.playing { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
-        
         .balance-container { display: flex; align-items: center; gap: 5px; }
         .balance { background: var(--surface); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 14px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
         .refresh-btn { background: var(--surface); border: 1px solid var(--border); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        
         .tabs-container { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tabs-container::-webkit-scrollbar { display: none; }
         .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: rgba(255,215,0,0.1); color: var(--gold); border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
-        
         .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 15px; text-align: center; transition: 0.2s; cursor: pointer; }
         .game-card:active { transform: scale(0.96); border-color: var(--gold); }
         .game-card .icon { font-size: 36px; margin-bottom: 10px; display: block; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); }
         .game-card h3 { font-size: 14px; font-weight: 800; color: var(--gold); }
         .game-card p { font-size: 11px; color: var(--muted); margin-top: 4px; }
-        
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); }
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 100; }
         .nav-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; transition: 0.3s; }
         .nav-btn .icon { font-size: 20px; }
         .nav-btn.active { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        
         .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-secondary { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
-        
         input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
         textarea { height: 100px; resize: none; }
-        
         .tx-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
         .tx-item:last-child { border-bottom: none; }
         .tx-status { font-size: 11px; color: var(--muted); }
         .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #FFD700, #B8860B); display: flex; justify-content: center; align-items: center; font-size: 30px; color: #000; font-weight: 900; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
-        
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); display: none; flex-direction: column; z-index: 200; overflow-y: auto; }
         .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -63,12 +54,9 @@
         .modal-header h2 { font-family: 'Cinzel', serif; font-size: 20px; color: var(--gold); }
         .close-btn { background: none; border: none; color: var(--text); font-size: 30px; cursor: pointer; }
         .modal-content { padding: 20px; flex: 1; display: flex; flex-direction: column; align-items: center; }
-        
         .bet-selector { display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 340px; margin-bottom: 15px; flex-wrap: wrap; }
         .chip { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
         .chip.active { background: var(--gold); color: #000; border-color: var(--gold); }
-        
-        /* Blackjack */
         .bj-table { display: flex; flex-direction: column; width: 100%; max-width: 400px; background: #0a2a1a; border: 4px solid #3a1a0a; border-radius: 20px; padding: 20px 10px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); margin-bottom: 20px; }
         .bj-zone { text-align: center; margin-bottom: 15px; min-height: 120px; }
         .bj-score { display: inline-block; background: #000; color: var(--gold); padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 14px; border: 1px solid var(--border); margin-bottom: 10px; }
@@ -79,16 +67,12 @@
         .playing-card.black { color: #111; }
         .playing-card.back { background: repeating-linear-gradient(45deg, #111, #111 5px, #333 5px, #333 10px); border: 2px solid #fff; }
         .playing-card .suit { font-size: 24px; text-align: right; line-height: 1; }
-
-        /* Crash */
         .crash-container { width: 100%; max-width: 400px; height: 250px; background: #000; border: 2px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; margin-bottom: 20px; }
         .crash-multiplier { font-size: 64px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; text-shadow: 0 0 20px rgba(255,215,0,0.5); z-index: 2; }
         .crash-status { font-size: 14px; color: var(--muted); margin-top: 10px; z-index: 2; }
         .crash-rocket { font-size: 40px; position: absolute; bottom: 10%; left: 10%; transition: all 0.1s linear; z-index: 1; }
         .crash-boom { color: var(--red); font-size: 48px; animation: explode 0.5s forwards; }
         @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
-
-        /* Касса */
         .wallet-selector { display: flex; gap: 10px; margin-bottom: 15px; }
         .wallet-btn { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
         .wallet-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
@@ -96,23 +80,13 @@
         .input-group input { margin-bottom: 0; }
         .input-group .min-label { position: absolute; bottom: -18px; left: 5px; font-size: 11px; color: var(--muted); }
         .hidden { display: none !important; }
-
-        /* Плашка для активации звука */
-        #audioPrompt {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px;
-            border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate;
-            pointer-events: none;
-        }
+        #audioPrompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate; pointer-events: none; }
         @keyframes bounce { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
     </style>
 </head>
 <body>
 
-    <!-- Плашка активации звука -->
     <div id="audioPrompt">👆 Нажмите в любом месте для звука 🔊</div>
-
     <div class="particles" id="particles"></div>
 
     <div class="header">
@@ -138,7 +112,6 @@
             <div style="font-size: 14px; color: var(--muted); text-transform: uppercase;">Баланс</div>
             <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.3);" id="cashBalance">$0.00</div>
         </div>
-
         <div class="card">
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Пополнение (Заявка)</div>
             <div class="wallet-selector" id="depMethods">
@@ -152,7 +125,6 @@
             </div>
             <button class="btn btn-primary" onclick="doDeposit()">Создать заявку</button>
         </div>
-
         <div class="card">
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Вывод средств</div>
             <div class="wallet-selector" id="wdMethods">
@@ -166,7 +138,6 @@
             </div>
             <button class="btn btn-secondary" onclick="doWithdraw()">Создать заявку</button>
         </div>
-
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">История</div>
         <div class="card" id="txList"></div>
     </div>
@@ -226,18 +197,13 @@
         let state = { balance: 0, total_rounds: 0, best_result: 0 };
         let isPlaying = false;
         let currentBet = 100;
-        
         let depMethod = 'USDT';
         let wdMethod = 'USDT';
         const minLimits = { 'USDT': 15, 'BTC': 50, 'ETH': 20 };
-
         const music = document.getElementById('bgMusic');
         const musicBtn = document.getElementById('musicBtn');
 
-        // --- ЛОГИКА ЗВУКА И ГОЛОСА ---
         let hasGreeted = false;
-
-        // Отслеживаем первый клик по экрану, чтобы запустить звук
         document.body.addEventListener('click', () => {
             if (!hasGreeted) {
                 hasGreeted = true;
@@ -247,45 +213,24 @@
         });
 
         function playGreeting() {
-            // Если браузер поддерживает синтез речи
             if ('speechSynthesis' in window) {
                 let msg = new SpeechSynthesisUtterance("Добро пожаловать в онлайн казино Мэджик!");
-                msg.lang = 'ru-RU';
-                msg.rate = 0.9; // Скорость (чуть медленнее для солидности)
-                msg.pitch = 1.1; // Тон (чуть выше для женского голоса)
-                
-                // Ищем русский женский голос
+                msg.lang = 'ru-RU'; msg.rate = 0.9; msg.pitch = 1.1;
                 let voices = window.speechSynthesis.getVoices();
-                let ruVoice = voices.find(v => v.lang === 'ru-RU' && v.name.includes('Google')) || 
-                              voices.find(v => v.lang === 'ru-RU') ||
-                              voices.find(v => v.lang.includes('ru'));
-                
+                let ruVoice = voices.find(v => v.lang === 'ru-RU' && v.name.includes('Google')) || voices.find(v => v.lang === 'ru-RU') || voices.find(v => v.lang.includes('ru'));
                 if (ruVoice) msg.voice = ruVoice;
-
-                // Когда голос закончит говорить, включаем музыку
-                msg.onend = () => {
-                    if (!isPlaying) toggleMusic(true);
-                };
-
+                msg.onend = () => { if (!isPlaying) toggleMusic(true); };
                 window.speechSynthesis.speak(msg);
-            } else {
-                // Если синтезатор не поддерживается, просто включаем музыку
-                if (!isPlaying) toggleMusic(true);
-            }
+            } else if (!isPlaying) toggleMusic(true);
         }
 
         function toggleMusic(forcePlay = false) {
-            if (isPlaying && !forcePlay) { 
-                music.pause(); 
-                musicBtn.classList.remove('playing'); 
-                musicBtn.innerText = '🎵'; 
-                isPlaying = false;
-            } else if (!isPlaying) { 
-                music.volume = 0.3; 
-                music.play().catch(e => console.log('Audio play error:', e)); 
-                musicBtn.classList.add('playing'); 
-                musicBtn.innerText = '🔊'; 
-                isPlaying = true;
+            if (isPlaying && !forcePlay) {
+                music.pause(); musicBtn.classList.remove('playing'); musicBtn.innerText = '🎵'; isPlaying = false;
+            } else if (!isPlaying) {
+                music.volume = 0.3;
+                music.play().catch(e => console.log('Audio play error:', e));
+                musicBtn.classList.add('playing'); musicBtn.innerText = '🔊'; isPlaying = true;
             }
         }
 
@@ -305,9 +250,9 @@
                 state.total_rounds = data.total_rounds;
                 state.best_result = data.best_result;
                 updateUI();
-                if(manual) tg.showAlert('Баланс обновлен!');
-            } catch (e) { 
-                if(manual) tg.showAlert('Сервер спит, подождите 50 секунд.');
+                if (manual) tg.showAlert('Баланс обновлен!');
+            } catch (e) {
+                if (manual) tg.showAlert('Сервер спит, подождите 50 секунд.');
             }
         }
 
@@ -323,9 +268,7 @@
         }
 
         setInterval(() => {
-            if (!document.getElementById('gameModal').classList.contains('open') && !document.hidden) {
-                loadUser(false);
-            }
+            if (!document.getElementById('gameModal').classList.contains('open') && !document.hidden) loadUser(false);
         }, 5000);
 
         function switchView(view) {
@@ -337,12 +280,15 @@
         }
 
         const gamesData = {
-            pop: [ 
+            pop: [
                 { id: 'crash', icon: '🚀', name: 'Ракетка', desc: 'Успей забрать' },
                 { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' }
             ],
-            table: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' } ],
-            slots: [ 
+            table: [
+                { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' },
+                { id: 'baccarat', icon: '🎴', name: 'Baccarat', desc: 'Игрок vs Банкир' }
+            ],
+            slots: [
                 { id: 'crash', icon: '🚀', name: 'Ракетка', desc: 'Успей забрать' },
                 { id: 'slots_classic', icon: '🎰', name: 'Classic Slots', desc: '3 барабана' },
                 { id: 'slots_lucky7', icon: '7️⃣', name: 'Lucky 7', desc: 'Лови семёрки' }
@@ -361,7 +307,7 @@
         }
 
         function selectMethod(type, method, el) {
-            if(type === 'dep') {
+            if (type === 'dep') {
                 depMethod = method;
                 document.querySelectorAll('#depMethods .wallet-btn').forEach(b => b.classList.remove('active'));
                 document.getElementById('depMinLabel').innerText = `Мин. сумма: $${minLimits[method]}`;
@@ -377,30 +323,26 @@
 
         async function doDeposit() {
             const amt = parseFloat(document.getElementById('depAmount').value);
-            if(!amt || amt < minLimits[depMethod]) return tg.showAlert(`Мин. сумма для ${depMethod} - $${minLimits[depMethod]}`);
+            if (!amt || amt < minLimits[depMethod]) return tg.showAlert(`Мин. сумма для ${depMethod} - $${minLimits[depMethod]}`);
             try {
                 const res = await fetch('/api/deposit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: depMethod }) });
                 const data = await res.json();
-                if(res.ok) { tg.showAlert(`✅ Заявка на пополнение $${amt} создана!`); loadHistory(); } 
+                if (res.ok) { tg.showAlert(`✅ Заявка на пополнение $${amt} создана!`); loadHistory(); }
                 else { tg.showAlert(data.error); }
-            } catch(e) { tg.showAlert('Ошибка'); }
+            } catch (e) { tg.showAlert('Ошибка'); }
         }
 
         async function doWithdraw() {
             const amt = parseFloat(document.getElementById('wdAmount').value);
-            if(isNaN(amt) || amt <= 0) return tg.showAlert('Введите сумму');
-            if(amt < minLimits[wdMethod]) return tg.showAlert(`Мин. сумма для ${wdMethod} - $${minLimits[wdMethod]}`);
-            if(state.balance < amt) return tg.showAlert(`Недостаточно средств. Баланс: $${state.balance.toFixed(2)}`);
-            
+            if (isNaN(amt) || amt <= 0) return tg.showAlert('Введите сумму');
+            if (amt < minLimits[wdMethod]) return tg.showAlert(`Мин. сумма для ${wdMethod} - $${minLimits[wdMethod]}`);
+            if (state.balance < amt) return tg.showAlert(`Недостаточно средств. Баланс: $${state.balance.toFixed(2)}`);
             try {
                 const res = await fetch('/api/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: wdMethod }) });
                 const data = await res.json();
-                if(res.ok) { 
-                    state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод создана!`); loadHistory(); 
-                } else { 
-                    tg.showAlert(data.error || 'Ошибка сервера'); 
-                }
-            } catch(e) { tg.showAlert('Ошибка сети'); }
+                if (res.ok) { state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод создана!`); loadHistory(); }
+                else { tg.showAlert(data.error || 'Ошибка сервера'); }
+            } catch (e) { tg.showAlert('Ошибка сети'); }
         }
 
         async function loadHistory() {
@@ -409,7 +351,7 @@
             try {
                 const res = await fetch(`/api/transactions?id=${user.id}`);
                 const data = await res.json();
-                if(data.length === 0) { list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">История пуста</div>'; return; }
+                if (data.length === 0) { list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">История пуста</div>'; return; }
                 list.innerHTML = data.map(tx => {
                     const color = tx.type === 'Deposit' ? 'var(--gold)' : '#ff4444';
                     const sign = tx.type === 'Deposit' ? '+' : '-';
@@ -420,26 +362,32 @@
                         <div style="color: ${color}; font-weight: bold;">${sign}$${tx.amount.toFixed(2)}</div>
                     </div>`;
                 }).join('');
-            } catch(e) { list.innerHTML = '<div style="text-align:center; color:var(--muted);">Ошибка</div>'; }
+            } catch (e) { list.innerHTML = '<div style="text-align:center; color:var(--muted);">Ошибка</div>'; }
         }
 
         async function sendSupport() {
             const msg = document.getElementById('supMessage').value.trim();
-            if(!msg) return tg.showAlert('Введите сообщение');
+            if (!msg) return tg.showAlert('Введите сообщение');
             try {
                 await fetch('/api/support', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, username: user.username, message: msg }) });
                 document.getElementById('supMessage').value = ''; tg.showAlert('✅ Отправлено!');
-            } catch(e) { tg.showAlert('Ошибка'); }
+            } catch (e) { tg.showAlert('Ошибка'); }
         }
 
         function renderBetChips(containerId) {
             const el = document.getElementById(containerId);
-            if(!el) return;
-            el.innerHTML = [10, 50, 100, 500, 1000].map(val => 
+            if (!el) return;
+            el.innerHTML = [10, 50, 100, 500, 1000].map(val =>
                 `<div class="chip ${currentBet === val ? 'active' : ''}" onclick="setBet(${val}, '${containerId}')">$${val}</div>`
             ).join('');
         }
         function setBet(val, containerId) { currentBet = val; renderBetChips(containerId); }
+
+        function renderCard(card, hidden = false) {
+            const isRed = ['♥', '♦'].includes(card.s);
+            if (hidden) return `<div class="playing-card back"></div>`;
+            return `<div class="playing-card ${isRed ? 'red' : 'black'}"><div>${card.v}</div><div class="suit">${card.s}</div></div>`;
+        }
 
         function openGame(gameId) {
             document.getElementById('gameModal').classList.add('open');
@@ -518,15 +466,85 @@
                     </div>
                 `;
                 renderBetChips('betChips');
+            } else if (gameId === 'baccarat') {
+                title.innerText = '🎴 Baccarat';
+                content.innerHTML = `
+                    ${chipsHTML}
+                    <div class="bj-table">
+                        <div class="bj-zone">
+                            <div class="bj-score">Банкир: <span id="bankerScore">0</span></div>
+                            <div class="hand-cards" id="bankerHand"></div>
+                        </div>
+                        <div class="bj-zone">
+                            <div class="hand-cards" id="playerHand"></div>
+                            <div class="bj-score" style="margin-top:10px;">Игрок: <span id="playerScore">0</span></div>
+                        </div>
+                    </div>
+                    <div id="baccaratResult" style="margin-bottom:15px; font-size:16px; min-height:24px; text-align:center;"></div>
+                    <div id="baccaratControls" style="width:100%; max-width:400px; display:flex; flex-direction:column; align-items:center;"></div>
+                `;
+                renderBetChips('betChips');
+                renderBaccaratControls();
             }
         }
 
-        function closeGame() { 
-            document.getElementById('gameModal').classList.remove('open');
-            if(crashRunning) { clearInterval(crashInterval); crashRunning = false; }
+        function renderBaccaratControls() {
+            const c = document.getElementById('baccaratControls');
+            if (!c) return;
+            c.innerHTML = `
+                <button class="btn btn-secondary" style="margin-bottom:8px; width:100%;" onclick="startBaccarat('player')">Player (1:1)</button>
+                <button class="btn btn-secondary" style="margin-bottom:8px; width:100%;" onclick="startBaccarat('banker')">Banker (0.95:1)</button>
+                <button class="btn btn-secondary" style="width:100%;" onclick="startBaccarat('tie')">Tie (8:1)</button>
+            `;
         }
 
-        // --- BLACKJACK ---
+        async function startBaccarat(betOn) {
+            if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
+            const controls = document.getElementById('baccaratControls');
+            const result = document.getElementById('baccaratResult');
+            if (!controls || !result) return;
+            controls.innerHTML = '<button class="btn btn-primary" disabled>Играем...</button>';
+            result.innerText = '';
+            try {
+                const r = await fetch('/api/baccarat/play', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ id: user.id, bet: currentBet, bet_on: betOn })
+                });
+                const d = await r.json().catch(() => ({ error: 'Сервер вернул статус ' + r.status }));
+                if (d.error || !d.player_hand) {
+                    renderBaccaratControls();
+                    return tg.showAlert(d.error || 'Сервер не вернул результат');
+                }
+                document.getElementById('playerHand').innerHTML = d.player_hand.map(c => renderCard(c)).join('');
+                document.getElementById('bankerHand').innerHTML = d.banker_hand.map(c => renderCard(c)).join('');
+                document.getElementById('playerScore').innerText = d.player_score;
+                document.getElementById('bankerScore').innerText = d.banker_score;
+                state.balance = d.balance;
+                state.total_rounds++;
+                updateUI();
+                const winnerName = d.winner === 'player' ? 'Игрок' : d.winner === 'banker' ? 'Банкир' : 'Ничья';
+                if (d.profit > 0) {
+                    result.innerText = `🎉 ${winnerName}! +$${d.profit.toFixed(2)}`;
+                    result.style.color = 'var(--green)';
+                } else if (d.profit < 0) {
+                    result.innerText = `😔 ${winnerName}. -$${Math.abs(d.profit).toFixed(2)}`;
+                    result.style.color = 'var(--red)';
+                } else {
+                    result.innerText = `🤝 Ничья. Возврат ставки`;
+                    result.style.color = 'var(--gold)';
+                }
+                controls.innerHTML = '<button class="btn btn-primary" onclick="openGame(\'baccarat\')">Играть снова</button>';
+            } catch (e) {
+                renderBaccaratControls();
+                tg.showAlert('Ошибка: ' + (e.message || 'сеть недоступна'));
+            }
+        }
+
+        function closeGame() {
+            document.getElementById('gameModal').classList.remove('open');
+            if (crashRunning) { clearInterval(crashInterval); crashRunning = false; }
+        }
+
         let deck = [], pHand = [], dHand = [], isGameActive = false;
         function createDeck() {
             const suits = ['♠', '♥', '♦', '♣']; const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -541,11 +559,6 @@
             while (score > 21 && aces > 0) { score -= 10; aces--; }
             return score;
         }
-        function renderCard(card, hidden = false) {
-            const isRed = ['♥', '♦'].includes(card.s);
-            if (hidden) return `<div class="playing-card back"></div>`;
-            return `<div class="playing-card ${isRed ? 'red' : 'black'}"><div>${card.v}</div><div class="suit">${card.s}</div></div>`;
-        }
         function updateBjUI() {
             document.getElementById('playerCards').innerHTML = pHand.map(c => renderCard(c)).join('');
             document.getElementById('pScore').innerText = calcScore(pHand);
@@ -559,7 +572,7 @@
             await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
             isGameActive = true; createDeck(); pHand = [deck.pop(), deck.pop()]; dHand = [deck.pop(), deck.pop()]; updateBjUI();
             const controls = document.getElementById('bjControls');
-            if (calcScore(pHand) === 21) { controls.innerHTML = `<button class="btn btn-primary" onclick="endBlackjack('blackjack')">У меня Блэкджек!</button>`; } 
+            if (calcScore(pHand) === 21) { controls.innerHTML = `<button class="btn btn-primary" onclick="endBlackjack('blackjack')">У меня Блэкджек!</button>`; }
             else { controls.innerHTML = `<button class="btn btn-secondary" style="flex:1; margin-right:5px;" onclick="hit()">Взять</button><button class="btn btn-primary" style="flex:1; margin-left:5px;" onclick="stand()">Хватит</button>`; }
         }
         function hit() {
@@ -590,24 +603,19 @@
             document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">Играть снова</button>`;
         }
 
-        // --- CRASH ---
         let crashRunning = false, crashMult = 1.00, crashInterval, currentCrashBet = 0;
         async function startCrash() {
             if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
             if (crashRunning) return;
-
             state.balance -= currentBet; state.total_rounds++; updateUI();
             await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
-
             crashRunning = true;
             currentCrashBet = currentBet;
             crashMult = 1.00;
-            
             const multEl = document.getElementById('crashMult');
             const statusEl = document.getElementById('crashStatus');
             const rocketEl = document.getElementById('crashRocket');
             const controls = document.getElementById('crashControls');
-
             multEl.style.color = 'var(--gold)';
             multEl.innerText = '1.00x';
             statusEl.innerText = 'Взлетаем...';
@@ -616,20 +624,15 @@
             rocketEl.style.left = '10%';
             rocketEl.classList.remove('crash-boom');
             rocketEl.innerText = '🚀';
-
             controls.innerHTML = `<button class="btn btn-secondary" style="background:var(--green); color:#fff; border:none;" onclick="cashoutCrash()">Забрать (x1.00)</button>`;
-
             const crashPoint = 1.1 + Math.random() * 8.9;
-
             crashInterval = setInterval(() => {
                 crashMult += 0.03;
                 multEl.innerText = crashMult.toFixed(2) + 'x';
                 controls.innerHTML = `<button class="btn btn-secondary" style="background:var(--green); color:#fff; border:none;" onclick="cashoutCrash()">Забрать (x${crashMult.toFixed(2)})</button>`;
-                
                 const progress = Math.min((crashMult - 1) / 9, 1);
                 rocketEl.style.bottom = `${10 + progress * 70}%`;
                 rocketEl.style.left = `${10 + progress * 70}%`;
-
                 if (crashMult >= crashPoint) {
                     clearInterval(crashInterval);
                     crashRunning = false;
@@ -648,18 +651,15 @@
             if (!crashRunning) return;
             crashRunning = false;
             clearInterval(crashInterval);
-
             const winAmount = currentCrashBet * crashMult;
             state.balance += winAmount;
             if (winAmount > state.best_result) state.best_result = winAmount;
             updateUI();
             await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
-
             const multEl = document.getElementById('crashMult');
             const statusEl = document.getElementById('crashStatus');
             const rocketEl = document.getElementById('crashRocket');
             const controls = document.getElementById('crashControls');
-
             multEl.innerText = 'Забрано!';
             multEl.style.color = 'var(--green)';
             statusEl.innerText = `Вы забрали $${winAmount.toFixed(2)} (x${crashMult.toFixed(2)})`;
@@ -668,28 +668,30 @@
             tg.showAlert(`🎉 Вы забрали $${winAmount.toFixed(2)} на множителе x${crashMult.toFixed(2)}!`);
         }
 
-        // --- SLOTS CLASSIC ---
         async function startSlotsClassic() {
             if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
             const btn = document.getElementById('slotControls');
             const reels = document.getElementById('slotReels');
             const res = document.getElementById('slotResult');
+            if (!btn || !reels || !res) return;
             btn.innerHTML = '<button class="btn btn-primary" disabled>Крутим...</button>';
             res.innerText = '';
             const animSyms = ['🍒','🍋','🍊','🍇','💎','7️⃣'];
             const anim = setInterval(() => {
-                reels.innerHTML = `<span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span>`;
+                const el = document.getElementById('slotReels');
+                if (!el) { clearInterval(anim); return; }
+                el.innerHTML = `<span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span>`;
             }, 80);
             try {
                 const r = await fetch('/api/slots/classic', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ id: user.id, bet: currentBet })
                 });
-                const d = await r.json();
                 clearInterval(anim);
-                if (d.error) {
+                const d = await r.json().catch(() => ({ error: 'Сервер вернул статус ' + r.status }));
+                if (d.error || !d.reels) {
                     btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsClassic()">Крутить</button>';
-                    return tg.showAlert(d.error);
+                    return tg.showAlert(d.error || 'Сервер не вернул результат');
                 }
                 reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
                 state.balance = d.balance;
@@ -706,32 +708,34 @@
             } catch (e) {
                 clearInterval(anim);
                 btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsClassic()">Крутить</button>';
-                tg.showAlert('Ошибка сети');
+                tg.showAlert('Ошибка: ' + (e.message || 'сеть недоступна'));
             }
         }
 
-        // --- SLOTS LUCKY 7 ---
         async function startSlotsLucky7() {
             if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
             const btn = document.getElementById('luckyControls');
             const reels = document.getElementById('luckyReels');
             const res = document.getElementById('luckyResult');
+            if (!btn || !reels || !res) return;
             btn.innerHTML = '<button class="btn btn-primary" disabled>Крутим...</button>';
             res.innerText = '';
             const animSyms = ['🍒','🍋','7️⃣'];
             const anim = setInterval(() => {
-                reels.innerHTML = `<span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span>`;
+                const el = document.getElementById('luckyReels');
+                if (!el) { clearInterval(anim); return; }
+                el.innerHTML = `<span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span>`;
             }, 80);
             try {
                 const r = await fetch('/api/slots/lucky7', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ id: user.id, bet: currentBet })
                 });
-                const d = await r.json();
                 clearInterval(anim);
-                if (d.error) {
+                const d = await r.json().catch(() => ({ error: 'Сервер вернул статус ' + r.status }));
+                if (d.error || !d.reels) {
                     btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsLucky7()">Крутить</button>';
-                    return tg.showAlert(d.error);
+                    return tg.showAlert(d.error || 'Сервер не вернул результат');
                 }
                 reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
                 state.balance = d.balance;
@@ -748,7 +752,7 @@
             } catch (e) {
                 clearInterval(anim);
                 btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsLucky7()">Крутить</button>';
-                tg.showAlert('Ошибка сети');
+                tg.showAlert('Ошибка: ' + (e.message || 'сеть недоступна'));
             }
         }
 
