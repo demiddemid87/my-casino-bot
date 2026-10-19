@@ -82,8 +82,8 @@
         .crash-rocket { font-size: 40px; position: absolute; bottom: 10%; left: 10%; transition: all 0.1s linear; z-index: 1; }
         .crash-boom { color: var(--red); font-size: 48px; animation: explode 0.5s forwards; }
         @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
-        .wallet-selector { display: flex; gap: 10px; margin-bottom: 15px; }
-        .wallet-btn { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .wallet-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .wallet-btn { flex: 1; min-width: 45%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
         .wallet-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
         .input-group { position: relative; margin-bottom: 25px; }
         .input-group input { margin-bottom: 0; }
@@ -315,6 +315,7 @@
                 <div class="wallet-btn active" onclick="selectMethod('dep', 'USDT', this)">USDT</div>
                 <div class="wallet-btn" onclick="selectMethod('dep', 'BTC', this)">Bitcoin</div>
                 <div class="wallet-btn" onclick="selectMethod('dep', 'ETH', this)">Ethereum</div>
+                <div class="wallet-btn" onclick="selectMethod('dep', 'UAH', this)">💳 Карта (Гривна)</div>
             </div>
             <div class="input-group">
                 <input type="number" id="depAmount" value="20" placeholder="">
@@ -328,6 +329,7 @@
                 <div class="wallet-btn active" onclick="selectMethod('wd', 'USDT', this)">USDT</div>
                 <div class="wallet-btn" onclick="selectMethod('wd', 'BTC', this)">Bitcoin</div>
                 <div class="wallet-btn" onclick="selectMethod('wd', 'ETH', this)">Ethereum</div>
+                <div class="wallet-btn" onclick="selectMethod('wd', 'UAH', this)">💳 Карта (Гривна)</div>
             </div>
             <div class="input-group">
                 <input type="number" id="wdAmount" value="20" placeholder="">
@@ -428,7 +430,7 @@
             historyLbl:'История', createReq:'Создать заявку', sendBtn:'Отправить',
             msgPlaceholder:'Ваше сообщение...', supportTitle:'Поддержка',
             roundsLbl:'Раундов', bestWinLbl:'Лучший выигрыш',
-            minAmountPrefix:'Мин. сумма: $',
+            minAmountPrefix:'Мин. сумма: ',
             depositLbl:'Пополнение', withdrawLblTx:'Вывод',
             pendingLbl:'В обработке', completedLbl:'Выполнено', rejectedLbl:'Отклонено',
             loading:'Загрузка...', historyEmpty:'История пуста',
@@ -464,7 +466,7 @@
             bjBlackjack:'🎉 Блэкджек! +${0}', bjWin:'🎉 Выигрыш ${0}!',
             bjTieMsg:'🤝 Ничья. Возврат ${0}', bjDealerWin:'😢 Дилер выиграл.',
             bjBust:'😢 Перебор!', bjDealerBust:'🎉 Дилер перебрал! Вы выиграли!',
-            depCreated:'✅ Заявка на пополнение ${0} создана!',
+            depCreated:'✅ Заявка на пополнение создана!',
             wdCreated:'✅ Заявка на вывод создана!',
             insufficientBal:'Недостаточно. Баланс: ${0}',
             betPositive:'Ставка должна быть больше 0',
@@ -512,7 +514,7 @@
             historyLbl:'History', createReq:'Create request', sendBtn:'Send',
             msgPlaceholder:'Your message...', supportTitle:'Support',
             roundsLbl:'Rounds', bestWinLbl:'Best win',
-            minAmountPrefix:'Min amount: $',
+            minAmountPrefix:'Min amount: ',
             depositLbl:'Deposit', withdrawLblTx:'Withdrawal',
             pendingLbl:'Pending', completedLbl:'Completed', rejectedLbl:'Rejected',
             loading:'Loading...', historyEmpty:'No history yet',
@@ -548,7 +550,7 @@
             bjBlackjack:'🎉 Blackjack! +${0}', bjWin:'🎉 Win ${0}!',
             bjTieMsg:'🤝 Tie. Return ${0}', bjDealerWin:'😢 Dealer wins.',
             bjBust:'😢 Bust!', bjDealerBust:'🎉 Dealer bust! You win!',
-            depCreated:'✅ Deposit request ${0} created!',
+            depCreated:'✅ Deposit request created!',
             wdCreated:'✅ Withdrawal request created!',
             insufficientBal:'Insufficient. Balance: ${0}',
             betPositive:'Bet must be greater than 0',
@@ -596,7 +598,7 @@
             historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
             msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc',
             roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana',
-            minAmountPrefix:'Min. kwota: $',
+            minAmountPrefix:'Min. kwota: ',
             depositLbl:'Wpłata', withdrawLblTx:'Wypłata',
             pendingLbl:'W trakcie', completedLbl:'Zrealizowano', rejectedLbl:'Odrzucono',
             loading:'Ładowanie...', historyEmpty:'Historia jest pusta',
@@ -632,7 +634,7 @@
             bjBlackjack:'🎉 Blackjack! +${0}', bjWin:'🎉 Wygrana ${0}!',
             bjTieMsg:'🤝 Remis. Zwrot ${0}', bjDealerWin:'😢 Krupier wygrał.',
             bjBust:'😢 Przekroczenie!', bjDealerBust:'🎉 Krupier przekroczył! Wygrywasz!',
-            depCreated:'✅ Wniosek o wpłatę ${0} utworzony!',
+            depCreated:'✅ Wniosek o wpłatę utworzony!',
             wdCreated:'✅ Wniosek o wypłatę utworzony!',
             insufficientBal:'Za mało. Saldo: ${0}',
             betPositive:'Zakład musi być większy niż 0',
@@ -677,11 +679,17 @@
         document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
         document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
         document.querySelectorAll('.lang-btn').forEach(b => { b.classList.toggle('active', b.dataset.lang === lang); });
-        document.getElementById('depMinLabel').textContent = t('minAmountPrefix') + minLimits[depMethod];
-        document.getElementById('wdMinLabel').textContent = t('minAmountPrefix') + minLimits[wdMethod];
+        updateMinLabels();
         if (typeof state !== 'undefined') updateUI();
         if (typeof currentTab !== 'undefined' && currentTab) switchTab(currentTab);
         if (document.getElementById('gameModal').classList.contains('open')) closeGame();
+    }
+
+    function updateMinLabels() {
+        const depSuffix = depMethod === 'UAH' ? ' грн' : '$';
+        const wdSuffix = wdMethod === 'UAH' ? ' грн' : '$';
+        document.getElementById('depMinLabel').textContent = t('minAmountPrefix') + minLimits[depMethod] + depSuffix;
+        document.getElementById('wdMinLabel').textContent = t('minAmountPrefix') + minLimits[wdMethod] + wdSuffix;
     }
 
     function setLang(code) {
@@ -702,7 +710,8 @@
     let currentTab = 'pop';
     let depMethod = 'USDT';
     let wdMethod = 'USDT';
-    const minLimits = { 'USDT': 15, 'BTC': 50, 'ETH': 20 };
+    // Добавлена UAH с минимумом 500
+    const minLimits = { 'USDT': 15, 'BTC': 50, 'ETH': 20, 'UAH': 500 };
 
     const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
     const RED_SET = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
@@ -975,15 +984,14 @@
         if (type === 'dep') {
             depMethod = method;
             document.querySelectorAll('#depMethods .wallet-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('depMinLabel').innerText = t('minAmountPrefix') + minLimits[method];
             document.getElementById('depAmount').value = minLimits[method];
         } else {
             wdMethod = method;
             document.querySelectorAll('#wdMethods .wallet-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('wdMinLabel').innerText = t('minAmountPrefix') + minLimits[method];
             document.getElementById('wdAmount').value = minLimits[method];
         }
         el.classList.add('active');
+        updateMinLabels();
     }
 
     function translateErr(msg) {
@@ -999,7 +1007,7 @@
         if (!amt || amt < minLimits[depMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[depMethod]);
         const data = await postApi('/api/deposit', { amount: amt, method: depMethod });
         if (data.error) return tg.showAlert(translateErr(data.error));
-        tg.showAlert(t('depCreated', amt)); loadHistory();
+        tg.showAlert(t('depCreated')); loadHistory();
     }
 
     async function doWithdraw() {
@@ -1030,7 +1038,7 @@
                 return `<div class="tx-item">
                     <div><div style="font-weight:bold;">${txTypeLbl} (${tx.method || 'USDT'})</div>
                     <div class="tx-status" style="color:${statusColor}">${tx.date} • ${txStatusLbl}</div></div>
-                    <div style="color: ${color}; font-weight: bold;">${sign}$${tx.amount.toFixed(2)}</div>
+                    <div style="color: ${color}; font-weight: bold;">${sign}${tx.amount.toFixed(2)}</div>
                 </div>`;
             }).join('');
         } catch (e) { list.innerHTML = `<div style="text-align:center; color:var(--muted);">${t('netErr')}</div>`; }
@@ -2020,7 +2028,6 @@
                 if (picked && !isTrap) { cls += ' safe'; content = '💎'; }
                 else if (picked && isTrap) { cls += ' trap'; content = '💥'; }
                 else if (towerTraps[r] !== undefined && towerPicks[r] !== undefined && r === towerLevel) {
-                    // reveal trap on loss
                     if (isTrap) { cls += ' trap-revealed'; content = '💣'; }
                 }
                 const onclick = (towerActive && r === towerLevel) ? `onclick="towerPick(${r}, ${lane})"` : '';
@@ -2065,7 +2072,6 @@
         if (!towerActive || row !== towerLevel) return;
         towerPicks[row] = lane;
         if (lane === towerTraps[row]) {
-            // Lose
             towerActive = false;
             renderTowerGrid();
             bigLoss(towerBet);
@@ -2075,7 +2081,6 @@
             updateTowerHeader();
             return;
         }
-        // Safe
         towerLevel++;
         renderTowerGrid();
         updateTowerHeader();
@@ -2083,7 +2088,6 @@
         const potential = towerBet * mult;
         const ctrl = document.getElementById('towerControls');
         if (towerLevel >= TOWER_MULTS.length) {
-            // Max reached
             await towerCashoutAuto();
             return;
         }
@@ -2103,7 +2107,6 @@
         tg.showAlert(t('towerWin', winAmount.toFixed(2), mult.toFixed(2)));
         const ctrl = document.getElementById('towerControls');
         if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
-        // Reveal traps
         for (let r = 0; r < TOWER_MULTS.length; r++) {
             if (towerPicks[r] === undefined) towerPicks[r] = -1;
         }
@@ -2111,7 +2114,6 @@
     }
 
     async function towerCashoutAuto() {
-        // Reached max level - auto cashout
         const mult = TOWER_MULTS[TOWER_MULTS.length - 1];
         const winAmount = towerBet * mult;
         state.balance += winAmount;
