@@ -10,7 +10,6 @@
         :root { 
             --bg: #030305; 
             --surface: rgba(20, 20, 28, 0.6); 
-            --surface-hover: rgba(35, 35, 45, 0.8);
             --gold: #FFD700; 
             --gold-dark: #B8860B;
             --text: #ffffff; 
@@ -27,7 +26,6 @@
             background-attachment: fixed; 
         }
         
-        /* Красивый фон */
         .bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(255,215,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,215,0,0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -2; pointer-events: none; }
         .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.3; animation: float linear infinite; }
@@ -103,6 +101,7 @@
         .close-btn { background: none; border: none; color: var(--text); font-size: 36px; cursor: pointer; line-height: 1; }
         .modal-content { padding: 20px; flex: 1; display: flex; flex-direction: column; align-items: center; }
 
+        .bet-selector { display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 340px; margin-bottom: 20px; flex-wrap: wrap; }
         .chip { background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); padding: 10px 18px; border-radius: 25px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .chip.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.4); transform: scale(1.1); }
 
@@ -142,7 +141,7 @@
         .dice-info .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
         .dice-info .val { font-size: 20px; font-weight: 900; color: var(--gold); }
 
-        /* Остальные стили для старых игр остаются без изменений (скрыты для краткости, они есть в JS) */
+        /* Blackjack */
         .bj-table { display: flex; flex-direction: column; width: 100%; max-width: 400px; background: #061a10; border: 4px solid #2a1508; border-radius: 20px; padding: 20px 10px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); margin-bottom: 20px; }
         .bj-zone { text-align: center; margin-bottom: 15px; min-height: 120px; }
         .bj-score { display: inline-block; background: #000; color: var(--gold); padding: 6px 15px; border-radius: 10px; font-weight: bold; font-size: 15px; border: 1px solid var(--border); margin-bottom: 10px; }
@@ -153,14 +152,16 @@
         .playing-card.black { color: #111; }
         .playing-card.back { background: repeating-linear-gradient(45deg, #111, #111 5px, #333 5px, #333 10px); border: 2px solid #fff; }
         .playing-card .suit { font-size: 26px; text-align: right; line-height: 1; }
-        
+
+        /* Crash */
         .crash-container { width: 100%; max-width: 400px; height: 250px; background: #000; border: 2px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 0 30px rgba(0,0,0,0.9); }
         .crash-multiplier { font-size: 70px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; text-shadow: 0 0 25px rgba(255,215,0,0.6); z-index: 2; }
         .crash-status { font-size: 16px; color: var(--muted); margin-top: 10px; z-index: 2; text-align: center; padding: 0 10px; font-weight: 700; }
         .crash-rocket { font-size: 50px; position: absolute; bottom: 10%; left: 10%; transition: all 0.1s linear; z-index: 1; }
         .crash-boom { color: var(--red); font-size: 60px; animation: explode 0.5s forwards; }
         @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
-        
+
+        /* Mines */
         .mines-count-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: 100%; max-width: 340px; margin-bottom: 15px; }
         .mines-count-btn { padding: 10px 2px; font-size: 13px; font-weight: 800; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; font-family: inherit; transition: 0.2s; }
         .mines-count-btn.selected { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.4); }
@@ -171,7 +172,8 @@
         .mines-cell.mine { background: rgba(229, 57, 53, 0.3); border-color: var(--red); cursor: default; }
         .mines-cell.mine-hit { background: var(--red); border-color: var(--red); cursor: default; }
         .mines-info { width: 100%; max-width: 340px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 12px 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; font-weight: 800; border: 1px solid var(--border); }
-        
+
+        /* Roulette */
         .roulette-reel-container { width: 100%; max-width: 340px; height: 80px; background: #000; border: 3px solid var(--gold); border-radius: 15px; position: relative; overflow: hidden; margin-bottom: 15px; }
         .roulette-reel { display: flex; position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
         .roulette-cell-strip { width: 70px; flex-shrink: 0; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #fff; border-right: 1px solid rgba(0,0,0,0.5); }
@@ -193,12 +195,14 @@
         .roul-zero { width: 100%; max-width: 340px; padding: 12px; margin-bottom: 8px; font-size: 18px; font-weight: 900; border-radius: 10px; cursor: pointer; font-family: inherit; border: 1px solid rgba(0,0,0,0.4); color: #fff; transition: 0.2s; background: #0a4a0a; }
         .roul-zero.selected { outline: 3px solid var(--gold); outline-offset: -2px; transform: scale(1.05); }
 
+        /* Plinko */
         .plinko-wrap { width: 100%; max-width: 360px; background: linear-gradient(180deg, #0a0a1a 0%, #150520 100%); border: 2px solid var(--gold); border-radius: 20px; padding: 10px; margin-bottom: 15px; position: relative; box-shadow: inset 0 0 40px rgba(255,215,0,0.15), 0 0 20px rgba(255,215,0,0.2); }
         #plinkoCanvas { display: block; width: 100%; height: auto; border-radius: 15px; }
         .plinko-history { display: flex; gap: 5px; width: 100%; max-width: 340px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; min-height: 24px; }
         .plinko-history span { font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 12px; animation: histIn 0.3s ease-out; }
         @keyframes histIn { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0); } }
 
+        /* Tower */
         .tower-header { width: 100%; max-width: 340px; background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 15px; padding: 12px; margin-bottom: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
         .tower-header > div > div:first-child { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 800; }
         .tower-header > div > div:last-child { font-size: 16px; font-weight: 900; color: var(--gold); margin-top: 4px; }
@@ -238,6 +242,7 @@
         <div class="lang-switcher">
             <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">RU</button>
             <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" data-lang="pl" onclick="setLang('pl')">PL</button>
         </div>
         <div style="display:flex; gap:4px; margin-right: 4px;">
             <button class="lang-btn active" id="btn-USD" onclick="setCurrency('USD')">USD</button>
@@ -297,7 +302,7 @@
 
     <div id="view-profile" class="hidden">
         <div class="card" style="display: flex; align-items: center; gap: 20px;">
-            <div class="avatar" id="avatarLetter" style="width: 70px; height: 70px; font-size: 36px; border-radius: 20px;">U</div>
+            <div class="avatar" id="avatarLetter" style="width: 70px; height: 70px; font-size: 36px; border-radius: 20px; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; display: flex; justify-content: center; align-items: center; font-weight: 900; box-shadow: 0 0 20px rgba(255,215,0,0.4);">U</div>
             <div style="flex: 1;">
                 <div style="font-size: 22px; font-weight: 900;" id="profName">Игрок</div>
                 <div style="font-size: 14px; color: var(--gold); font-weight: 800; margin-top: 6px;">VIP: <span id="profVip">Bronze</span></div>
@@ -365,7 +370,6 @@
     </audio>
 
     <script>
-    // (Словарь i18n оставлен как был, только добавил пару ключей для Костей)
     const i18n = {
         ru: {
             games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль',
@@ -454,7 +458,182 @@
             diceRoll:'🎲 Бросить', diceRolling:'🎲 Крутим...', diceOver:'БОЛЬШЕ', diceUnder:'МЕНЬШЕ',
             diceMultiplier:'Множитель', diceWinChance:'Шанс выигрыша'
         },
-        en: {}, pl: {} // Заглушки для других языков (если нужно, добавишь перевод)
+        en: {
+            games:'Games', cash:'Cashier', support:'Support', profile:'Profile',
+            popular:'Popular', table:'Table', slotsTab:'Slots',
+            crash:'Rocket', crashDesc:'Cash out in time',
+            bj:'Blackjack', bjDesc:'21 points',
+            bacc:'Baccarat', baccDesc:'Player vs Banker',
+            slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
+            slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens',
+            mines:'Mines', minesDesc:'5×5, reveal safe',
+            roulette:'Roulette', rouletteDesc:'European',
+            plinko:'Plinko', plinkoDesc:'Drop the ball',
+            tower:'Tower', towerDesc:'Climb higher',
+            dice:'Dice', diceDesc:'Guess the number',
+            balanceLbl:'Balance', topupLbl:'Deposit (Request)', withdrawLbl:'Withdraw funds',
+            historyLbl:'History', createReq:'Create request', sendBtn:'Send',
+            msgPlaceholder:'Your message...', supportTitle:'Support',
+            roundsLbl:'Rounds', bestWinLbl:'Best win',
+            minAmountPrefix:'Min amount: ',
+            depositLbl:'Deposit', withdrawLblTx:'Withdrawal',
+            pendingLbl:'Pending', completedLbl:'Completed', rejectedLbl:'Rejected',
+            loading:'Loading...', historyEmpty:'No history yet',
+            dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player',
+            take:'Hit', stand:'Stand', playAgain:'Play again',
+            start:'Start', cashoutNow:'Cash out (x{0})',
+            spin:'Spin', spinAgain:'Spin again', spinning:'Spinning...',
+            playBet:'Place bet and play',
+            crashReady:'Ready to launch', flying:'Taking off...', crashed:'CRASH!',
+            won:'Cashed out!', missed:'😔 Missed',
+            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
+            rulesBtn:'📖 Rules', hideRules:'✖ Hide',
+            rulesCrash:'The multiplier grows from start. Press "Cash out" to lock in your winnings. If the rocket explodes earlier — bet is lost. Max x100.',
+            rulesBj:'Goal — reach 21 or get closer to 21 than the dealer. 2-10 face value, J/Q/K = 10, ace = 1 or 11. Blackjack pays x2.5. Dealer draws to 17.',
+            rulesBacc:'Bets: Player (1:1), Banker (0.95:1), Tie (8:1). Two cards each. Closer to 9 wins. A=1, 2-9 face value, 10/J/Q/K=0.',
+            rulesClassic:'3 reels. Three of a kind: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Two of a kind: x1.5 (x2 with 💎 or 7️⃣).',
+            rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5. Three of a kind (not 7) = x3.',
+            rulesMines:'5×5 grid. Choose mine count and reveal safe cells. Each safe cell increases the multiplier. Press "Cash out" to collect. Hit a mine — lose your bet.',
+            rulesRoulette:'European roulette (37 numbers, 0-36). Bets: straight (35:1), red/black (1:1), odd/even (1:1), 1-18/19-36 (1:1), dozen (2:1), column (2:1). 0 is the house edge.',
+            rulesPlinko:'Ball drops through a peg field and lands in one of 9 slots. Multipliers: from x0.3 to x28. Edges pay more but hit rarely.',
+            rulesTower:'8 levels, 3 cells each — one is a trap. Pick a safe cell to climb. Multiplier grows: x1.42 → x24.35. Cash out anytime. Hit a trap — lose your bet.',
+            rulesDice:'Choose a number from 2 to 98. If the rolled number is higher (or lower) than yours — you win. The multiplier depends on the chance: the lower the chance, the higher the payout!',
+            insufficient:'Insufficient funds!', balanceUpdated:'Balance updated!',
+            serverSleep:'Server is sleeping, wait 50 seconds.',
+            netErr:'Network error', errPrefix:'Error: ',
+            enterMsg:'Enter a message', sent:'✅ Sent!',
+            welcomeVoice:'Welcome to Magic online casino!',
+            audioPrompt:'👆 Tap anywhere for sound 🔊',
+            tiedLbl:'Tie',
+            crashedMsg:'💥 Rocket exploded at {0}x. You lost.',
+            cashoutMsg:'🎉 You cashed out ${0} at x{1}!',
+            winAmountTpl:'🎉 +{2}{0} (x{1})',
+            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Tie. Bet returned',
+            bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 Win {1}{0}!',
+            bjTieMsg:'🤝 Tie. Return {1}{0}', bjDealerWin:'😢 Dealer wins.',
+            bjBust:'😢 Bust!', bjDealerBust:'🎉 Dealer bust! You win!',
+            depCreated:'✅ Deposit request created!',
+            wdCreated:'✅ Withdrawal request created!',
+            insufficientBal:'Insufficient. Balance: {1}{0}',
+            betPositive:'Bet must be greater than 0',
+            minesCountLbl:'Mines', minesPicks:'Picks', minesMultiplier:'Multiplier', minesPotential:'Potential',
+            minesCashout:'Cash out', minesBoom:'💥 Boom! You hit a mine. Bet lost.',
+            minesCashed:'🎉 Cashed {2}{0} (x{1})!',
+            rouletteSpin:'Spin', rouletteSpinning:'Spinning...',
+            rouletteSelectBet:'Select a bet',
+            rouletteWin:'🎉 Win {1}{0}!', rouletteLose:'😔 Loss {1}{0}',
+            rouletteRed:'Red', rouletteBlack:'Black',
+            rouletteOdd:'Odd', rouletteEven:'Even',
+            rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12',
+            rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3',
+            rouletteNumber:'Number', rouletteSelected:'Selected',
+            regTitle:'📝 Registration',
+            regSubtitle:'Register to access games and cashier',
+            regNamePh:'Your name',
+            regPhonePh:'+1 555 123-45-67',
+            regSubmit:'Register',
+            regNote:'Data is used for payouts',
+            regSuccess:'✅ Registration successful!',
+            regNameErr:'Name must be at least 2 characters',
+            regPhoneErr:'Please enter a valid phone number',
+            regRequired:'Please register first',
+            editRegBtn:'✏️ Edit data',
+            plinkoDrop:'🎯 Drop ball', plinkoDropping:'🎯 Dropping...',
+            towerLevel:'Level', towerMult:'Multiplier', towerPotential:'Potential',
+            towerStart:'🚀 Start', towerCashout:'💰 Cash out',
+            towerWin:'🎉 Cashed {2}{0} (x{1})!', towerLose:'💥 Trap! Bet lost',
+            towerSelectLane:'Pick a cell',
+            diceRoll:'🎲 Roll', diceRolling:'🎲 Rolling...', diceOver:'OVER', diceUnder:'UNDER',
+            diceMultiplier:'Multiplier', diceWinChance:'Win chance'
+        },
+        pl: {
+            games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil',
+            popular:'Popularne', table:'Stołowe', slotsTab:'Sloty',
+            crash:'Rakieta', crashDesc:'Odbierz na czas',
+            bj:'Blackjack', bjDesc:'21 punktów',
+            bacc:'Baccarat', baccDesc:'Gracz vs Bankier',
+            slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny',
+            slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki',
+            mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
+            roulette:'Ruletka', rouletteDesc:'Europejska',
+            plinko:'Plinko', plinkoDesc:'Upuść kulkę',
+            tower:'Wieża', towerDesc:'Wspinaj się wyżej',
+            dice:'Kości', diceDesc:'Zgadnij liczbę',
+            balanceLbl:'Saldo', topupLbl:'Wpłata (Wniosek)', withdrawLbl:'Wypłata środków',
+            historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
+            msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc',
+            roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana',
+            minAmountPrefix:'Min. kwota: ',
+            depositLbl:'Wpłata', withdrawLblTx:'Wypłata',
+            pendingLbl:'W trakcie', completedLbl:'Zrealizowano', rejectedLbl:'Odrzucono',
+            loading:'Ładowanie...', historyEmpty:'Historia jest pusta',
+            dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz',
+            take:'Dobierz', stand:'Stop', playAgain:'Zagraj ponownie',
+            start:'Start', cashoutNow:'Odbierz (x{0})',
+            spin:'Kręcić', spinAgain:'Kręcić ponownie', spinning:'Kręcimy...',
+            playBet:'Postaw i zagraj',
+            crashReady:'Gotowy do startu', flying:'Startujemy...', crashed:'KRAKS!',
+            won:'Odebrano!', missed:'😔 Pudło',
+            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
+            rulesBtn:'📖 Zasady', hideRules:'✖ Ukryj',
+            rulesCrash:'Mnożnik rośnie od startu. Naciśnij „Odbierz", aby zablokować wygraną. Jeśli rakieta eksploduje wcześniej — zakład przepada. Maks. x100.',
+            rulesBj:'Cel — osiągnąć 21 lub być bliżej 21 niż krupier. 2-10 według nominału, J/Q/K = 10, as = 1 lub 11. Blackjack płaci x2.5. Krupier dobiera do 17.',
+            rulesBacc:'Zakłady: Player (1:1), Banker (0.95:1), Tie (8:1). Po 2 karty. Bliżej 9 — wygrana. A=1, 2-9 nominał, 10/J/Q/K=0.',
+            rulesClassic:'3 bębny. Trzy takie same: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Dwa takie same: x1.5 (x2 z 💎 lub 7️⃣).',
+            rulesLucky:'3 bębny. Trzy 7️⃣ = x30, dwie 7️⃣ = x5, jedna 7️⃣ = x1.5. Trzy takie same (nie 7) = x3.',
+            rulesMines:'Pole 5×5. Wybierz liczbę min i odkrywaj bezpieczne komórki. Każda bezpieczna komórka zwiększa mnożnik. Naciśnij „Odbierz", aby zgarnąć wygraną. Trafisz minę — tracisz zakład.',
+            rulesRoulette:'Ruletka europejska (37 liczb, 0-36). Zakłady: numer (35:1), czerwone/czarne (1:1), nieparzyste/parzyste (1:1), 1-18/19-36 (1:1), tuzin (2:1), kolumna (2:1). 0 to przewaga kasyna.',
+            rulesPlinko:'Kulka spada przez pole kołków i ląduje w jednym z 9 slotów. Mnożniki: od x0.3 do x28. Krawędzie płacą więcej, ale trafiają rzadziej.',
+            rulesTower:'8 poziomów, po 3 komórki — jedna to pułapka. Wybierz bezpieczną i wspinaj się. Mnożnik rośnie: x1.42 → x24.35. Odbierz w dowolnym momencie. Trafisz pułapkę — tracisz zakład.',
+            rulesDice:'Wybierz liczbę od 2 do 98. Jeśli wyrzucona liczba będzie wyższa (lub niższa) niż twoja — wygrywasz. Mnożnik zależy od szansy: im niższa szansa, tym wyższa wygrana!',
+            insufficient:'Niewystarczające środki!', balanceUpdated:'Saldo zaktualizowane!',
+            serverSleep:'Serwer śpi, poczekaj 50 sekund.',
+            netErr:'Błąd sieci', errPrefix:'Błąd: ',
+            enterMsg:'Wpisz wiadomość', sent:'✅ Wysłano!',
+            welcomeVoice:'Witamy w kasynie online Magic!',
+            audioPrompt:'👆 Dotknij gdziekolwiek, aby włączyć dźwięk 🔊',
+            tiedLbl:'Remis',
+            crashedMsg:'💥 Rakieta eksplodowała na {0}x. Przegrałeś.',
+            cashoutMsg:'🎉 Odebrałeś ${0} na mnożniku x{1}!',
+            winAmountTpl:'🎉 +{2}{0} (x{1})',
+            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Remis. Zakład zwrócony',
+            bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 Wygrana {1}{0}!',
+            bjTieMsg:'🤝 Remis. Zwrot {1}{0}', bjDealerWin:'😢 Krupier wygrał.',
+            bjBust:'😢 Przekroczenie!', bjDealerBust:'🎉 Krupier przekroczył! Wygrywasz!',
+            depCreated:'✅ Wniosek o wpłatę utworzony!',
+            wdCreated:'✅ Wniosek o wypłatę utworzony!',
+            insufficientBal:'Za mało. Saldo: {1}{0}',
+            betPositive:'Zakład musi być większy niż 0',
+            minesCountLbl:'Miny', minesPicks:'Odkryto', minesMultiplier:'Mnożnik', minesPotential:'Potencjał',
+            minesCashout:'Odbierz', minesBoom:'💥 Bum! Trafiłeś na minę. Zakład przepadł.',
+            minesCashed:'🎉 Odebrano {2}{0} (x{1})!',
+            rouletteSpin:'Kręcić', rouletteSpinning:'Kręcimy...',
+            rouletteSelectBet:'Wybierz zakład',
+            rouletteWin:'🎉 Wygrana {1}{0}!', rouletteLose:'😔 Przegrana {1}{0}',
+            rouletteRed:'Czerwone', rouletteBlack:'Czarne',
+            rouletteOdd:'Nieparzyste', rouletteEven:'Parzyste',
+            rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12',
+            rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3',
+            rouletteNumber:'Liczba', rouletteSelected:'Wybrano',
+            regTitle:'📝 Rejestracja',
+            regSubtitle:'Zarejestruj się, aby uzyskać dostęp do gier i kasy',
+            regNamePh:'Twoje imię',
+            regPhonePh:'+48 500 123 456',
+            regSubmit:'Zarejestruj się',
+            regNote:'Dane wykorzystywane do wypłat',
+            regSuccess:'✅ Rejestracja zakończona sukcesem!',
+            regNameErr:'Imię musi mieć co najmniej 2 znaki',
+            regPhoneErr:'Podaj prawidłowy numer telefonu',
+            regRequired:'Najpierw się zarejestruj',
+            editRegBtn:'✏️ Edytuj dane',
+            plinkoDrop:'🎯 Rzuć kulkę', plinkoDropping:'🎯 Spada...',
+            towerLevel:'Poziom', towerMult:'Mnożnik', towerPotential:'Potencjał',
+            towerStart:'🚀 Start', towerCashout:'💰 Odbierz',
+            towerWin:'🎉 Odebrano {2}{0} (x{1})!', towerLose:'💥 Pułapka! Zakład przepadł',
+            towerSelectLane:'Wybierz komórkę',
+            diceRoll:'🎲 Rzuć', diceRolling:'🎲 Toczy się...', diceOver:'WIĘCEJ', diceUnder:'MNIEJ',
+            diceMultiplier:'Mnożnik', diceWinChance:'Szansa'
+        }
     };
 
     let lang = localStorage.getItem('lang') || 'ru';
@@ -809,7 +988,7 @@
         document.getElementById('gameModal').classList.add('open');
         const title = document.getElementById('modalTitle');
         const content = document.getElementById('modalContent');
-        const chipsHTML = `<div class="bet-selector" id="betChips" style="display:flex; gap:8px; justify-content:center; width:100%; max-width:340px; margin-bottom:20px; flex-wrap:wrap;"></div>`;
+        const chipsHTML = `<div class="bet-selector" id="betChips"></div>`;
 
         if (gameId === 'dice') {
             title.innerText = '🎲 ' + t('dice');
@@ -1029,7 +1208,6 @@
         const resEl = document.getElementById('diceResult');
         resEl.style.color = 'var(--muted)';
         
-        // Анимация скроллинга чисел
         let anim = setInterval(() => { resEl.innerText = (Math.random() * 100).toFixed(2); }, 50);
         
         const d = await postApi('/api/dice/roll', { bet: currentBet, target: diceTarget, condition: diceCondition });
@@ -1059,7 +1237,7 @@
         }, 800);
     }
 
-    // (Остальные функции Baccarat, Mines, Roulette, Blackjack, Crash, Slots, Plinko, Tower остаются точно такими же, как в предыдущем коде)
+    // ============ BACCARAT ============
     function renderBaccaratControls() {
         const c = document.getElementById('baccaratControls');
         if (!c) return;
@@ -1095,6 +1273,7 @@
         minesRoundId = null; plinkoInProgress = false;
     }
 
+    // ============ MINES ============
     let minesRoundId = null, minesGrid = Array(25).fill('hidden'), minesBet = 0, minesCount = 3, minesPicks = 0, minesMult = 1.0;
     function resetMinesState() { minesRoundId = null; minesGrid = Array(25).fill('hidden'); minesBet = 0; minesPicks = 0; minesMult = 1.0; }
     function buildMinesCountButtons() {
@@ -1155,6 +1334,7 @@
         minesRoundId = null; minesPicks = 0; minesMult = 1.0; updateMinesInfo();
     }
 
+    // ============ ROULETTE ============
     let selectedRouletteBet = null, selectedRouletteValue = null, rouletteSpinning = false;
     function buildRouletteReel() {
         const reel = document.getElementById('rouletteReel'); if (!reel) return;
@@ -1231,6 +1411,7 @@
     }
     function restoreRouletteSpinBtn() { const el = document.getElementById('rouletteSpinBtn'); if (el) el.innerHTML = `<button class="btn btn-primary" onclick="spinRoulette()">${t('rouletteSpin')}</button>`; }
 
+    // ============ BLACKJACK ============
     let deck = [], pHand = [], dHand = [], isGameActive = false;
     function createDeck() { const suits = ['♠', '♥', '♦', '♣']; const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']; deck = []; for (let s of suits) for (let v of values) deck.push({ v, s }); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } }
     function getCardValue(card) { return ['J','Q','K'].includes(card.v) ? 10 : (card.v === 'A' ? 11 : parseInt(card.v)); }
@@ -1265,6 +1446,7 @@
         tg.showAlert(msg); document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">${t('playAgain')}</button>`;
     }
 
+    // ============ CRASH ============
     let crashRunning = false, crashMult = 1.00, crashInterval, currentCrashBet = 0;
     async function startCrash() {
         const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
@@ -1304,6 +1486,7 @@
         bigWin(winAmount - currentCrashBet, 'x' + crashMult.toFixed(2)); tg.showAlert(t('cashoutMsg', winAmount.toFixed(2), crashMult.toFixed(2)));
     }
 
+    // ============ SLOTS ============
     async function startSlotsClassic() {
         const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
         if (bal < currentBet) return tg.showAlert(t('insufficient'));
@@ -1341,6 +1524,7 @@
         btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spinAgain')}</button>`;
     }
 
+    // ============ PLINKO ============
     let plinkoInProgress = false, plinkoHistory = [];
     const PLINKO_ROWS = 8, PLINKO_SLOTS = 9;
     function drawPlinkoBoard(ballPos) {
@@ -1413,6 +1597,7 @@
         }).join('');
     }
 
+    // ============ TOWER ============
     let towerActive = false, towerLevel = 0, towerBet = 0, towerTraps = [], towerPicks = [];
     function towerReset() {
         towerActive = false; towerLevel = 0; towerBet = 0; towerTraps = []; towerPicks = [];
@@ -1486,6 +1671,7 @@
         const ctrl = document.getElementById('towerControls'); if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
     }
 
+    // ============ INIT ============
     document.documentElement.lang = lang;
     applyLang();
     switchTab('pop');
