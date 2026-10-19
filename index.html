@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Casino</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background-color: #121212; color: #fff; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ffcc00; }
+        .balance { color: #ffcc00; font-size: 20px; font-weight: bold; }
+        .game-card { background: #1e1e1e; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
+        .slot-window { font-size: 50px; margin: 20px 0; display: flex; justify-content: center; gap: 20px; background: #000; padding: 20px; border-radius: 10px; }
+        button { background: #ffcc00; color: #000; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; }
+        button:active { background: #d4a700; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>Ваш баланс:</div>
+        <div class="balance" id="balance">$1000.00</div>
+    </div>
+
+    <div class="game-card">
+        <h2>🎰 Слоты</h2>
+        <div class="slot-window" id="slots">
+            <span>🍒</span>
+            <span>🍋</span>
+            <span>🔔</span>
+        </div>
+        <button onclick="spin()">Крутить ($10)</button>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
+        
+        // Твой текущий баланс (пока для теста просто в браузере)
+        let currentBalance = 1000.00;
+
+        function spin() {
+            if (currentBalance < 10) {
+                alert("Недостаточно средств!");
+                return;
+            }
+            
+            currentBalance -= 10;
+            document.getElementById('balance').innerText = "$" + currentBalance.toFixed(2);
+
+            const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
+            const slotElements = document.getElementById('slots').children;
+            
+            // Анимация кручения
+            let count = 0;
+            let interval = setInterval(() => {
+                for (let i = 0; i < 3; i++) {
+                    slotElements[i].innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                }
+                count++;
+                if (count > 10) {
+                    clearInterval(interval);
+                    checkWin(slotElements);
+                }
+            }, 100);
+        }
+
+        function checkWin(elements) {
+            let s1 = elements[0].innerText;
+            let s2 = elements[1].innerText;
+            let s3 = elements[2].innerText;
+
+            if (s1 === s2 && s2 === s3) {
+                currentBalance += 100;
+                tg.showAlert("🎉 ДЖЕКПОТ! Вы выиграли $100!");
+            } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+                currentBalance += 20;
+                tg.showAlert("✨ Пара! Вы выиграли $20!");
+            } else {
+                tg.showAlert("😢 Проигрыш. Попробуйте еще раз!");
+            }
+            document.getElementById('balance').innerText = "$" + currentBalance.toFixed(2);
+        }
+    </script>
+</body>
+</html>
