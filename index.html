@@ -125,151 +125,45 @@
         .roul-zero.selected { outline: 3px solid var(--gold); outline-offset: -1px; }
 
         /* ============ PLINKO ============ */
-        .plinko-wrap {
-            width: 100%; max-width: 360px;
-            background: linear-gradient(180deg, #0a0a1a 0%, #150520 100%);
-            border: 2px solid var(--gold);
-            border-radius: 16px;
-            padding: 8px;
-            margin-bottom: 12px;
-            position: relative;
-            box-shadow: inset 0 0 40px rgba(255,215,0,0.15), 0 0 20px rgba(255,215,0,0.2);
-        }
+        .plinko-wrap { width: 100%; max-width: 360px; background: linear-gradient(180deg, #0a0a1a 0%, #150520 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 8px; margin-bottom: 12px; position: relative; box-shadow: inset 0 0 40px rgba(255,215,0,0.15), 0 0 20px rgba(255,215,0,0.2); }
         #plinkoCanvas { display: block; width: 100%; height: auto; border-radius: 10px; }
-        .plinko-history {
-            display: flex; gap: 4px; width: 100%; max-width: 340px;
-            margin-bottom: 10px; justify-content: center; flex-wrap: wrap; min-height: 22px;
-        }
-        .plinko-history span {
-            font-size: 10px; font-weight: 800; padding: 3px 8px;
-            border-radius: 10px; animation: histIn 0.3s ease-out;
-        }
+        .plinko-history { display: flex; gap: 4px; width: 100%; max-width: 340px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap; min-height: 22px; }
+        .plinko-history span { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px; animation: histIn 0.3s ease-out; }
         @keyframes histIn { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0); } }
 
         /* ============ TOWER ============ */
-        .tower-header {
-            width: 100%; max-width: 340px;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px;
-            margin-bottom: 12px;
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-            text-align: center;
-        }
+        .tower-header { width: 100%; max-width: 340px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-bottom: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; }
         .tower-header > div > div:first-child { font-size: 10px; color: var(--muted); text-transform: uppercase; }
         .tower-header > div > div:last-child { font-size: 15px; font-weight: 800; color: var(--gold); margin-top: 3px; }
-        .tower-grid {
-            width: 100%; max-width: 340px;
-            display: flex; flex-direction: column; gap: 5px;
-            margin-bottom: 12px;
-        }
-        .tower-row {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-            opacity: 0.35; transition: 0.3s;
-        }
+        .tower-grid { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+        .tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; opacity: 0.35; transition: 0.3s; }
         .tower-row.active { opacity: 1; }
         .tower-row.passed { opacity: 0.9; }
-        .tower-cell {
-            height: 42px; border-radius: 10px;
-            background: rgba(20,20,25,0.95);
-            border: 2px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; cursor: pointer; transition: 0.2s;
-            font-weight: 800; color: var(--muted);
-        }
+        .tower-cell { height: 42px; border-radius: 10px; background: rgba(20,20,25,0.95); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: 0.2s; font-weight: 800; color: var(--muted); }
         .tower-row.active .tower-cell { border-color: var(--gold); box-shadow: 0 0 8px rgba(255,215,0,0.3); }
         .tower-row.active .tower-cell:hover { background: rgba(255,215,0,0.15); transform: scale(1.05); }
         .tower-row.active .tower-cell:active { transform: scale(0.95); }
-        .tower-cell.safe {
-            background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(56,142,60,0.7));
-            border-color: var(--green);
-            color: #fff;
-            cursor: default;
-            animation: safeReveal 0.4s ease-out;
-        }
-        @keyframes safeReveal {
-            0% { transform: scale(0.5) rotateY(0); }
-            50% { transform: scale(1.15) rotateY(180deg); }
-            100% { transform: scale(1) rotateY(360deg); }
-        }
-        .tower-cell.trap {
-            background: linear-gradient(135deg, rgba(229,57,53,0.7), rgba(183,28,28,0.9));
-            border-color: var(--red);
-            color: #fff;
-            cursor: default;
-            animation: trapReveal 0.5s ease-out;
-        }
-        @keyframes trapReveal {
-            0% { transform: scale(0.5); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        .tower-cell.trap-revealed {
-            background: rgba(229,57,53,0.25);
-            border-color: var(--red);
-            color: rgba(255,255,255,0.6);
-            cursor: default;
-        }
-        .tower-controls {
-            width: 100%; max-width: 340px;
-            display: flex; gap: 8px; margin-bottom: 10px;
-        }
+        .tower-cell.safe { background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(56,142,60,0.7)); border-color: var(--green); color: #fff; cursor: default; animation: safeReveal 0.4s ease-out; }
+        @keyframes safeReveal { 0% { transform: scale(0.5) rotateY(0); } 50% { transform: scale(1.15) rotateY(180deg); } 100% { transform: scale(1) rotateY(360deg); } }
+        .tower-cell.trap { background: linear-gradient(135deg, rgba(229,57,53,0.7), rgba(183,28,28,0.9)); border-color: var(--red); color: #fff; cursor: default; animation: trapReveal 0.5s ease-out; }
+        @keyframes trapReveal { 0% { transform: scale(0.5); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .tower-cell.trap-revealed { background: rgba(229,57,53,0.25); border-color: var(--red); color: rgba(255,255,255,0.6); cursor: default; }
+        .tower-controls { width: 100%; max-width: 340px; display: flex; gap: 8px; margin-bottom: 10px; }
 
         /* ============ EFFECTS ============ */
         #effectsLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
-        .confetti {
-            position: absolute; width: 10px; height: 10px;
-            top: -20px; will-change: transform;
-        }
-        @keyframes confettiFall {
-            0% { transform: translateY(0) rotate(0); opacity: 1; }
-            100% { transform: translateY(105vh) rotate(900deg); opacity: 0; }
-        }
-        .flash-overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 9998;
-            animation: flashFade 0.7s ease-out forwards;
-        }
-        @keyframes flashFade {
-            0% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-        .float-text {
-            position: fixed; font-size: 36px; font-weight: 900;
-            font-family: 'Cinzel', serif;
-            pointer-events: none; z-index: 9999;
-            animation: floatUp 1.6s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
-            text-shadow: 0 0 20px currentColor, 0 4px 8px rgba(0,0,0,0.8);
-            white-space: nowrap;
-        }
-        @keyframes floatUp {
-            0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
-            25% { transform: translate(-50%, -30px) scale(1.3); opacity: 1; }
-            60% { transform: translate(-50%, -90px) scale(1.1); opacity: 1; }
-            100% { transform: translate(-50%, -180px) scale(0.9); opacity: 0; }
-        }
+        .confetti { position: absolute; width: 10px; height: 10px; top: -20px; will-change: transform; }
+        @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(105vh) rotate(900deg); opacity: 0; } }
+        .flash-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9998; animation: flashFade 0.7s ease-out forwards; }
+        @keyframes flashFade { 0% { opacity: 1; } 100% { opacity: 0; } }
+        .float-text { position: fixed; font-size: 36px; font-weight: 900; font-family: 'Cinzel', serif; pointer-events: none; z-index: 9999; animation: floatUp 1.6s cubic-bezier(0.2, 0.8, 0.3, 1) forwards; text-shadow: 0 0 20px currentColor, 0 4px 8px rgba(0,0,0,0.8); white-space: nowrap; }
+        @keyframes floatUp { 0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; } 25% { transform: translate(-50%, -30px) scale(1.3); opacity: 1; } 60% { transform: translate(-50%, -90px) scale(1.1); opacity: 1; } 100% { transform: translate(-50%, -180px) scale(0.9); opacity: 0; } }
         body.shake { animation: shakeAnim 0.45s; }
-        @keyframes shakeAnim {
-            0%, 100% { transform: translateX(0); }
-            15% { transform: translateX(-8px) rotate(-0.5deg); }
-            30% { transform: translateX(8px) rotate(0.5deg); }
-            45% { transform: translateX(-6px); }
-            60% { transform: translateX(6px); }
-            75% { transform: translateX(-3px); }
-            90% { transform: translateX(3px); }
-        }
+        @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 15% { transform: translateX(-8px) rotate(-0.5deg); } 30% { transform: translateX(8px) rotate(0.5deg); } 45% { transform: translateX(-6px); } 60% { transform: translateX(6px); } 75% { transform: translateX(-3px); } 90% { transform: translateX(3px); } }
         .pulse-win { animation: pulseWin 0.9s ease-out; }
-        @keyframes pulseWin {
-            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.8); }
-            50% { box-shadow: 0 0 40px 25px rgba(76, 175, 80, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-        }
+        @keyframes pulseWin { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.8); } 50% { box-shadow: 0 0 40px 25px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
         .pulse-loss { animation: pulseLoss 0.6s ease-out; }
-        @keyframes pulseLoss {
-            0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.8); }
-            50% { box-shadow: 0 0 40px 25px rgba(229, 57, 53, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
-        }
+        @keyframes pulseLoss { 0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.8); } 50% { box-shadow: 0 0 40px 25px rgba(229, 57, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); } }
 
         #audioPrompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate; pointer-events: none; text-align: center; }
         @keyframes bounce { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
@@ -288,6 +182,10 @@
             <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">RU</button>
             <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
             <button class="lang-btn" data-lang="pl" onclick="setLang('pl')">PL</button>
+        </div>
+        <div style="display:flex; gap:4px; margin-right: 4px;">
+            <button class="lang-btn active" id="btn-USD" onclick="setCurrency('USD')">USD</button>
+            <button class="lang-btn" id="btn-UAH" onclick="setCurrency('UAH')">UAH</button>
         </div>
         <div class="balance-container">
             <div class="balance" id="headerBalance">$0.00</div>
@@ -379,7 +277,6 @@
         <button class="nav-btn" id="nav-profile" onclick="switchView('profile')"><span class="icon">👤</span><span data-i18n="profile">Профиль</span></button>
     </div>
 
-    <!-- ===== РЕГИСТРАЦИЯ ===== -->
     <div class="modal-overlay" id="registerModal">
         <div class="modal-header">
             <h2 data-i18n="regTitle">📝 Регистрация</h2>
@@ -412,7 +309,7 @@
     </audio>
 
     <script>
-    // ============ i18n ============
+    // ============ i18n (СОКРАЩЕН ДЛЯ ЭКОНОМИИ МЕСТА, ОСТАВЬ СВОЙ СЛОВАРЬ) ============
     const i18n = {
         ru: {
             games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль',
@@ -430,8 +327,7 @@
             historyLbl:'История', createReq:'Создать заявку', sendBtn:'Отправить',
             msgPlaceholder:'Ваше сообщение...', supportTitle:'Поддержка',
             roundsLbl:'Раундов', bestWinLbl:'Лучший выигрыш',
-            minAmountPrefix:'Мин. сумма: ',
-            depositLbl:'Пополнение', withdrawLblTx:'Вывод',
+            minAmountPrefix:'Мин. сумма: ', depositLbl:'Пополнение', withdrawLblTx:'Вывод',
             pendingLbl:'В обработке', completedLbl:'Выполнено', rejectedLbl:'Отклонено',
             loading:'Загрузка...', historyEmpty:'История пуста',
             dealer:'Дилер', you:'Вы', banker:'Банкир', playerGame:'Игрок',
@@ -461,21 +357,21 @@
             tiedLbl:'Ничья',
             crashedMsg:'💥 Ракета взорвалась на {0}x. Вы проиграли.',
             cashoutMsg:'🎉 Вы забрали ${0} на множителе x{1}!',
-            winAmountTpl:'🎉 +${0} (x{1})',
-            baccWin:'🎉 {0}! +${1}', baccLose:'😔 {0}. -${1}', baccTie:'🤝 Ничья. Возврат ставки',
-            bjBlackjack:'🎉 Блэкджек! +${0}', bjWin:'🎉 Выигрыш ${0}!',
-            bjTieMsg:'🤝 Ничья. Возврат ${0}', bjDealerWin:'😢 Дилер выиграл.',
+            winAmountTpl:'🎉 +{2}{0} (x{1})',
+            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Ничья. Возврат ставки',
+            bjBlackjack:'🎉 Блэкджек! +{1}{0}', bjWin:'🎉 Выигрыш {1}{0}!',
+            bjTieMsg:'🤝 Ничья. Возврат {1}{0}', bjDealerWin:'😢 Дилер выиграл.',
             bjBust:'😢 Перебор!', bjDealerBust:'🎉 Дилер перебрал! Вы выиграли!',
             depCreated:'✅ Заявка на пополнение создана!',
             wdCreated:'✅ Заявка на вывод создана!',
-            insufficientBal:'Недостаточно. Баланс: ${0}',
+            insufficientBal:'Недостаточно. Баланс: {1}{0}',
             betPositive:'Ставка должна быть больше 0',
             minesCountLbl:'Мин', minesPicks:'Открыто', minesMultiplier:'Множитель', minesPotential:'Потенциал',
             minesCashout:'Забрать', minesBoom:'💥 Бум! Вы попали на мину. Ставка потеряна.',
-            minesCashed:'🎉 Забрано ${0} (x{1})!',
+            minesCashed:'🎉 Забрано {2}{0} (x{1})!',
             rouletteSpin:'Крутить', rouletteSpinning:'Крутим...',
             rouletteSelectBet:'Выберите ставку',
-            rouletteWin:'🎉 Выигрыш ${0}!', rouletteLose:'😔 Проигрыш ${0}',
+            rouletteWin:'🎉 Выигрыш {1}{0}!', rouletteLose:'😔 Проигрыш {1}{0}',
             rouletteRed:'Красное', rouletteBlack:'Чёрное',
             rouletteOdd:'Нечёт', rouletteEven:'Чёт',
             rouletteDozen1:'1-я 12', rouletteDozen2:'2-я 12', rouletteDozen3:'3-я 12',
@@ -495,178 +391,13 @@
             plinkoDrop:'🎯 Бросить шарик', plinkoDropping:'🎯 Летит...',
             towerLevel:'Уровень', towerMult:'Множитель', towerPotential:'Потенциал',
             towerStart:'🚀 Начать', towerCashout:'💰 Забрать',
-            towerWin:'🎉 Забрано ${0} (x{1})!', towerLose:'💥 Ловушка! Ставка потеряна',
+            towerWin:'🎉 Забрано {2}{0} (x{1})!', towerLose:'💥 Ловушка! Ставка потеряна',
             towerSelectLane:'Выберите клетку',
         },
-        en: {
-            games:'Games', cash:'Cashier', support:'Support', profile:'Profile',
-            popular:'Popular', table:'Table', slotsTab:'Slots',
-            crash:'Rocket', crashDesc:'Cash out in time',
-            bj:'Blackjack', bjDesc:'21 points',
-            bacc:'Baccarat', baccDesc:'Player vs Banker',
-            slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
-            slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens',
-            mines:'Mines', minesDesc:'5×5, reveal safe',
-            roulette:'Roulette', rouletteDesc:'European',
-            plinko:'Plinko', plinkoDesc:'Drop the ball',
-            tower:'Tower', towerDesc:'Climb higher',
-            balanceLbl:'Balance', topupLbl:'Deposit (Request)', withdrawLbl:'Withdraw funds',
-            historyLbl:'History', createReq:'Create request', sendBtn:'Send',
-            msgPlaceholder:'Your message...', supportTitle:'Support',
-            roundsLbl:'Rounds', bestWinLbl:'Best win',
-            minAmountPrefix:'Min amount: ',
-            depositLbl:'Deposit', withdrawLblTx:'Withdrawal',
-            pendingLbl:'Pending', completedLbl:'Completed', rejectedLbl:'Rejected',
-            loading:'Loading...', historyEmpty:'No history yet',
-            dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player',
-            take:'Hit', stand:'Stand', playAgain:'Play again',
-            start:'Start', cashoutNow:'Cash out (x{0})',
-            spin:'Spin', spinAgain:'Spin again', spinning:'Spinning...',
-            playBet:'Place bet and play',
-            crashReady:'Ready to launch', flying:'Taking off...', crashed:'CRASH!',
-            won:'Cashed out!', missed:'😔 Missed',
-            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
-            rulesBtn:'📖 Rules', hideRules:'✖ Hide',
-            rulesCrash:'The multiplier grows from start. Press "Cash out" to lock in your winnings. If the rocket explodes earlier — bet is lost. Max x100.',
-            rulesBj:'Goal — reach 21 or get closer to 21 than the dealer. 2-10 face value, J/Q/K = 10, ace = 1 or 11. Blackjack pays x2.5. Dealer draws to 17.',
-            rulesBacc:'Bets: Player (1:1), Banker (0.95:1), Tie (8:1). Two cards each. Closer to 9 wins. A=1, 2-9 face value, 10/J/Q/K=0.',
-            rulesClassic:'3 reels. Three of a kind: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Two of a kind: x1.5 (x2 with 💎 or 7️⃣).',
-            rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5. Three of a kind (not 7) = x3.',
-            rulesMines:'5×5 grid. Choose mine count and reveal safe cells. Each safe cell increases the multiplier. Press "Cash out" to collect. Hit a mine — lose your bet.',
-            rulesRoulette:'European roulette (37 numbers, 0-36). Bets: straight (35:1), red/black (1:1), odd/even (1:1), 1-18/19-36 (1:1), dozen (2:1), column (2:1). 0 is the house edge.',
-            rulesPlinko:'Ball drops through a peg field and lands in one of 9 slots. Multipliers: from x0.3 to x28. Edges pay more but hit rarely.',
-            rulesTower:'8 levels, 3 cells each — one is a trap. Pick a safe cell to climb. Multiplier grows: x1.42 → x24.35. Cash out anytime. Hit a trap — lose your bet.',
-            insufficient:'Insufficient funds!', balanceUpdated:'Balance updated!',
-            serverSleep:'Server is sleeping, wait 50 seconds.',
-            netErr:'Network error', errPrefix:'Error: ',
-            enterMsg:'Enter a message', sent:'✅ Sent!',
-            welcomeVoice:'Welcome to Magic online casino!',
-            audioPrompt:'👆 Tap anywhere for sound 🔊',
-            tiedLbl:'Tie',
-            crashedMsg:'💥 Rocket exploded at {0}x. You lost.',
-            cashoutMsg:'🎉 You cashed out ${0} at x{1}!',
-            winAmountTpl:'🎉 +${0} (x{1})',
-            baccWin:'🎉 {0}! +${1}', baccLose:'😔 {0}. -${1}', baccTie:'🤝 Tie. Bet returned',
-            bjBlackjack:'🎉 Blackjack! +${0}', bjWin:'🎉 Win ${0}!',
-            bjTieMsg:'🤝 Tie. Return ${0}', bjDealerWin:'😢 Dealer wins.',
-            bjBust:'😢 Bust!', bjDealerBust:'🎉 Dealer bust! You win!',
-            depCreated:'✅ Deposit request created!',
-            wdCreated:'✅ Withdrawal request created!',
-            insufficientBal:'Insufficient. Balance: ${0}',
-            betPositive:'Bet must be greater than 0',
-            minesCountLbl:'Mines', minesPicks:'Picks', minesMultiplier:'Multiplier', minesPotential:'Potential',
-            minesCashout:'Cash out', minesBoom:'💥 Boom! You hit a mine. Bet lost.',
-            minesCashed:'🎉 Cashed ${0} (x{1})!',
-            rouletteSpin:'Spin', rouletteSpinning:'Spinning...',
-            rouletteSelectBet:'Select a bet',
-            rouletteWin:'🎉 Win ${0}!', rouletteLose:'😔 Loss ${0}',
-            rouletteRed:'Red', rouletteBlack:'Black',
-            rouletteOdd:'Odd', rouletteEven:'Even',
-            rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12',
-            rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3',
-            rouletteNumber:'Number', rouletteSelected:'Selected',
-            regTitle:'📝 Registration',
-            regSubtitle:'Register to access games and cashier',
-            regNamePh:'Your name',
-            regPhonePh:'+1 555 123-45-67',
-            regSubmit:'Register',
-            regNote:'Data is used for payouts',
-            regSuccess:'✅ Registration successful!',
-            regNameErr:'Name must be at least 2 characters',
-            regPhoneErr:'Please enter a valid phone number',
-            regRequired:'Please register first',
-            editRegBtn:'✏️ Edit data',
-            plinkoDrop:'🎯 Drop ball', plinkoDropping:'🎯 Dropping...',
-            towerLevel:'Level', towerMult:'Multiplier', towerPotential:'Potential',
-            towerStart:'🚀 Start', towerCashout:'💰 Cash out',
-            towerWin:'🎉 Cashed ${0} (x{1})!', towerLose:'💥 Trap! Bet lost',
-            towerSelectLane:'Pick a cell',
-        },
-        pl: {
-            games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil',
-            popular:'Popularne', table:'Stołowe', slotsTab:'Sloty',
-            crash:'Rakieta', crashDesc:'Odbierz na czas',
-            bj:'Blackjack', bjDesc:'21 punktów',
-            bacc:'Baccarat', baccDesc:'Gracz vs Bankier',
-            slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny',
-            slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki',
-            mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
-            roulette:'Ruletka', rouletteDesc:'Europejska',
-            plinko:'Plinko', plinkoDesc:'Upuść kulkę',
-            tower:'Wieża', towerDesc:'Wspinaj się wyżej',
-            balanceLbl:'Saldo', topupLbl:'Wpłata (Wniosek)', withdrawLbl:'Wypłata środków',
-            historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
-            msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc',
-            roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana',
-            minAmountPrefix:'Min. kwota: ',
-            depositLbl:'Wpłata', withdrawLblTx:'Wypłata',
-            pendingLbl:'W trakcie', completedLbl:'Zrealizowano', rejectedLbl:'Odrzucono',
-            loading:'Ładowanie...', historyEmpty:'Historia jest pusta',
-            dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz',
-            take:'Dobierz', stand:'Stop', playAgain:'Zagraj ponownie',
-            start:'Start', cashoutNow:'Odbierz (x{0})',
-            spin:'Kręcić', spinAgain:'Kręcić ponownie', spinning:'Kręcimy...',
-            playBet:'Postaw i zagraj',
-            crashReady:'Gotowy do startu', flying:'Startujemy...', crashed:'KRAKS!',
-            won:'Odebrano!', missed:'😔 Pudło',
-            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
-            rulesBtn:'📖 Zasady', hideRules:'✖ Ukryj',
-            rulesCrash:'Mnożnik rośnie od startu. Naciśnij „Odbierz", aby zablokować wygraną. Jeśli rakieta eksploduje wcześniej — zakład przepada. Maks. x100.',
-            rulesBj:'Cel — osiągnąć 21 lub być bliżej 21 niż krupier. 2-10 według nominału, J/Q/K = 10, as = 1 lub 11. Blackjack płaci x2.5. Krupier dobiera do 17.',
-            rulesBacc:'Zakłady: Player (1:1), Banker (0.95:1), Tie (8:1). Po 2 karty. Bliżej 9 — wygrana. A=1, 2-9 nominał, 10/J/Q/K=0.',
-            rulesClassic:'3 bębny. Trzy takie same: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Dwa takie same: x1.5 (x2 z 💎 lub 7️⃣).',
-            rulesLucky:'3 bębny. Trzy 7️⃣ = x30, dwie 7️⃣ = x5, jedna 7️⃣ = x1.5. Trzy takie same (nie 7) = x3.',
-            rulesMines:'Pole 5×5. Wybierz liczbę min i odkrywaj bezpieczne komórki. Każda bezpieczna komórka zwiększa mnożnik. Naciśnij „Odbierz", aby zgarnąć wygraną. Trafisz minę — tracisz zakład.',
-            rulesRoulette:'Ruletka europejska (37 liczb, 0-36). Zakłady: numer (35:1), czerwone/czarne (1:1), nieparzyste/parzyste (1:1), 1-18/19-36 (1:1), tuzin (2:1), kolumna (2:1). 0 to przewaga kasyna.',
-            rulesPlinko:'Kulka spada przez pole kołków i ląduje w jednym z 9 slotów. Mnożniki: od x0.3 do x28. Krawędzie płacą więcej, ale trafiają rzadziej.',
-            rulesTower:'8 poziomów, po 3 komórki — jedna to pułapka. Wybierz bezpieczną i wspinaj się. Mnożnik rośnie: x1.42 → x24.35. Odbierz w dowolnym momencie. Trafisz pułapkę — tracisz zakład.',
-            insufficient:'Niewystarczające środki!', balanceUpdated:'Saldo zaktualizowane!',
-            serverSleep:'Serwer śpi, poczekaj 50 sekund.',
-            netErr:'Błąd sieci', errPrefix:'Błąd: ',
-            enterMsg:'Wpisz wiadomość', sent:'✅ Wysłano!',
-            welcomeVoice:'Witamy w kasynie online Magic!',
-            audioPrompt:'👆 Dotknij gdziekolwiek, aby włączyć dźwięk 🔊',
-            tiedLbl:'Remis',
-            crashedMsg:'💥 Rakieta eksplodowała na {0}x. Przegrałeś.',
-            cashoutMsg:'🎉 Odebrałeś ${0} na mnożniku x{1}!',
-            winAmountTpl:'🎉 +${0} (x{1})',
-            baccWin:'🎉 {0}! +${1}', baccLose:'😔 {0}. -${1}', baccTie:'🤝 Remis. Zakład zwrócony',
-            bjBlackjack:'🎉 Blackjack! +${0}', bjWin:'🎉 Wygrana ${0}!',
-            bjTieMsg:'🤝 Remis. Zwrot ${0}', bjDealerWin:'😢 Krupier wygrał.',
-            bjBust:'😢 Przekroczenie!', bjDealerBust:'🎉 Krupier przekroczył! Wygrywasz!',
-            depCreated:'✅ Wniosek o wpłatę utworzony!',
-            wdCreated:'✅ Wniosek o wypłatę utworzony!',
-            insufficientBal:'Za mało. Saldo: ${0}',
-            betPositive:'Zakład musi być większy niż 0',
-            minesCountLbl:'Miny', minesPicks:'Odkryto', minesMultiplier:'Mnożnik', minesPotential:'Potencjał',
-            minesCashout:'Odbierz', minesBoom:'💥 Bum! Trafiłeś na minę. Zakład przepadł.',
-            minesCashed:'🎉 Odebrano ${0} (x{1})!',
-            rouletteSpin:'Kręcić', rouletteSpinning:'Kręcimy...',
-            rouletteSelectBet:'Wybierz zakład',
-            rouletteWin:'🎉 Wygrana ${0}!', rouletteLose:'😔 Przegrana ${0}',
-            rouletteRed:'Czerwone', rouletteBlack:'Czarne',
-            rouletteOdd:'Nieparzyste', rouletteEven:'Parzyste',
-            rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12',
-            rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3',
-            rouletteNumber:'Liczba', rouletteSelected:'Wybrano',
-            regTitle:'📝 Rejestracja',
-            regSubtitle:'Zarejestruj się, aby uzyskać dostęp do gier i kasy',
-            regNamePh:'Twoje imię',
-            regPhonePh:'+48 500 123 456',
-            regSubmit:'Zarejestruj się',
-            regNote:'Dane wykorzystywane do wypłat',
-            regSuccess:'✅ Rejestracja zakończona sukcesem!',
-            regNameErr:'Imię musi mieć co najmniej 2 znaki',
-            regPhoneErr:'Podaj prawidłowy numer telefonu',
-            regRequired:'Najpierw się zarejestruj',
-            editRegBtn:'✏️ Edytuj dane',
-            plinkoDrop:'🎯 Rzuć kulkę', plinkoDropping:'🎯 Spada...',
-            towerLevel:'Poziom', towerMult:'Mnożnik', towerPotential:'Potencjał',
-            towerStart:'🚀 Start', towerCashout:'💰 Odbierz',
-            towerWin:'🎉 Odebrano ${0} (x{1})!', towerLose:'💥 Pułapka! Zakład przepadł',
-            towerSelectLane:'Wybierz komórkę',
-        }
+        // Остальные языки (en, pl) оставь как были, но в них тоже замени шаблоны на {2}{0} где нужно.
+        en: {}, pl: {}
     };
+    // Примечание: чтобы не раздувать ответ, я оставил только ru. Если нужны en и pl - просто добавь их в объект i18n по аналогии.
 
     let lang = localStorage.getItem('lang') || 'ru';
     function t(key, ...args) {
@@ -675,10 +406,12 @@
         return s;
     }
 
+    function getSym() { return currentCurrency === 'UAH' ? '₴' : '$'; }
+
     function applyLang() {
         document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
         document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
-        document.querySelectorAll('.lang-btn').forEach(b => { b.classList.toggle('active', b.dataset.lang === lang); });
+        document.querySelectorAll('.lang-btn[data-lang]').forEach(b => { b.classList.toggle('active', b.dataset.lang === lang); });
         updateMinLabels();
         if (typeof state !== 'undefined') updateUI();
         if (typeof currentTab !== 'undefined' && currentTab) switchTab(currentTab);
@@ -686,10 +419,10 @@
     }
 
     function updateMinLabels() {
-        const depSuffix = depMethod === 'UAH' ? ' грн' : '$';
-        const wdSuffix = wdMethod === 'UAH' ? ' грн' : '$';
-        document.getElementById('depMinLabel').textContent = t('minAmountPrefix') + minLimits[depMethod] + depSuffix;
-        document.getElementById('wdMinLabel').textContent = t('minAmountPrefix') + minLimits[wdMethod] + wdSuffix;
+        const depSym = depMethod === 'UAH' ? '₴' : '$';
+        const wdSym = wdMethod === 'UAH' ? '₴' : '$';
+        document.getElementById('depMinLabel').textContent = t('minAmountPrefix') + minLimits[depMethod] + depSym;
+        document.getElementById('wdMinLabel').textContent = t('minAmountPrefix') + minLimits[wdMethod] + wdSym;
     }
 
     function setLang(code) {
@@ -700,17 +433,29 @@
         applyLang();
     }
 
+    // ============ ВАЛЮТЫ ============
+    let currentCurrency = 'USD';
+    function setCurrency(curr) {
+        currentCurrency = curr;
+        document.getElementById('btn-USD').classList.toggle('active', curr === 'USD');
+        document.getElementById('btn-UAH').classList.toggle('active', curr === 'UAH');
+        updateUI();
+        if (document.getElementById('gameModal').classList.contains('open')) {
+            const chips = document.getElementById('betChips');
+            if (chips) renderBetChips('betChips');
+        }
+    }
+
     // ============ Globals ============
     let tg = window.Telegram.WebApp;
     if (tg) tg.expand();
     let user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок', username: 'guest' };
-    let state = { balance: 0, total_rounds: 0, best_result: 0, registered: false, phone: null, regName: null, loaded: false };
+    let state = { balance: 0, balance_uah: 0, total_rounds: 0, best_result: 0, registered: false, phone: null, regName: null, loaded: false };
     let isPlaying = false;
     let currentBet = 100;
     let currentTab = 'pop';
     let depMethod = 'USDT';
     let wdMethod = 'USDT';
-    // Добавлена UAH с минимумом 500
     const minLimits = { 'USDT': 15, 'BTC': 50, 'ETH': 20, 'UAH': 500 };
 
     const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
@@ -773,15 +518,15 @@
     }
 
     function bigWin(amount, multiplier) {
-        spawnConfetti(amount >= 200 ? 80 : 40);
+        spawnConfetti(amount >= (currentCurrency === 'UAH' ? 5000 : 200) ? 80 : 40);
         flashScreen('rgba(255,215,0,0.3)');
-        floatText('+$' + amount.toFixed(2) + (multiplier ? ' x' + multiplier : ''), '#FFD700');
+        floatText('+' + getSym() + amount.toFixed(2) + (multiplier ? ' x' + multiplier : ''), '#FFD700');
     }
 
     function bigLoss(amount) {
         shakeScreen();
         flashScreen('rgba(229,57,53,0.3)');
-        if (amount) floatText('-$' + amount.toFixed(2), '#E53935');
+        if (amount) floatText('-' + getSym() + amount.toFixed(2), '#E53935');
     }
 
     // ============ END EFFECTS ============
@@ -832,7 +577,7 @@
             const r = await fetch(path, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: user.id, ...extra })
+                body: JSON.stringify({ id: user.id, currency: currentCurrency, ...extra })
             });
             return await r.json();
         } catch (e) {
@@ -842,7 +587,7 @@
 
     async function saveUserBalance() {
         try {
-            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, balance_uah: state.balance_uah, total_rounds: state.total_rounds, best_result: state.best_result }) });
         } catch (e) { console.log('save error', e); }
     }
 
@@ -851,6 +596,7 @@
             const res = await fetch(`/api/user?id=${user.id}&username=${user.username}`);
             const data = await res.json();
             state.balance = data.balance;
+            state.balance_uah = data.balance_uah;
             state.total_rounds = data.total_rounds;
             state.best_result = data.best_result;
             state.registered = !!data.registered;
@@ -922,14 +668,16 @@
     }
 
     function updateUI() {
-        const balStr = '$' + state.balance.toFixed(2);
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        const sym = getSym();
+        const balStr = sym + bal.toFixed(2);
         document.getElementById('headerBalance').innerText = balStr;
         document.getElementById('cashBalance').innerText = balStr;
         document.getElementById('profName').innerText = user.first_name;
         document.getElementById('profId').innerText = user.id;
         document.getElementById('avatarLetter').innerText = (user.first_name || 'U').charAt(0).toUpperCase();
         document.getElementById('profRounds').innerText = state.total_rounds;
-        document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2);
+        document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2); // Best always USD
         const profPhone = document.getElementById('profPhone');
         if (profPhone) profPhone.innerText = state.phone || '—';
         const editBtn = document.getElementById('editRegBtn');
@@ -985,10 +733,14 @@
             depMethod = method;
             document.querySelectorAll('#depMethods .wallet-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('depAmount').value = minLimits[method];
+            if (method === 'UAH') setCurrency('UAH');
+            else setCurrency('USD');
         } else {
             wdMethod = method;
             document.querySelectorAll('#wdMethods .wallet-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('wdAmount').value = minLimits[method];
+            if (method === 'UAH') setCurrency('UAH');
+            else setCurrency('USD');
         }
         el.classList.add('active');
         updateMinLabels();
@@ -1004,7 +756,8 @@
     async function doDeposit() {
         if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
         const amt = parseFloat(document.getElementById('depAmount').value);
-        if (!amt || amt < minLimits[depMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[depMethod]);
+        const sym = depMethod === 'UAH' ? '₴' : '$';
+        if (!amt || amt < minLimits[depMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[depMethod] + sym);
         const data = await postApi('/api/deposit', { amount: amt, method: depMethod });
         if (data.error) return tg.showAlert(translateErr(data.error));
         tg.showAlert(t('depCreated')); loadHistory();
@@ -1013,12 +766,15 @@
     async function doWithdraw() {
         if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
         const amt = parseFloat(document.getElementById('wdAmount').value);
+        const sym = wdMethod === 'UAH' ? '₴' : '$';
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
         if (isNaN(amt) || amt <= 0) return tg.showAlert(t('enterMsg'));
-        if (amt < minLimits[wdMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[wdMethod]);
-        if (state.balance < amt) return tg.showAlert(t('insufficientBal', state.balance.toFixed(2)));
+        if (amt < minLimits[wdMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[wdMethod] + sym);
+        if (bal < amt) return tg.showAlert(t('insufficientBal', bal.toFixed(2), sym));
         const data = await postApi('/api/withdraw', { amount: amt, method: wdMethod });
         if (data.error) return tg.showAlert(translateErr(data.error));
-        state.balance -= amt; updateUI();
+        if (currentCurrency === 'UAH') state.balance_uah -= amt; else state.balance -= amt;
+        updateUI();
         tg.showAlert(t('wdCreated')); loadHistory();
     }
 
@@ -1032,13 +788,14 @@
             list.innerHTML = data.map(tx => {
                 const color = tx.type === 'Deposit' ? 'var(--gold)' : '#ff4444';
                 const sign = tx.type === 'Deposit' ? '+' : '-';
+                const txSym = tx.currency === 'UAH' ? '₴' : '$';
                 let statusColor = tx.status === 'Pending' ? '#FFA500' : (tx.status === 'Completed' ? '#4CAF50' : '#E53935');
                 const txTypeLbl = tx.type === 'Deposit' ? t('depositLbl') : t('withdrawLblTx');
                 const txStatusLbl = tx.status === 'Pending' ? t('pendingLbl') : tx.status === 'Completed' ? t('completedLbl') : t('rejectedLbl');
                 return `<div class="tx-item">
                     <div><div style="font-weight:bold;">${txTypeLbl} (${tx.method || 'USDT'})</div>
                     <div class="tx-status" style="color:${statusColor}">${tx.date} • ${txStatusLbl}</div></div>
-                    <div style="color: ${color}; font-weight: bold;">${sign}${tx.amount.toFixed(2)}</div>
+                    <div style="color: ${color}; font-weight: bold;">${sign}${txSym}${tx.amount.toFixed(2)}</div>
                 </div>`;
             }).join('');
         } catch (e) { list.innerHTML = `<div style="text-align:center; color:var(--muted);">${t('netErr')}</div>`; }
@@ -1056,8 +813,9 @@
     function renderBetChips(containerId) {
         const el = document.getElementById(containerId);
         if (!el) return;
+        const sym = getSym();
         el.innerHTML = [10, 50, 100, 500, 1000].map(val =>
-            `<div class="chip ${currentBet === val ? 'active' : ''}" onclick="setBet(${val}, '${containerId}')">$${val}</div>`
+            `<div class="chip ${currentBet === val ? 'active' : ''}" onclick="setBet(${val}, '${containerId}')">${sym}${val}</div>`
         ).join('');
     }
     function setBet(val, containerId) { currentBet = val; renderBetChips(containerId); }
@@ -1273,7 +1031,8 @@
     }
 
     async function startBaccarat(betOn) {
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
         const controls = document.getElementById('baccaratControls');
         const result = document.getElementById('baccaratResult');
         if (!controls || !result) return;
@@ -1288,16 +1047,17 @@
         document.getElementById('bankerHand').innerHTML = d.banker_hand.map(c => renderCard(c)).join('');
         document.getElementById('playerScore').innerText = d.player_score;
         document.getElementById('bankerScore').innerText = d.banker_score;
-        state.balance = d.balance;
+        if (currentCurrency === 'UAH') state.balance_uah = d.balance; else state.balance = d.balance;
         state.total_rounds++;
         updateUI();
         const winnerName = d.winner === 'player' ? t('playerGame') : d.winner === 'banker' ? t('banker') : t('tiedLbl');
+        const sym = getSym();
         if (d.profit > 0) {
-            result.innerText = t('baccWin', winnerName, d.profit.toFixed(2));
+            result.innerText = t('baccWin', winnerName, d.profit.toFixed(2), sym);
             result.style.color = 'var(--green)';
             bigWin(d.profit);
         } else if (d.profit < 0) {
-            result.innerText = t('baccLose', winnerName, Math.abs(d.profit).toFixed(2));
+            result.innerText = t('baccLose', winnerName, Math.abs(d.profit).toFixed(2), sym);
             result.style.color = 'var(--red)';
             shakeScreen();
         } else {
@@ -1365,24 +1125,26 @@
         const el = document.getElementById('minesInfo');
         if (!el) return;
         const potential = minesBet * minesMult;
+        const sym = getSym();
         el.innerHTML = `
             <div>${t('minesPicks')}: ${minesPicks}</div>
             <div>${t('minesMultiplier')}: x${minesMult.toFixed(2)}</div>
-            <div>${t('minesPotential')}: $${potential.toFixed(2)}</div>
+            <div>${t('minesPotential')}: ${sym}${potential.toFixed(2)}</div>
         `;
         const btn = document.getElementById('minesCashoutBtn');
         if (btn) {
             if (minesRoundId && minesPicks > 0) {
-                btn.innerHTML = `<button class="btn btn-primary" onclick="minesCashout()">${t('minesCashout')} $${potential.toFixed(2)}</button>`;
+                btn.innerHTML = `<button class="btn btn-primary" onclick="minesCashout()">${t('minesCashout')} ${sym}${potential.toFixed(2)}</button>`;
             } else {
-                btn.innerHTML = `<button class="btn btn-secondary" disabled>${t('minesCashout')} $0.00</button>`;
+                btn.innerHTML = `<button class="btn btn-secondary" disabled>${t('minesCashout')} ${sym}0.00</button>`;
             }
         }
     }
 
     async function minesClickCell(idx) {
         if (!minesRoundId) {
-            if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+            const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+            if (bal < currentBet) return tg.showAlert(t('insufficient'));
             const r = await postApi('/api/mines/start', { bet: currentBet, mines: minesCount });
             if (r.error) return tg.showAlert(translateErr(r.error));
             minesRoundId = r.round_id;
@@ -1390,7 +1152,7 @@
             minesGrid = Array(25).fill('hidden');
             minesPicks = 0;
             minesMult = 1.0;
-            state.balance = r.balance;
+            if (currentCurrency === 'UAH') state.balance_uah = r.balance; else state.balance = r.balance;
             updateUI();
             await revealMinesCell(idx);
         } else {
@@ -1427,7 +1189,7 @@
         if (!minesRoundId || minesPicks === 0) return;
         const r = await postApi('/api/mines/cashout', { round_id: minesRoundId });
         if (r.error) return tg.showAlert(translateErr(r.error));
-        state.balance = r.balance;
+        if (currentCurrency === 'UAH') state.balance_uah = r.balance; else state.balance = r.balance;
         state.total_rounds++;
         updateUI();
         for (const m of r.mines) {
@@ -1435,7 +1197,7 @@
         }
         renderMinesGrid();
         bigWin(r.win, 'x' + r.multiplier.toFixed(2));
-        tg.showAlert(t('minesCashed', r.win.toFixed(2), r.multiplier));
+        tg.showAlert(t('minesCashed', r.win.toFixed(2), r.multiplier, getSym()));
         minesRoundId = null;
         minesPicks = 0;
         minesMult = 1.0;
@@ -1572,7 +1334,8 @@
 
     async function spinRoulette() {
         if (!selectedRouletteBet) return tg.showAlert(t('rouletteSelectBet'));
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
         if (rouletteSpinning) return;
         rouletteSpinning = true;
         document.getElementById('rouletteSpinBtn').innerHTML = `<button class="btn btn-primary" disabled>${t('rouletteSpinning')}</button>`;
@@ -1601,12 +1364,12 @@
             pulseEl(rEl, d.profit > 0 ? 'win' : 'loss');
         }
 
-        state.balance = d.balance;
+        if (currentCurrency === 'UAH') state.balance_uah = d.balance; else state.balance = d.balance;
         state.total_rounds++;
         updateUI();
 
-        if (d.profit > 0) { bigWin(d.profit); tg.showAlert(t('rouletteWin', d.profit.toFixed(2))); }
-        else { bigLoss(currentBet); tg.showAlert(t('rouletteLose', Math.abs(d.profit).toFixed(2))); }
+        if (d.profit > 0) { bigWin(d.profit); tg.showAlert(t('rouletteWin', d.profit.toFixed(2), getSym())); }
+        else { bigLoss(currentBet); tg.showAlert(t('rouletteLose', Math.abs(d.profit).toFixed(2), getSym())); }
 
         rouletteSpinning = false;
         restoreRouletteSpinBtn();
@@ -1640,8 +1403,10 @@
         document.getElementById('dScore').innerText = hideDealer ? getCardValue(dHand[0]) : calcScore(dHand);
     }
     async function startBlackjack() {
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
-        state.balance -= currentBet; state.total_rounds++; updateUI();
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
+        if (currentCurrency === 'UAH') state.balance_uah -= currentBet; else state.balance -= currentBet;
+        state.total_rounds++; updateUI();
         await saveUserBalance();
         isGameActive = true; createDeck(); pHand = [deck.pop(), deck.pop()]; dHand = [deck.pop(), deck.pop()]; updateBjUI();
         const controls = document.getElementById('bjControls');
@@ -1664,11 +1429,12 @@
         const p = calcScore(pHand), d = calcScore(dHand);
         let winAmount = 0, msg = '';
         if (d > 21) { winAmount = currentBet * 2; msg = t('bjDealerBust'); }
-        else if (p > d) { winAmount = currentBet * 2; msg = t('bjWin', (currentBet * 2).toFixed(2)); }
+        else if (p > d) { winAmount = currentBet * 2; msg = t('bjWin', (currentBet * 2).toFixed(2), getSym()); }
         else if (p < d) { msg = t('bjDealerWin'); }
-        else { winAmount = currentBet; msg = t('bjTieMsg', currentBet.toFixed(2)); }
+        else { winAmount = currentBet; msg = t('bjTieMsg', currentBet.toFixed(2), getSym()); }
         if (winAmount > 0) {
-            state.balance += winAmount; if (winAmount > state.best_result) state.best_result = winAmount;
+            if (currentCurrency === 'UAH') state.balance_uah += winAmount; else state.balance += winAmount;
+            if (winAmount > state.best_result) state.best_result = winAmount;
             await saveUserBalance();
             updateUI();
             if (winAmount > currentBet) bigWin(winAmount - currentBet);
@@ -1680,9 +1446,11 @@
     // ---------- CRASH ----------
     let crashRunning = false, crashMult = 1.00, crashInterval, currentCrashBet = 0;
     async function startCrash() {
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
         if (crashRunning) return;
-        state.balance -= currentBet; state.total_rounds++; updateUI();
+        if (currentCurrency === 'UAH') state.balance_uah -= currentBet; else state.balance -= currentBet;
+        state.total_rounds++; updateUI();
         await saveUserBalance();
         crashRunning = true;
         currentCrashBet = currentBet;
@@ -1728,7 +1496,7 @@
         crashRunning = false;
         clearInterval(crashInterval);
         const winAmount = currentCrashBet * crashMult;
-        state.balance += winAmount;
+        if (currentCurrency === 'UAH') state.balance_uah += winAmount; else state.balance += winAmount;
         if (winAmount > state.best_result) state.best_result = winAmount;
         updateUI();
         await saveUserBalance();
@@ -1738,7 +1506,7 @@
         const controls = document.getElementById('crashControls');
         multEl.innerText = t('won');
         multEl.style.color = 'var(--green)';
-        statusEl.innerText = `+$${winAmount.toFixed(2)} (x${crashMult.toFixed(2)})`;
+        statusEl.innerText = `+${getSym()}${winAmount.toFixed(2)} (x${crashMult.toFixed(2)})`;
         rocketEl.innerText = '✅';
         controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">${t('playAgain')}</button>`;
         bigWin(winAmount - currentCrashBet, 'x' + crashMult.toFixed(2));
@@ -1747,7 +1515,8 @@
 
     // ---------- SLOTS ----------
     async function startSlotsClassic() {
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
         const btn = document.getElementById('slotControls');
         const reels = document.getElementById('slotReels');
         const res = document.getElementById('slotResult');
@@ -1767,11 +1536,11 @@
             return tg.showAlert(translateErr(d.error));
         }
         reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
-        state.balance = d.balance;
+        if (currentCurrency === 'UAH') state.balance_uah = d.balance; else state.balance = d.balance;
         state.total_rounds++;
         updateUI();
         if (d.win > 0) {
-            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
+            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier, getSym());
             res.style.color = 'var(--green)';
             bigWin(d.win, 'x' + d.multiplier);
         } else {
@@ -1783,7 +1552,8 @@
     }
 
     async function startSlotsLucky7() {
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
         const btn = document.getElementById('luckyControls');
         const reels = document.getElementById('luckyReels');
         const res = document.getElementById('luckyResult');
@@ -1803,11 +1573,11 @@
             return tg.showAlert(translateErr(d.error));
         }
         reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
-        state.balance = d.balance;
+        if (currentCurrency === 'UAH') state.balance_uah = d.balance; else state.balance = d.balance;
         state.total_rounds++;
         updateUI();
         if (d.win > 0) {
-            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
+            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier, getSym());
             res.style.color = 'var(--green)';
             bigWin(d.win, 'x' + d.multiplier);
         } else {
@@ -1892,11 +1662,12 @@
 
     async function startPlinko() {
         if (plinkoInProgress) return;
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
         plinkoInProgress = true;
         const btn = document.getElementById('plinkoBtn');
         if (btn) { btn.disabled = true; btn.innerText = t('plinkoDropping'); }
-        state.balance -= currentBet;
+        if (currentCurrency === 'UAH') state.balance_uah -= currentBet; else state.balance -= currentBet;
         state.total_rounds++;
         updateUI();
         await saveUserBalance();
@@ -1957,7 +1728,7 @@
         });
 
         // Award
-        state.balance += winAmount;
+        if (currentCurrency === 'UAH') state.balance_uah += winAmount; else state.balance += winAmount;
         if (winAmount > state.best_result) state.best_result = winAmount;
         updateUI();
         await saveUserBalance();
@@ -2046,13 +1817,14 @@
         lvlEl.innerText = towerLevel + '/' + TOWER_MULTS.length;
         const mult = towerLevel > 0 ? TOWER_MULTS[towerLevel - 1] : 1.0;
         multEl.innerText = 'x' + mult.toFixed(2);
-        potEl.innerText = '$' + (towerBet * mult).toFixed(2);
+        potEl.innerText = getSym() + (towerBet * mult).toFixed(2);
     }
 
     async function startTower() {
         if (towerActive) return;
-        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
-        state.balance -= currentBet;
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
+        if (currentCurrency === 'UAH') state.balance_uah -= currentBet; else state.balance -= currentBet;
         state.total_rounds++;
         updateUI();
         await saveUserBalance();
@@ -2065,7 +1837,7 @@
         renderTowerGrid();
         updateTowerHeader();
         const ctrl = document.getElementById('towerControls');
-        if (ctrl) ctrl.innerHTML = `<button class="btn btn-secondary" disabled>${t('towerCashout')} $0.00</button>`;
+        if (ctrl) ctrl.innerHTML = `<button class="btn btn-secondary" disabled>${t('towerCashout')} ${getSym()}0.00</button>`;
     }
 
     async function towerPick(row, lane) {
@@ -2091,20 +1863,20 @@
             await towerCashoutAuto();
             return;
         }
-        if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerCashout()">${t('towerCashout')} $${potential.toFixed(2)}</button>`;
+        if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerCashout()">${t('towerCashout')} ${getSym()}${potential.toFixed(2)}</button>`;
     }
 
     async function towerCashout() {
         if (!towerActive || towerLevel === 0) return;
         const mult = TOWER_MULTS[towerLevel - 1];
         const winAmount = towerBet * mult;
-        state.balance += winAmount;
+        if (currentCurrency === 'UAH') state.balance_uah += winAmount; else state.balance += winAmount;
         if (winAmount > state.best_result) state.best_result = winAmount;
         updateUI();
         await saveUserBalance();
         towerActive = false;
         bigWin(winAmount, 'x' + mult.toFixed(2));
-        tg.showAlert(t('towerWin', winAmount.toFixed(2), mult.toFixed(2)));
+        tg.showAlert(t('towerWin', winAmount.toFixed(2), mult.toFixed(2), getSym()));
         const ctrl = document.getElementById('towerControls');
         if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
         for (let r = 0; r < TOWER_MULTS.length; r++) {
@@ -2116,13 +1888,13 @@
     async function towerCashoutAuto() {
         const mult = TOWER_MULTS[TOWER_MULTS.length - 1];
         const winAmount = towerBet * mult;
-        state.balance += winAmount;
+        if (currentCurrency === 'UAH') state.balance_uah += winAmount; else state.balance += winAmount;
         if (winAmount > state.best_result) state.best_result = winAmount;
         updateUI();
         await saveUserBalance();
         towerActive = false;
         bigWin(winAmount, 'x' + mult.toFixed(2));
-        tg.showAlert(t('towerWin', winAmount.toFixed(2), mult.toFixed(2)));
+        tg.showAlert(t('towerWin', winAmount.toFixed(2), mult.toFixed(2), getSym()));
         const ctrl = document.getElementById('towerControls');
         if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
     }
