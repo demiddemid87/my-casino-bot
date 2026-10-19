@@ -3,75 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MADGEK CLUB</title>
+    <title>MADGEK CASINO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* ТЕМЫ */
         :root {
-            --bg: #0a0a0e; --surface: #15151c; --border: #2a2a35;
-            --text: #ffffff; --muted: #8b8b93; --accent: #FFD700; --accent-text: #000;
+            --bg: #050505;
+            --surface: rgba(20, 20, 25, 0.8);
+            --gold: #FFD700;
+            --gold-dark: #B8860B;
+            --text: #ffffff;
+            --muted: #8b8b93;
+            --border: rgba(255, 215, 0, 0.3);
         }
-        [data-theme="neon"] {
-            --bg: #050510; --surface: #0f0f20; --border: #1a1a3a;
-            --text: #e0e0ff; --muted: #6a6a8a; --accent: #00f3ff; --accent-text: #000;
-        }
-        [data-theme="ruby"] {
-            --bg: #0f0505; --surface: #1a0a0a; --border: #3a1515;
-            --text: #ffe0e0; --muted: #8a5a5a; --accent: #ff2a2a; --accent-text: #fff;
-        }
-
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
         body {
             background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif;
             padding: 15px 15px 90px; min-height: 100vh; overflow-x: hidden;
-            transition: background-color 0.3s ease;
+            background-image: radial-gradient(circle at top, #1a1508 0%, #050505 60%);
+            background-attachment: fixed;
         }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; }
-        .logo { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700; color: var(--accent); }
-        .balance { background: var(--surface); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 800; color: var(--accent); }
 
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
+        /* Эффект парящих частиц на фоне */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+        .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.3; animation: float linear infinite; }
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .logo { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 900; background: linear-gradient(to right, #FFD700, #FDB931); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+        
+        .music-btn { background: var(--surface); border: 1px solid var(--gold); color: var(--gold); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; margin-right: auto; margin-left: 15px; }
+        .music-btn.playing { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
+
+        .balance { background: var(--surface); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 800; color: var(--gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
         
         /* Навигация */
         .nav-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface);
+            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px);
             display: flex; justify-content: space-around; padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
             border-top: 1px solid var(--border); z-index: 100;
         }
-        .nav-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+        .nav-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; transition: 0.3s; }
         .nav-btn .icon { font-size: 22px; }
-        .nav-btn.active { color: var(--accent); }
+        .nav-btn.active { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); }
 
         /* Кнопки */
-        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; font-size: 15px; cursor: pointer; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px;}
-        .btn-primary { background: var(--accent); color: var(--accent-text); }
-        .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 800; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
+        .btn-secondary { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
         
         /* Формы */
-        input, select { width: 100%; padding: 15px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; }
-        textarea { width: 100%; padding: 15px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; height: 100px; resize: none;}
+        input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; transition: 0.3s; }
+        input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+        textarea { height: 100px; resize: none; }
 
         /* История */
-        .tx-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .tx-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
         .tx-item:last-child { border-bottom: none; }
         .tx-status { font-size: 11px; color: var(--muted); }
 
-        .avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--accent); display: flex; justify-content: center; align-items: center; font-size: 30px; color: var(--accent-text); font-weight: bold; }
-        
-        /* Переключатель тем */
-        .theme-selector { display: flex; gap: 10px; margin-top: 10px; }
-        .theme-btn { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; text-align: center; font-size: 12px; font-weight: bold; }
-        .theme-btn.active { border-color: var(--text); }
+        .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #FFD700, #B8860B); display: flex; justify-content: center; align-items: center; font-size: 30px; color: #000; font-weight: 900; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
 
         .hidden { display: none !important; }
     </style>
 </head>
-<body data-theme="gold">
+<body>
+
+    <div class="particles" id="particles"></div>
 
     <div class="header">
         <div class="logo">MADGEK</div>
+        <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
         <div class="balance" id="headerBalance">$0.00</div>
     </div>
 
@@ -81,7 +92,7 @@
             <div class="avatar" id="avatarLetter">U</div>
             <div>
                 <div style="font-size: 20px; font-weight: 800;" id="profName">Игрок</div>
-                <div style="font-size: 13px; color: var(--accent); font-weight: 600; margin-top: 4px;">VIP: <span id="profVip">Бронза</span></div>
+                <div style="font-size: 13px; color: var(--gold); font-weight: 600; margin-top: 4px;">VIP: <span id="profVip">Bronze</span></div>
                 <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">ID: <span id="profId">0</span></div>
             </div>
         </div>
@@ -96,32 +107,28 @@
                 <div style="font-size: 20px; font-weight: bold; margin-top: 5px;" id="profBest">$0.00</div>
             </div>
         </div>
-
-        <div class="card">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">Смена дизайна</div>
-            <div class="theme-selector">
-                <div class="theme-btn active" onclick="setTheme('gold')" style="background: #FFD700; color: #000;">Gold</div>
-                <div class="theme-btn" onclick="setTheme('neon')" style="background: #00f3ff; color: #000;">Neon</div>
-                <div class="theme-btn" onclick="setTheme('ruby')" style="background: #ff2a2a; color: #fff;">Ruby</div>
-            </div>
+        
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 13px; color: var(--gold); font-weight: bold; margin-bottom: 10px;">MADGEK PRIVATE CLUB</div>
+            <div style="font-size: 12px; color: var(--muted);">Играй, побеждай и забирай бонусы.</div>
         </div>
     </div>
 
     <!-- КАССА -->
     <div id="view-cash" class="hidden">
         <div class="card" style="text-align: center;">
-            <div style="font-size: 14px; color: var(--muted);">Ваш баланс</div>
-            <div style="font-size: 42px; font-weight: 800; color: var(--accent); margin: 10px 0;" id="cashBalance">$0.00</div>
+            <div style="font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px;">Баланс</div>
+            <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.3);" id="cashBalance">$0.00</div>
         </div>
 
         <div class="card">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 15px;">Пополнение</div>
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Пополнение</div>
             <input type="number" id="depAmount" value="1000" placeholder="Сумма">
             <button class="btn btn-primary" onclick="doDeposit()">Пополнить</button>
         </div>
 
         <div class="card">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 15px;">Вывод средств</div>
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Вывод средств</div>
             <input type="number" id="wdAmount" value="500" placeholder="Сумма">
             <button class="btn btn-secondary" onclick="doWithdraw()">Создать заявку</button>
         </div>
@@ -129,7 +136,7 @@
 
     <!-- ИСТОРИЯ -->
     <div id="view-history" class="hidden">
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">История операций</div>
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">История операций</div>
         <div class="card" id="txList">
             <div style="text-align: center; color: var(--muted); padding: 20px;">Загрузка...</div>
         </div>
@@ -137,7 +144,7 @@
 
     <!-- ПОДДЕРЖКА -->
     <div id="view-support" class="hidden">
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">Поддержка</div>
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);">Поддержка</div>
         <div class="card">
             <p style="font-size: 13px; color: var(--muted); margin-bottom: 15px;">Опишите проблему. Сообщение придет администратору в Telegram.</p>
             <textarea id="supMessage" placeholder="Ваше сообщение..."></textarea>
@@ -153,35 +160,63 @@
         <button class="nav-btn" id="nav-support" onclick="switchView('support')"><span class="icon">💬</span>Поддержка</button>
     </div>
 
+    <!-- АУДИО -->
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         let tg = window.Telegram.WebApp;
         if (tg) tg.expand();
         let user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок', username: 'guest' };
-        let state = { balance: 0, total_rounds: 0, best_result: 0, total_bet: 0 };
+        let state = { balance: 0, total_rounds: 0, best_result: 0 };
+        let isPlaying = false;
 
-        function setTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+        // --- МУЗЫКА ---
+        const music = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                musicBtn.classList.remove('playing');
+                musicBtn.innerText = '🎵';
+            } else {
+                music.volume = 0.3;
+                music.play().catch(e => tg.showAlert('Нажмите еще раз для включения звука'));
+                musicBtn.classList.add('playing');
+                musicBtn.innerText = '🔊';
+            }
+            isPlaying = !isPlaying;
         }
 
+        // --- ЧАСТИЦЫ ---
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 4 + 1;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = `${Math.random() * 100}%`;
+            p.style.animationDuration = `${Math.random() * 10 + 5}s`;
+            p.style.animationDelay = `${Math.random() * 5}s`;
+            particlesContainer.appendChild(p);
+        }
+
+        // --- API ---
         async function loadUser() {
             try {
                 const res = await fetch(`/api/user?id=${user.id}&username=${user.username}`);
                 const data = await res.json();
                 state.balance = data.balance; state.total_rounds = data.total_rounds; state.best_result = data.best_result;
                 updateUI();
-            } catch (e) { 
-                state.balance = 10000; 
-                updateUI(); 
-            }
+            } catch (e) { state.balance = 10000; updateUI(); }
         }
 
         function updateUI() {
             const balStr = '$' + state.balance.toFixed(2);
             document.getElementById('headerBalance').innerText = balStr;
             document.getElementById('cashBalance').innerText = balStr;
-            
             document.getElementById('profName').innerText = user.first_name;
             document.getElementById('profId').innerText = user.id;
             document.getElementById('avatarLetter').innerText = user.first_name.charAt(0).toUpperCase();
@@ -194,19 +229,15 @@
             document.getElementById('view-' + view).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('nav-' + view).classList.add('active');
-            
             if (view === 'history') loadHistory();
         }
 
         async function doDeposit() {
             const amt = parseFloat(document.getElementById('depAmount').value);
             if(!amt || amt <= 0) return tg.showAlert('Введите сумму');
-            
             try {
                 await fetch('/api/deposit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt }) });
-                state.balance += amt;
-                updateUI();
-                tg.showAlert(`✅ Баланс пополнен на $${amt}`);
+                state.balance += amt; updateUI(); tg.showAlert(`✅ Пополнено на $${amt}`);
             } catch(e) { tg.showAlert('Ошибка'); }
         }
 
@@ -214,14 +245,9 @@
             const amt = parseFloat(document.getElementById('wdAmount').value);
             if(!amt || amt <= 0) return tg.showAlert('Введите сумму');
             if(state.balance < amt) return tg.showAlert('Недостаточно средств');
-            
             try {
                 const res = await fetch('/api/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt }) });
-                if(res.ok) {
-                    state.balance -= amt;
-                    updateUI();
-                    tg.showAlert(`✅ Заявка на вывод $${amt} создана! Ожидайте.`);
-                } else { tg.showAlert('Ошибка вывода'); }
+                if(res.ok) { state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод создана!`); } else { tg.showAlert('Ошибка'); }
             } catch(e) { tg.showAlert('Ошибка'); }
         }
 
@@ -231,18 +257,12 @@
             try {
                 const res = await fetch(`/api/transactions?id=${user.id}`);
                 const data = await res.json();
-                if(data.length === 0) {
-                    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">История пуста</div>';
-                    return;
-                }
+                if(data.length === 0) { list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">История пуста</div>'; return; }
                 list.innerHTML = data.map(tx => {
-                    const color = tx.type === 'Deposit' ? 'var(--accent)' : '#ff4444';
+                    const color = tx.type === 'Deposit' ? 'var(--gold)' : '#ff4444';
                     const sign = tx.type === 'Deposit' ? '+' : '-';
                     return `<div class="tx-item">
-                        <div>
-                            <div style="font-weight:bold;">${tx.type === 'Deposit' ? 'Пополнение' : 'Вывод'}</div>
-                            <div class="tx-status">${tx.date} • ${tx.status === 'Pending' ? 'В обработке' : 'Выполнено'}</div>
-                        </div>
+                        <div><div style="font-weight:bold;">${tx.type === 'Deposit' ? 'Пополнение' : 'Вывод'}</div><div class="tx-status">${tx.date} • ${tx.status === 'Pending' ? 'В обработке' : 'Выполнено'}</div></div>
                         <div style="color: ${color}; font-weight: bold;">${sign}$${tx.amount.toFixed(2)}</div>
                     </div>`;
                 }).join('');
@@ -252,11 +272,9 @@
         async function sendSupport() {
             const msg = document.getElementById('supMessage').value.trim();
             if(!msg) return tg.showAlert('Введите сообщение');
-            
             try {
                 await fetch('/api/support', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, username: user.username, message: msg }) });
-                document.getElementById('supMessage').value = '';
-                tg.showAlert('✅ Сообщение отправлено!');
+                document.getElementById('supMessage').value = ''; tg.showAlert('✅ Отправлено!');
             } catch(e) { tg.showAlert('Ошибка'); }
         }
 
