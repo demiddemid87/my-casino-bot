@@ -41,6 +41,7 @@
         .nav-btn.active { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.5); }
         .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; font-family: inherit; }
         .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-primary { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-secondary { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
         input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; transition: 0.3s; }
@@ -191,12 +192,14 @@
     <div id="view-profile" class="hidden">
         <div class="card" style="display: flex; align-items: center; gap: 15px;">
             <div class="avatar" id="avatarLetter">U</div>
-            <div>
+            <div style="flex: 1;">
                 <div style="font-size: 20px; font-weight: 800;" id="profName">Игрок</div>
                 <div style="font-size: 13px; color: var(--gold); font-weight: 600; margin-top: 4px;">VIP: <span id="profVip">Bronze</span></div>
                 <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">ID: <span id="profId">0</span></div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">📱 <span id="profPhone">—</span></div>
             </div>
         </div>
+        <button class="btn btn-secondary" onclick="openRegisterEdit()" id="editRegBtn" style="display:none; margin-bottom:15px;" data-i18n="editRegBtn">✏️ Изменить данные</button>
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <div class="card" style="flex: 1; text-align: center; padding: 15px;">
                 <div style="font-size: 11px; color: var(--muted); text-transform: uppercase;" data-i18n="roundsLbl">Раундов</div>
@@ -222,6 +225,26 @@
         <button class="nav-btn" id="nav-cash" onclick="switchView('cash')"><span class="icon">💰</span><span data-i18n="cash">Касса</span></button>
         <button class="nav-btn" id="nav-support" onclick="switchView('support')"><span class="icon">💬</span><span data-i18n="support">Помощь</span></button>
         <button class="nav-btn" id="nav-profile" onclick="switchView('profile')"><span class="icon">👤</span><span data-i18n="profile">Профиль</span></button>
+    </div>
+
+    <!-- ===== РЕГИСТРАЦИЯ ===== -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-header">
+            <h2 data-i18n="regTitle">📝 Регистрация</h2>
+            <button class="close-btn" id="regCloseBtn" onclick="closeRegister()" style="display:none;">×</button>
+        </div>
+        <div class="modal-content">
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:56px; margin-bottom:10px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.5));">🎰</div>
+                <p style="color:var(--muted); font-size:13px; max-width:280px; line-height:1.5;" data-i18n="regSubtitle">Зарегистрируйтесь, чтобы получить доступ к играм и кассе</p>
+            </div>
+            <div style="width:100%; max-width:340px;">
+                <input type="text" id="regName" data-i18n-ph="regNamePh" placeholder="Ваше имя" maxlength="50" autocomplete="name">
+                <input type="tel" id="regPhone" data-i18n-ph="regPhonePh" placeholder="+7 999 123-45-67" maxlength="20" autocomplete="tel">
+                <button class="btn btn-primary" id="regSubmitBtn" onclick="doRegister()" data-i18n="regSubmit">Зарегистрироваться</button>
+                <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:8px;" data-i18n="regNote">Данные используются для выплат</div>
+            </div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="gameModal">
@@ -291,11 +314,9 @@
             wdCreated:'✅ Заявка на вывод создана!',
             insufficientBal:'Недостаточно. Баланс: ${0}',
             betPositive:'Ставка должна быть больше 0',
-            // Mines
             minesCountLbl:'Мин', minesPicks:'Открыто', minesMultiplier:'Множитель', minesPotential:'Потенциал',
             minesCashout:'Забрать', minesBoom:'💥 Бум! Вы попали на мину. Ставка потеряна.',
             minesCashed:'🎉 Забрано ${0} (x{1})!',
-            // Roulette
             rouletteSpin:'Крутить', rouletteSpinning:'Крутим...',
             rouletteSelectBet:'Выберите ставку',
             rouletteWin:'🎉 Выигрыш ${0}!', rouletteLose:'😔 Проигрыш ${0}',
@@ -304,6 +325,17 @@
             rouletteDozen1:'1-я 12', rouletteDozen2:'2-я 12', rouletteDozen3:'3-я 12',
             rouletteCol1:'Кол. 1', rouletteCol2:'Кол. 2', rouletteCol3:'Кол. 3',
             rouletteNumber:'Число', rouletteSelected:'Выбрано',
+            regTitle:'📝 Регистрация',
+            regSubtitle:'Зарегистрируйтесь, чтобы получить доступ к играм и кассе',
+            regNamePh:'Ваше имя',
+            regPhonePh:'+7 999 123-45-67',
+            regSubmit:'Зарегистрироваться',
+            regNote:'Данные используются для выплат',
+            regSuccess:'✅ Регистрация успешна!',
+            regNameErr:'Имя должно быть не короче 2 символов',
+            regPhoneErr:'Укажите корректный номер телефона',
+            regRequired:'Сначала зарегистрируйтесь',
+            editRegBtn:'✏️ Изменить данные',
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile',
@@ -368,6 +400,17 @@
             rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12',
             rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3',
             rouletteNumber:'Number', rouletteSelected:'Selected',
+            regTitle:'📝 Registration',
+            regSubtitle:'Register to access games and cashier',
+            regNamePh:'Your name',
+            regPhonePh:'+1 555 123-45-67',
+            regSubmit:'Register',
+            regNote:'Data is used for payouts',
+            regSuccess:'✅ Registration successful!',
+            regNameErr:'Name must be at least 2 characters',
+            regPhoneErr:'Please enter a valid phone number',
+            regRequired:'Please register first',
+            editRegBtn:'✏️ Edit data',
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil',
@@ -432,6 +475,17 @@
             rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12',
             rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3',
             rouletteNumber:'Liczba', rouletteSelected:'Wybrano',
+            regTitle:'📝 Rejestracja',
+            regSubtitle:'Zarejestruj się, aby uzyskać dostęp do gier i kasy',
+            regNamePh:'Twoje imię',
+            regPhonePh:'+48 500 123 456',
+            regSubmit:'Zarejestruj się',
+            regNote:'Dane wykorzystywane do wypłat',
+            regSuccess:'✅ Rejestracja zakończona sukcesem!',
+            regNameErr:'Imię musi mieć co najmniej 2 znaki',
+            regPhoneErr:'Podaj prawidłowy numer telefonu',
+            regRequired:'Najpierw się zarejestruj',
+            editRegBtn:'✏️ Edytuj dane',
         }
     };
 
@@ -465,7 +519,7 @@
     let tg = window.Telegram.WebApp;
     if (tg) tg.expand();
     let user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок', username: 'guest' };
-    let state = { balance: 0, total_rounds: 0, best_result: 0 };
+    let state = { balance: 0, total_rounds: 0, best_result: 0, registered: false, phone: null, regName: null, loaded: false };
     let isPlaying = false;
     let currentBet = 100;
     let currentTab = 'pop';
@@ -540,11 +594,72 @@
             state.balance = data.balance;
             state.total_rounds = data.total_rounds;
             state.best_result = data.best_result;
+            state.registered = !!data.registered;
+            state.phone = data.phone;
+            state.regName = data.reg_name;
+            state.loaded = true;
+            localStorage.setItem('reg_state', state.registered ? 'yes' : 'no');
             updateUI();
+            checkRegistration();
             if (manual) tg.showAlert(t('balanceUpdated'));
         } catch (e) {
             if (manual) tg.showAlert(t('serverSleep'));
         }
+    }
+
+    function checkRegistration() {
+        const modal = document.getElementById('registerModal');
+        const closeBtn = document.getElementById('regCloseBtn');
+        if (!modal) return;
+        if (!state.registered) {
+            modal.classList.add('open');
+            if (closeBtn) closeBtn.style.display = 'none';
+            if (!document.getElementById('regName').value && state.regName) {
+                document.getElementById('regName').value = state.regName;
+            }
+        } else if (!window._regEditMode) {
+            modal.classList.remove('open');
+            if (closeBtn) closeBtn.style.display = 'none';
+        }
+    }
+
+    function openRegisterEdit() {
+        if (!state.registered) return;
+        window._regEditMode = true;
+        document.getElementById('regName').value = state.regName || '';
+        document.getElementById('regPhone').value = state.phone || '';
+        document.getElementById('regCloseBtn').style.display = 'block';
+        document.getElementById('registerModal').classList.add('open');
+    }
+
+    function closeRegister() {
+        if (!state.registered) return;
+        window._regEditMode = false;
+        document.getElementById('regCloseBtn').style.display = 'none';
+        document.getElementById('registerModal').classList.remove('open');
+    }
+
+    async function doRegister() {
+        const nameEl = document.getElementById('regName');
+        const phoneEl = document.getElementById('regPhone');
+        const btn = document.getElementById('regSubmitBtn');
+        if (!nameEl || !phoneEl) return;
+        const name = nameEl.value.trim();
+        const phone = phoneEl.value.trim();
+        if (name.length < 2) return tg.showAlert(t('regNameErr'));
+        if (phone.replace(/\D/g, '').length < 7) return tg.showAlert(t('regPhoneErr'));
+        if (btn) { btn.disabled = true; btn.textContent = t('loading'); }
+        const data = await postApi('/api/register', { name, phone });
+        if (btn) { btn.disabled = false; btn.textContent = t('regSubmit'); }
+        if (data.error) return tg.showAlert(translateErr(data.error));
+        state.registered = true;
+        state.regName = name;
+        state.phone = phone;
+        window._regEditMode = false;
+        localStorage.setItem('reg_state', 'yes');
+        checkRegistration();
+        updateUI();
+        tg.showAlert(t('regSuccess'));
     }
 
     function updateUI() {
@@ -556,6 +671,10 @@
         document.getElementById('avatarLetter').innerText = (user.first_name || 'U').charAt(0).toUpperCase();
         document.getElementById('profRounds').innerText = state.total_rounds;
         document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2);
+        const profPhone = document.getElementById('profPhone');
+        if (profPhone) profPhone.innerText = state.phone || '—';
+        const editBtn = document.getElementById('editRegBtn');
+        if (editBtn) editBtn.style.display = state.registered ? 'block' : 'none';
     }
 
     setInterval(() => {
@@ -623,6 +742,7 @@
     }
 
     async function doDeposit() {
+        if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
         const amt = parseFloat(document.getElementById('depAmount').value);
         if (!amt || amt < minLimits[depMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[depMethod]);
         const data = await postApi('/api/deposit', { amount: amt, method: depMethod });
@@ -631,6 +751,7 @@
     }
 
     async function doWithdraw() {
+        if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
         const amt = parseFloat(document.getElementById('wdAmount').value);
         if (isNaN(amt) || amt <= 0) return tg.showAlert(t('enterMsg'));
         if (amt < minLimits[wdMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[wdMethod]);
@@ -703,6 +824,11 @@
     }
 
     function openGame(gameId) {
+        if (state.loaded && !state.registered) {
+            tg.showAlert(t('regRequired'));
+            checkRegistration();
+            return;
+        }
         document.getElementById('gameModal').classList.add('open');
         const title = document.getElementById('modalTitle');
         const content = document.getElementById('modalContent');
@@ -1391,6 +1517,10 @@
     document.documentElement.lang = lang;
     applyLang();
     switchTab('pop');
+    // Кэш: если в прошлый раз не был зарегистрирован — модалка сразу
+    if (localStorage.getItem('reg_state') !== 'yes') {
+        document.getElementById('registerModal').classList.add('open');
+    }
     loadUser();
     </script>
 </body>
