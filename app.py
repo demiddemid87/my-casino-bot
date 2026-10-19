@@ -79,7 +79,6 @@ def deposit():
         bot.send_message(ADMIN_ID, f"💰 **Заявка на пополнение #{tx_id}**\nID: {user_id}\nСумма: ${amount}\nСеть: {method}", reply_markup=markup, parse_mode='Markdown')
         return jsonify({'status': 'ok'})
     except Exception as e:
-        print("Deposit error:", e)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/withdraw', methods=['POST'])
@@ -116,7 +115,6 @@ def withdraw():
             conn.close()
             return jsonify({'error': f'Недостаточно средств. Ваш баланс: ${bal}'}), 400
     except Exception as e:
-        print("Withdraw error:", e)
         return jsonify({'error': str(e)}), 500
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
