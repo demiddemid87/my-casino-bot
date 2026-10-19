@@ -11,7 +11,7 @@ bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 ADMIN_ID = 7695713296
-WEBAPP_URL = "https://my-casino-bot-2.onrender.com"
+WEBAPP_URL = "https://my-casino-bot-3.onrender.com"
 
 RED_ROULETTE_NUMBERS = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
 MINES_ROUNDS = {}
