@@ -342,7 +342,11 @@
                 { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' }
             ],
             table: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' } ],
-            slots: [ { id: 'crash', icon: '🚀', name: 'Ракетка', desc: 'Успей забрать' } ]
+            slots: [ 
+                { id: 'crash', icon: '🚀', name: 'Ракетка', desc: 'Успей забрать' },
+                { id: 'slots_classic', icon: '🎰', name: 'Classic Slots', desc: '3 барабана' },
+                { id: 'slots_lucky7', icon: '7️⃣', name: 'Lucky 7', desc: 'Лови семёрки' }
+            ]
         };
 
         function switchTab(tab) {
@@ -484,6 +488,36 @@
                 document.getElementById('crashRocket').style.display = 'block';
                 document.getElementById('crashRocket').style.bottom = '10%';
                 document.getElementById('crashRocket').style.left = '10%';
+            } else if (gameId === 'slots_classic') {
+                title.innerText = '🎰 Classic Slots';
+                content.innerHTML = `
+                    ${chipsHTML}
+                    <div style="width:100%; max-width:400px; background:#111; border:2px solid var(--border); border-radius:16px; padding:30px 20px; text-align:center; margin-bottom:20px;">
+                        <div id="slotReels" style="font-size:52px; min-height:70px; display:flex; justify-content:center; gap:10px;">
+                            <span>❓</span><span>❓</span><span>❓</span>
+                        </div>
+                        <div id="slotResult" style="margin-top:15px; font-size:16px; color:var(--muted); min-height:24px;">Крути и выигрывай</div>
+                    </div>
+                    <div id="slotControls" style="width:100%; max-width:340px; display:flex; justify-content:center;">
+                        <button class="btn btn-primary" onclick="startSlotsClassic()">Крутить</button>
+                    </div>
+                `;
+                renderBetChips('betChips');
+            } else if (gameId === 'slots_lucky7') {
+                title.innerText = '7️⃣ Lucky 7';
+                content.innerHTML = `
+                    ${chipsHTML}
+                    <div style="width:100%; max-width:400px; background:#1a0a0a; border:2px solid var(--gold); border-radius:16px; padding:30px 20px; text-align:center; margin-bottom:20px;">
+                        <div id="luckyReels" style="font-size:52px; min-height:70px; display:flex; justify-content:center; gap:10px;">
+                            <span>❓</span><span>❓</span><span>❓</span>
+                        </div>
+                        <div id="luckyResult" style="margin-top:15px; font-size:16px; color:var(--muted); min-height:24px;">Три 7-ки = x30</div>
+                    </div>
+                    <div id="luckyControls" style="width:100%; max-width:340px; display:flex; justify-content:center;">
+                        <button class="btn btn-primary" onclick="startSlotsLucky7()">Крутить</button>
+                    </div>
+                `;
+                renderBetChips('betChips');
             }
         }
 
@@ -632,6 +666,90 @@
             rocketEl.innerText = '✅';
             controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">Заново</button>`;
             tg.showAlert(`🎉 Вы забрали $${winAmount.toFixed(2)} на множителе x${crashMult.toFixed(2)}!`);
+        }
+
+        // --- SLOTS CLASSIC ---
+        async function startSlotsClassic() {
+            if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
+            const btn = document.getElementById('slotControls');
+            const reels = document.getElementById('slotReels');
+            const res = document.getElementById('slotResult');
+            btn.innerHTML = '<button class="btn btn-primary" disabled>Крутим...</button>';
+            res.innerText = '';
+            const animSyms = ['🍒','🍋','🍊','🍇','💎','7️⃣'];
+            const anim = setInterval(() => {
+                reels.innerHTML = `<span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span>`;
+            }, 80);
+            try {
+                const r = await fetch('/api/slots/classic', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ id: user.id, bet: currentBet })
+                });
+                const d = await r.json();
+                clearInterval(anim);
+                if (d.error) {
+                    btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsClassic()">Крутить</button>';
+                    return tg.showAlert(d.error);
+                }
+                reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
+                state.balance = d.balance;
+                state.total_rounds++;
+                updateUI();
+                if (d.win > 0) {
+                    res.innerText = `🎉 +$${d.win.toFixed(2)} (x${d.multiplier})`;
+                    res.style.color = 'var(--green)';
+                } else {
+                    res.innerText = '😔 Мимо';
+                    res.style.color = 'var(--red)';
+                }
+                btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsClassic()">Крутить снова</button>';
+            } catch (e) {
+                clearInterval(anim);
+                btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsClassic()">Крутить</button>';
+                tg.showAlert('Ошибка сети');
+            }
+        }
+
+        // --- SLOTS LUCKY 7 ---
+        async function startSlotsLucky7() {
+            if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
+            const btn = document.getElementById('luckyControls');
+            const reels = document.getElementById('luckyReels');
+            const res = document.getElementById('luckyResult');
+            btn.innerHTML = '<button class="btn btn-primary" disabled>Крутим...</button>';
+            res.innerText = '';
+            const animSyms = ['🍒','🍋','7️⃣'];
+            const anim = setInterval(() => {
+                reels.innerHTML = `<span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span>`;
+            }, 80);
+            try {
+                const r = await fetch('/api/slots/lucky7', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ id: user.id, bet: currentBet })
+                });
+                const d = await r.json();
+                clearInterval(anim);
+                if (d.error) {
+                    btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsLucky7()">Крутить</button>';
+                    return tg.showAlert(d.error);
+                }
+                reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
+                state.balance = d.balance;
+                state.total_rounds++;
+                updateUI();
+                if (d.win > 0) {
+                    res.innerText = `🎉 +$${d.win.toFixed(2)} (x${d.multiplier})`;
+                    res.style.color = 'var(--green)';
+                } else {
+                    res.innerText = '😔 Мимо';
+                    res.style.color = 'var(--red)';
+                }
+                btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsLucky7()">Крутить снова</button>';
+            } catch (e) {
+                clearInterval(anim);
+                btn.innerHTML = '<button class="btn btn-primary" onclick="startSlotsLucky7()">Крутить</button>';
+                tg.showAlert('Ошибка сети');
+            }
         }
 
         switchTab('pop');
