@@ -36,16 +36,6 @@ def init_db():
                      ))""")
     except Exception:
         pass
-    try:
-        c.execute("""UPDATE users SET balance = 0 
-                     WHERE balance = 10000.0 
-                     AND total_rounds = 0
-                     AND id NOT IN (
-                         SELECT DISTINCT user_id FROM transactions 
-                         WHERE type = 'Deposit' AND status IN ('Completed', 'Pending')
-                     )""")
-    except Exception:
-        pass
     conn.commit()
     conn.close()
 
@@ -137,7 +127,6 @@ def deposit():
         data = request.json
         user_id, amount, method = int(data['id']), float(data['amount']), data.get('method', 'USDT')
         
-        # Добавлена гривна (минимум 500)
         min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0, 'UAH': 500.0}
         
         if amount < min_limits.get(method, 15.0):
@@ -169,7 +158,6 @@ def withdraw():
         data = request.json
         user_id, amount, method = int(data['id']), float(data['amount']), data.get('method', 'USDT')
         
-        # Добавлена гривна (минимум 500)
         min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0, 'UAH': 500.0}
         
         if amount < min_limits.get(method, 15.0):
@@ -205,7 +193,6 @@ def withdraw():
 # ============ ИСПРАВЛЕННЫЙ ОБРАБОТЧИК КНОПОК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
-    # 1. СРАЗУ убираем "часики" на кнопке!
     try:
         bot.answer_callback_query(call.id, "⏳ Обработка...")
     except Exception:
@@ -253,7 +240,6 @@ def handle_admin_action(call):
         conn.commit()
         conn.close()
 
-        # Уведомляем игрока
         try:
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("🎰 Открыть казино", web_app=types.WebAppInfo(url=WEBAPP_URL)))
@@ -261,7 +247,6 @@ def handle_admin_action(call):
         except Exception as e:
             print("notify user error:", e)
 
-        # Обновляем сообщение у админа
         try:
             new_text = call.message.text + "\n\n" + status_line
             bot.edit_message_text(new_text, call.message.chat.id, call.message.message_id, reply_markup=None)
@@ -270,7 +255,6 @@ def handle_admin_action(call):
 
     except Exception as e:
         print("Callback handler error:", e)
-# ========================================================
 
 @app.route('/api/support', methods=['POST'])
 def support():
@@ -600,6 +584,7 @@ def server_error(e):
 def index():
     return send_file('index.html')
 
+# ============ ЧИСТЫЙ СТАРТ БЕЗ ПОДПИСОК ============
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup()
@@ -609,6 +594,6 @@ def start(message):
 
 if __name__ == "__main__":
     import threading
-    # skip_pending=True критически важно, чтобы при перезапуске кнопки не зависали
+    # skip_pending=True обязательно
     threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), threaded=True)
