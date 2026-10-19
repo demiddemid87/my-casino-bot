@@ -86,6 +86,41 @@
         .input-group input { margin-bottom: 0; }
         .input-group .min-label { position: absolute; bottom: -18px; left: 5px; font-size: 11px; color: var(--muted); }
         .hidden { display: none !important; }
+
+        /* MINES */
+        .mines-count-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; width: 100%; max-width: 340px; margin-bottom: 12px; }
+        .mines-count-btn { padding: 8px 2px; font-size: 12px; font-weight: 700; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .mines-count-btn.selected { background: var(--gold); color: #000; border-color: var(--gold); }
+        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 340px; margin-bottom: 12px; }
+        .mines-cell { aspect-ratio: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.2s; }
+        .mines-cell:hover { border-color: var(--gold); }
+        .mines-cell.safe { background: rgba(76, 175, 80, 0.25); border-color: var(--green); cursor: default; }
+        .mines-cell.mine { background: rgba(229, 57, 53, 0.3); border-color: var(--red); cursor: default; }
+        .mines-cell.mine-hit { background: var(--red); border-color: var(--red); cursor: default; }
+        .mines-info { width: 100%; max-width: 340px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.4); padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+
+        /* ROULETTE */
+        .roulette-reel-container { width: 100%; max-width: 340px; height: 70px; background: #000; border: 2px solid var(--gold); border-radius: 12px; position: relative; overflow: hidden; margin-bottom: 10px; }
+        .roulette-reel { display: flex; position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
+        .roulette-cell-strip { width: 60px; flex-shrink: 0; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #fff; border-right: 1px solid rgba(0,0,0,0.3); }
+        .roulette-cell-strip.red { background: #8B0000; }
+        .roulette-cell-strip.black { background: #1a1a1a; }
+        .roulette-cell-strip.green { background: #0a4a0a; }
+        .roulette-pointer { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); color: var(--gold); font-size: 20px; z-index: 10; text-shadow: 0 0 8px var(--gold); }
+        .roulette-result-display { width: 100%; max-width: 340px; font-size: 26px; font-weight: 900; font-family: 'Cinzel', serif; padding: 8px 20px; border-radius: 12px; margin-bottom: 10px; min-height: 46px; display: flex; align-items: center; justify-content: center; }
+        .roulette-bet-info { font-size: 12px; color: var(--muted); margin-bottom: 10px; padding: 6px 12px; background: rgba(0,0,0,0.4); border-radius: 8px; text-align: center; width: 100%; max-width: 340px; }
+        .roul-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 100%; max-width: 340px; margin-bottom: 8px; }
+        .roul-btn { padding: 10px 4px; font-size: 11px; font-weight: 700; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .roul-btn.selected { background: var(--gold); color: #000; border-color: var(--gold); }
+        .roul-numbers { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; width: 100%; max-width: 340px; margin-bottom: 12px; margin-top: 4px; }
+        .roul-num { padding: 9px 2px; font-size: 13px; font-weight: 800; border-radius: 6px; cursor: pointer; font-family: inherit; border: 1px solid rgba(0,0,0,0.3); color: #fff; transition: 0.2s; }
+        .roul-num.red { background: #8B0000; }
+        .roul-num.black { background: #1a1a1a; }
+        .roul-num.green { background: #0a4a0a; }
+        .roul-num.selected { outline: 3px solid var(--gold); outline-offset: -1px; }
+        .roul-zero { width: 100%; max-width: 340px; padding: 10px; margin-bottom: 6px; font-size: 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-family: inherit; border: 1px solid rgba(0,0,0,0.3); color: #fff; transition: 0.2s; background: #0a4a0a; }
+        .roul-zero.selected { outline: 3px solid var(--gold); outline-offset: -1px; }
+
         #audioPrompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate; pointer-events: none; text-align: center; }
         @keyframes bounce { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
     </style>
@@ -202,7 +237,7 @@
     </audio>
 
     <script>
-    // ============ I18N ============
+    // ============ i18n ============
     const i18n = {
         ru: {
             games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль',
@@ -212,15 +247,17 @@
             bacc:'Baccarat', baccDesc:'Игрок vs Банкир',
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 барабана',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Лови семёрки',
+            mines:'Мины', minesDesc:'5×5, открой безопасные',
+            roulette:'Рулетка', rouletteDesc:'Европейская',
             balanceLbl:'Баланс', topupLbl:'Пополнение (Заявка)', withdrawLbl:'Вывод средств',
             historyLbl:'История', createReq:'Создать заявку', sendBtn:'Отправить',
             msgPlaceholder:'Ваше сообщение...', supportTitle:'Поддержка',
-            roundsLbl:'Раундов', bestWinLbl:'Лучший выигрыш', playerLbl:'Игрок',
+            roundsLbl:'Раундов', bestWinLbl:'Лучший выигрыш',
             minAmountPrefix:'Мин. сумма: $',
             depositLbl:'Пополнение', withdrawLblTx:'Вывод',
             pendingLbl:'В обработке', completedLbl:'Выполнено', rejectedLbl:'Отклонено',
             loading:'Загрузка...', historyEmpty:'История пуста',
-            bet:'Ставка', dealer:'Дилер', you:'Вы', banker:'Банкир', playerGame:'Игрок',
+            dealer:'Дилер', you:'Вы', banker:'Банкир', playerGame:'Игрок',
             take:'Взять', stand:'Хватит', playAgain:'Играть снова',
             start:'Запустить', cashoutNow:'Забрать (x{0})',
             spin:'Крутить', spinAgain:'Крутить снова', spinning:'Крутим...',
@@ -230,10 +267,12 @@
             betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
             rulesBtn:'📖 Правила', hideRules:'✖ Скрыть',
             rulesCrash:'Множитель растёт с момента старта. Нажмите «Забрать», чтобы зафиксировать выигрыш. Если ракета взорвётся раньше — ставка сгорает. Максимум x100.',
-            rulesBj:'Цель — набрать 21 очко или ближе к 21, чем у дилера. 2-10 по номиналу, J/Q/K = 10, туз = 1 или 11. Блэкджек (21 с 2 карт) платит x2.5. Дилер берёт до 17.',
-            rulesBacc:'Ставки: Player (1:1), Banker (0.95:1), Tie (8:1). По 2 карты. Ближе к 9 — победа. A=1, 2-9 номинал, 10/J/Q/K=0. Третья карта — по стандартным правилам.',
+            rulesBj:'Цель — набрать 21 очко или ближе к 21, чем у дилера. 2-10 по номиналу, J/Q/K = 10, туз = 1 или 11. Блэкджек платит x2.5. Дилер берёт до 17.',
+            rulesBacc:'Ставки: Player (1:1), Banker (0.95:1), Tie (8:1). По 2 карты. Ближе к 9 — победа. A=1, 2-9 номинал, 10/J/Q/K=0.',
             rulesClassic:'3 барабана. Три одинаковых: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Два одинаковых: x1.5 (x2 с 💎 или 7️⃣).',
             rulesLucky:'3 барабана. Три 7️⃣ = x30, две 7️⃣ = x5, одна 7️⃣ = x1.5. Три одинаковых (не 7) = x3.',
+            rulesMines:'Поле 5×5. Выберите количество мин и откройте безопасные клетки. Каждая безопасная клетка увеличивает множитель. Нажмите «Забрать», чтобы забрать текущий выигрыш. Попадётесь на мину — потеряете ставку.',
+            rulesRoulette:'Европейская рулетка (37 чисел, 0-36). Ставки: число (35:1), красное/чёрное (1:1), чёт/нечет (1:1), 1-18/19-36 (1:1), дюжина (2:1), колонка (2:1). 0 — преимущество казино.',
             insufficient:'Недостаточно средств!', balanceUpdated:'Баланс обновлен!',
             serverSleep:'Сервер спит, подождите 50 секунд.',
             netErr:'Ошибка сети', errPrefix:'Ошибка: ',
@@ -252,7 +291,19 @@
             wdCreated:'✅ Заявка на вывод создана!',
             insufficientBal:'Недостаточно. Баланс: ${0}',
             betPositive:'Ставка должна быть больше 0',
-            topupCreatedShort:'✅ Заявка на пополнение создана!'
+            // Mines
+            minesCountLbl:'Мин', minesPicks:'Открыто', minesMultiplier:'Множитель', minesPotential:'Потенциал',
+            minesCashout:'Забрать', minesBoom:'💥 Бум! Вы попали на мину. Ставка потеряна.',
+            minesCashed:'🎉 Забрано ${0} (x{1})!',
+            // Roulette
+            rouletteSpin:'Крутить', rouletteSpinning:'Крутим...',
+            rouletteSelectBet:'Выберите ставку',
+            rouletteWin:'🎉 Выигрыш ${0}!', rouletteLose:'😔 Проигрыш ${0}',
+            rouletteRed:'Красное', rouletteBlack:'Чёрное',
+            rouletteOdd:'Нечёт', rouletteEven:'Чёт',
+            rouletteDozen1:'1-я 12', rouletteDozen2:'2-я 12', rouletteDozen3:'3-я 12',
+            rouletteCol1:'Кол. 1', rouletteCol2:'Кол. 2', rouletteCol3:'Кол. 3',
+            rouletteNumber:'Число', rouletteSelected:'Выбрано',
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile',
@@ -262,15 +313,17 @@
             bacc:'Baccarat', baccDesc:'Player vs Banker',
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens',
+            mines:'Mines', minesDesc:'5×5, reveal safe',
+            roulette:'Roulette', rouletteDesc:'European',
             balanceLbl:'Balance', topupLbl:'Deposit (Request)', withdrawLbl:'Withdraw funds',
             historyLbl:'History', createReq:'Create request', sendBtn:'Send',
             msgPlaceholder:'Your message...', supportTitle:'Support',
-            roundsLbl:'Rounds', bestWinLbl:'Best win', playerLbl:'Player',
+            roundsLbl:'Rounds', bestWinLbl:'Best win',
             minAmountPrefix:'Min amount: $',
             depositLbl:'Deposit', withdrawLblTx:'Withdrawal',
             pendingLbl:'Pending', completedLbl:'Completed', rejectedLbl:'Rejected',
             loading:'Loading...', historyEmpty:'No history yet',
-            bet:'Bet', dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player',
+            dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player',
             take:'Hit', stand:'Stand', playAgain:'Play again',
             start:'Start', cashoutNow:'Cash out (x{0})',
             spin:'Spin', spinAgain:'Spin again', spinning:'Spinning...',
@@ -280,10 +333,12 @@
             betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
             rulesBtn:'📖 Rules', hideRules:'✖ Hide',
             rulesCrash:'The multiplier grows from start. Press "Cash out" to lock in your winnings. If the rocket explodes earlier — bet is lost. Max x100.',
-            rulesBj:'Goal — reach 21 or get closer to 21 than the dealer. 2-10 face value, J/Q/K = 10, ace = 1 or 11. Blackjack (21 with 2 cards) pays x2.5. Dealer draws to 17.',
-            rulesBacc:'Bets: Player (1:1), Banker (0.95:1), Tie (8:1). Two cards each. Closer to 9 wins. A=1, 2-9 face value, 10/J/Q/K=0. Third card follows standard rules.',
+            rulesBj:'Goal — reach 21 or get closer to 21 than the dealer. 2-10 face value, J/Q/K = 10, ace = 1 or 11. Blackjack pays x2.5. Dealer draws to 17.',
+            rulesBacc:'Bets: Player (1:1), Banker (0.95:1), Tie (8:1). Two cards each. Closer to 9 wins. A=1, 2-9 face value, 10/J/Q/K=0.',
             rulesClassic:'3 reels. Three of a kind: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Two of a kind: x1.5 (x2 with 💎 or 7️⃣).',
             rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5. Three of a kind (not 7) = x3.',
+            rulesMines:'5×5 grid. Choose mine count and reveal safe cells. Each safe cell increases the multiplier. Press "Cash out" to collect. Hit a mine — lose your bet.',
+            rulesRoulette:'European roulette (37 numbers, 0-36). Bets: straight (35:1), red/black (1:1), odd/even (1:1), 1-18/19-36 (1:1), dozen (2:1), column (2:1). 0 is the house edge.',
             insufficient:'Insufficient funds!', balanceUpdated:'Balance updated!',
             serverSleep:'Server is sleeping, wait 50 seconds.',
             netErr:'Network error', errPrefix:'Error: ',
@@ -302,7 +357,17 @@
             wdCreated:'✅ Withdrawal request created!',
             insufficientBal:'Insufficient. Balance: ${0}',
             betPositive:'Bet must be greater than 0',
-            topupCreatedShort:'✅ Deposit request created!'
+            minesCountLbl:'Mines', minesPicks:'Picks', minesMultiplier:'Multiplier', minesPotential:'Potential',
+            minesCashout:'Cash out', minesBoom:'💥 Boom! You hit a mine. Bet lost.',
+            minesCashed:'🎉 Cashed ${0} (x{1})!',
+            rouletteSpin:'Spin', rouletteSpinning:'Spinning...',
+            rouletteSelectBet:'Select a bet',
+            rouletteWin:'🎉 Win ${0}!', rouletteLose:'😔 Loss ${0}',
+            rouletteRed:'Red', rouletteBlack:'Black',
+            rouletteOdd:'Odd', rouletteEven:'Even',
+            rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12',
+            rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3',
+            rouletteNumber:'Number', rouletteSelected:'Selected',
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil',
@@ -312,15 +377,17 @@
             bacc:'Baccarat', baccDesc:'Gracz vs Bankier',
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki',
+            mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
+            roulette:'Ruletka', rouletteDesc:'Europejska',
             balanceLbl:'Saldo', topupLbl:'Wpłata (Wniosek)', withdrawLbl:'Wypłata środków',
             historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
             msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc',
-            roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana', playerLbl:'Gracz',
+            roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana',
             minAmountPrefix:'Min. kwota: $',
             depositLbl:'Wpłata', withdrawLblTx:'Wypłata',
             pendingLbl:'W trakcie', completedLbl:'Zrealizowano', rejectedLbl:'Odrzucono',
             loading:'Ładowanie...', historyEmpty:'Historia jest pusta',
-            bet:'Zakład', dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz',
+            dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz',
             take:'Dobierz', stand:'Stop', playAgain:'Zagraj ponownie',
             start:'Start', cashoutNow:'Odbierz (x{0})',
             spin:'Kręcić', spinAgain:'Kręcić ponownie', spinning:'Kręcimy...',
@@ -330,10 +397,12 @@
             betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
             rulesBtn:'📖 Zasady', hideRules:'✖ Ukryj',
             rulesCrash:'Mnożnik rośnie od startu. Naciśnij „Odbierz", aby zablokować wygraną. Jeśli rakieta eksploduje wcześniej — zakład przepada. Maks. x100.',
-            rulesBj:'Cel — osiągnąć 21 lub być bliżej 21 niż krupier. 2-10 według nominału, J/Q/K = 10, as = 1 lub 11. Blackjack (21 z 2 kart) płaci x2.5. Krupier dobiera do 17.',
-            rulesBacc:'Zakłady: Player (1:1), Banker (0.95:1), Tie (8:1). Po 2 karty. Bliżej 9 — wygrana. A=1, 2-9 nominał, 10/J/Q/K=0. Trzecia karta według standardowych zasad.',
+            rulesBj:'Cel — osiągnąć 21 lub być bliżej 21 niż krupier. 2-10 według nominału, J/Q/K = 10, as = 1 lub 11. Blackjack płaci x2.5. Krupier dobiera do 17.',
+            rulesBacc:'Zakłady: Player (1:1), Banker (0.95:1), Tie (8:1). Po 2 karty. Bliżej 9 — wygrana. A=1, 2-9 nominał, 10/J/Q/K=0.',
             rulesClassic:'3 bębny. Trzy takie same: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Dwa takie same: x1.5 (x2 z 💎 lub 7️⃣).',
             rulesLucky:'3 bębny. Trzy 7️⃣ = x30, dwie 7️⃣ = x5, jedna 7️⃣ = x1.5. Trzy takie same (nie 7) = x3.',
+            rulesMines:'Pole 5×5. Wybierz liczbę min i odkrywaj bezpieczne komórki. Każda bezpieczna komórka zwiększa mnożnik. Naciśnij „Odbierz", aby zgarnąć wygraną. Trafisz minę — tracisz zakład.',
+            rulesRoulette:'Ruletka europejska (37 liczb, 0-36). Zakłady: numer (35:1), czerwone/czarne (1:1), nieparzyste/parzyste (1:1), 1-18/19-36 (1:1), tuzin (2:1), kolumna (2:1). 0 to przewaga kasyna.',
             insufficient:'Niewystarczające środki!', balanceUpdated:'Saldo zaktualizowane!',
             serverSleep:'Serwer śpi, poczekaj 50 sekund.',
             netErr:'Błąd sieci', errPrefix:'Błąd: ',
@@ -352,7 +421,17 @@
             wdCreated:'✅ Wniosek o wypłatę utworzony!',
             insufficientBal:'Za mało. Saldo: ${0}',
             betPositive:'Zakład musi być większy niż 0',
-            topupCreatedShort:'✅ Wniosek o wpłatę utworzony!'
+            minesCountLbl:'Miny', minesPicks:'Odkryto', minesMultiplier:'Mnożnik', minesPotential:'Potencjał',
+            minesCashout:'Odbierz', minesBoom:'💥 Bum! Trafiłeś na minę. Zakład przepadł.',
+            minesCashed:'🎉 Odebrano ${0} (x{1})!',
+            rouletteSpin:'Kręcić', rouletteSpinning:'Kręcimy...',
+            rouletteSelectBet:'Wybierz zakład',
+            rouletteWin:'🎉 Wygrana ${0}!', rouletteLose:'😔 Przegrana ${0}',
+            rouletteRed:'Czerwone', rouletteBlack:'Czarne',
+            rouletteOdd:'Nieparzyste', rouletteEven:'Parzyste',
+            rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12',
+            rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3',
+            rouletteNumber:'Liczba', rouletteSelected:'Wybrano',
         }
     };
 
@@ -364,23 +443,13 @@
     }
 
     function applyLang() {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            el.textContent = t(el.dataset.i18n);
-        });
-        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-            el.placeholder = t(el.dataset.i18nPh);
-        });
-        document.querySelectorAll('.lang-btn').forEach(b => {
-            b.classList.toggle('active', b.dataset.lang === lang);
-        });
-        // min labels
+        document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+        document.querySelectorAll('.lang-btn').forEach(b => { b.classList.toggle('active', b.dataset.lang === lang); });
         document.getElementById('depMinLabel').textContent = t('minAmountPrefix') + minLimits[depMethod];
         document.getElementById('wdMinLabel').textContent = t('minAmountPrefix') + minLimits[wdMethod];
-        // avatar, profile name stays
         if (typeof state !== 'undefined') updateUI();
-        // re-render current tab
         if (typeof currentTab !== 'undefined' && currentTab) switchTab(currentTab);
-        // close open game modal so it re-renders in new lang
         if (document.getElementById('gameModal').classList.contains('open')) closeGame();
     }
 
@@ -392,7 +461,7 @@
         applyLang();
     }
 
-    // ============ GLOBAL STATE ============
+    // ============ Globals ============
     let tg = window.Telegram.WebApp;
     if (tg) tg.expand();
     let user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок', username: 'guest' };
@@ -403,6 +472,9 @@
     let depMethod = 'USDT';
     let wdMethod = 'USDT';
     const minLimits = { 'USDT': 15, 'BTC': 50, 'ETH': 20 };
+
+    const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+    const RED_SET = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     const music = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
@@ -448,6 +520,19 @@
         particlesContainer.appendChild(p);
     }
 
+    async function postApi(path, extra = {}) {
+        try {
+            const r = await fetch(path, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id: user.id, ...extra })
+            });
+            return await r.json();
+        } catch (e) {
+            return { error: t('netErr') };
+        }
+    }
+
     async function loadUser(manual = false) {
         try {
             const res = await fetch(`/api/user?id=${user.id}&username=${user.username}`);
@@ -488,11 +573,14 @@
     const gamesData = {
         pop: [
             { id: 'crash', icon: '🚀', nameKey: 'crash', descKey: 'crashDesc' },
+            { id: 'mines', icon: '💣', nameKey: 'mines', descKey: 'minesDesc' },
+            { id: 'roulette', icon: '🎡', nameKey: 'roulette', descKey: 'rouletteDesc' },
             { id: 'blackjack', icon: '🃏', nameKey: 'bj', descKey: 'bjDesc' }
         ],
         table: [
             { id: 'blackjack', icon: '🃏', nameKey: 'bj', descKey: 'bjDesc' },
-            { id: 'baccarat', icon: '🎴', nameKey: 'bacc', descKey: 'baccDesc' }
+            { id: 'baccarat', icon: '🎴', nameKey: 'bacc', descKey: 'baccDesc' },
+            { id: 'roulette', icon: '🎡', nameKey: 'roulette', descKey: 'rouletteDesc' }
         ],
         slots: [
             { id: 'crash', icon: '🚀', nameKey: 'crash', descKey: 'crashDesc' },
@@ -537,12 +625,9 @@
     async function doDeposit() {
         const amt = parseFloat(document.getElementById('depAmount').value);
         if (!amt || amt < minLimits[depMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[depMethod]);
-        try {
-            const res = await fetch('/api/deposit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: depMethod }) });
-            const data = await res.json();
-            if (res.ok) { tg.showAlert(t('depCreated', amt)); loadHistory(); }
-            else { tg.showAlert(translateErr(data.error)); }
-        } catch (e) { tg.showAlert(t('netErr')); }
+        const data = await postApi('/api/deposit', { amount: amt, method: depMethod });
+        if (data.error) return tg.showAlert(translateErr(data.error));
+        tg.showAlert(t('depCreated', amt)); loadHistory();
     }
 
     async function doWithdraw() {
@@ -550,12 +635,10 @@
         if (isNaN(amt) || amt <= 0) return tg.showAlert(t('enterMsg'));
         if (amt < minLimits[wdMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[wdMethod]);
         if (state.balance < amt) return tg.showAlert(t('insufficientBal', state.balance.toFixed(2)));
-        try {
-            const res = await fetch('/api/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: wdMethod }) });
-            const data = await res.json();
-            if (res.ok) { state.balance -= amt; updateUI(); tg.showAlert(t('wdCreated')); loadHistory(); }
-            else { tg.showAlert(translateErr(data.error)); }
-        } catch (e) { tg.showAlert(t('netErr')); }
+        const data = await postApi('/api/withdraw', { amount: amt, method: wdMethod });
+        if (data.error) return tg.showAlert(translateErr(data.error));
+        state.balance -= amt; updateUI();
+        tg.showAlert(t('wdCreated')); loadHistory();
     }
 
     async function loadHistory() {
@@ -712,6 +795,52 @@
             `;
             renderBetChips('betChips');
             renderBaccaratControls();
+        } else if (gameId === 'mines') {
+            title.innerText = '💣 ' + t('mines');
+            content.innerHTML = `
+                ${rulesHTML('rulesMines')}
+                ${chipsHTML}
+                <div class="mines-count-grid" id="minesCountGrid"></div>
+                <div class="mines-grid" id="minesGrid"></div>
+                <div class="mines-info" id="minesInfo"></div>
+                <div id="minesCashoutBtn" style="width:100%; max-width:340px;"></div>
+            `;
+            renderBetChips('betChips');
+            resetMinesState();
+            minesBet = 0;
+            buildMinesCountButtons();
+            renderMinesGrid();
+            updateMinesInfo();
+        } else if (gameId === 'roulette') {
+            title.innerText = '🎡 ' + t('roulette');
+            content.innerHTML = `
+                ${rulesHTML('rulesRoulette')}
+                ${chipsHTML}
+                <div class="roulette-reel-container" id="rouletteReelContainer">
+                    <div class="roulette-pointer">▼</div>
+                    <div class="roulette-reel" id="rouletteReel"></div>
+                </div>
+                <div class="roulette-result-display" id="rouletteResult" style="background: transparent; color: var(--muted);">—</div>
+                <div class="roulette-bet-info" id="rouletteBetInfo">—</div>
+                <div class="roul-grid-3" id="rouletteOutside"></div>
+                <div class="roul-grid-3" id="rouletteDozens"></div>
+                <div class="roul-grid-3" id="rouletteColumns"></div>
+                <button class="roul-zero" data-num="0" onclick="selectRouletteNumber(0)">0</button>
+                <div class="roul-numbers" id="rouletteNumberGrid"></div>
+                <div id="rouletteSpinBtn" style="width:100%; max-width:340px; margin-top:8px;">
+                    <button class="btn btn-primary" onclick="spinRoulette()">${t('rouletteSpin')}</button>
+                </div>
+            `;
+            renderBetChips('betChips');
+            selectedRouletteBet = null;
+            selectedRouletteValue = null;
+            buildRouletteReel();
+            buildRouletteOutside();
+            buildRouletteDozens();
+            buildRouletteColumns();
+            buildRouletteNumbers();
+            updateRouletteBetDisplay();
+            refreshRouletteSelection();
         }
     }
 
@@ -732,46 +861,339 @@
         if (!controls || !result) return;
         controls.innerHTML = '<button class="btn btn-primary" disabled>...</button>';
         result.innerText = '';
-        try {
-            const r = await fetch('/api/baccarat/play', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: user.id, bet: currentBet, bet_on: betOn })
-            });
-            const d = await r.json().catch(() => ({ error: t('netErr') }));
-            if (d.error || !d.player_hand) {
-                renderBaccaratControls();
-                return tg.showAlert(translateErr(d.error));
-            }
-            document.getElementById('playerHand').innerHTML = d.player_hand.map(c => renderCard(c)).join('');
-            document.getElementById('bankerHand').innerHTML = d.banker_hand.map(c => renderCard(c)).join('');
-            document.getElementById('playerScore').innerText = d.player_score;
-            document.getElementById('bankerScore').innerText = d.banker_score;
-            state.balance = d.balance;
-            state.total_rounds++;
-            updateUI();
-            const winnerName = d.winner === 'player' ? t('playerGame') : d.winner === 'banker' ? t('banker') : t('tiedLbl');
-            if (d.profit > 0) {
-                result.innerText = t('baccWin', winnerName, d.profit.toFixed(2));
-                result.style.color = 'var(--green)';
-            } else if (d.profit < 0) {
-                result.innerText = t('baccLose', winnerName, Math.abs(d.profit).toFixed(2));
-                result.style.color = 'var(--red)';
-            } else {
-                result.innerText = t('baccTie');
-                result.style.color = 'var(--gold)';
-            }
-            controls.innerHTML = `<button class="btn btn-primary" onclick="openGame('baccarat')">${t('playAgain')}</button>`;
-        } catch (e) {
+        const d = await postApi('/api/baccarat/play', { bet: currentBet, bet_on: betOn });
+        if (d.error || !d.player_hand) {
             renderBaccaratControls();
-            tg.showAlert(t('errPrefix') + (e.message || t('netErr')));
+            return tg.showAlert(translateErr(d.error));
         }
+        document.getElementById('playerHand').innerHTML = d.player_hand.map(c => renderCard(c)).join('');
+        document.getElementById('bankerHand').innerHTML = d.banker_hand.map(c => renderCard(c)).join('');
+        document.getElementById('playerScore').innerText = d.player_score;
+        document.getElementById('bankerScore').innerText = d.banker_score;
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+        const winnerName = d.winner === 'player' ? t('playerGame') : d.winner === 'banker' ? t('banker') : t('tiedLbl');
+        if (d.profit > 0) {
+            result.innerText = t('baccWin', winnerName, d.profit.toFixed(2));
+            result.style.color = 'var(--green)';
+        } else if (d.profit < 0) {
+            result.innerText = t('baccLose', winnerName, Math.abs(d.profit).toFixed(2));
+            result.style.color = 'var(--red)';
+        } else {
+            result.innerText = t('baccTie');
+            result.style.color = 'var(--gold)';
+        }
+        controls.innerHTML = `<button class="btn btn-primary" onclick="openGame('baccarat')">${t('playAgain')}</button>`;
     }
 
     function closeGame() {
         document.getElementById('gameModal').classList.remove('open');
         if (crashRunning) { clearInterval(crashInterval); crashRunning = false; }
+        minesRoundId = null;
     }
 
+    // ---------- MINES ----------
+    let minesRoundId = null;
+    let minesGrid = Array(25).fill('hidden');
+    let minesBet = 0;
+    let minesCount = 3;
+    let minesPicks = 0;
+    let minesMult = 1.0;
+
+    function resetMinesState() {
+        minesRoundId = null;
+        minesGrid = Array(25).fill('hidden');
+        minesBet = 0;
+        minesPicks = 0;
+        minesMult = 1.0;
+    }
+
+    function buildMinesCountButtons() {
+        const el = document.getElementById('minesCountGrid');
+        if (!el) return;
+        const counts = [1, 2, 3, 5, 10, 15, 24];
+        el.innerHTML = counts.map(n =>
+            `<button class="mines-count-btn ${n === minesCount ? 'selected' : ''}" data-mines="${n}" onclick="selectMinesCount(${n})">${n}</button>`
+        ).join('');
+    }
+
+    function selectMinesCount(n) {
+        if (minesRoundId) return;
+        minesCount = n;
+        document.querySelectorAll('.mines-count-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.mines) === n));
+    }
+
+    function renderMinesGrid() {
+        const grid = document.getElementById('minesGrid');
+        if (!grid) return;
+        let html = '';
+        for (let i = 0; i < 25; i++) {
+            const s = minesGrid[i];
+            let cls = 'mines-cell';
+            let content = '';
+            if (s === 'safe') { cls += ' safe'; content = '💎'; }
+            else if (s === 'mine') { cls += ' mine'; content = '💣'; }
+            else if (s === 'mine-hit') { cls += ' mine-hit'; content = '💥'; }
+            html += `<div class="${cls}" onclick="minesClickCell(${i})">${content}</div>`;
+        }
+        grid.innerHTML = html;
+    }
+
+    function updateMinesInfo() {
+        const el = document.getElementById('minesInfo');
+        if (!el) return;
+        const potential = minesBet * minesMult;
+        el.innerHTML = `
+            <div>${t('minesPicks')}: ${minesPicks}</div>
+            <div>${t('minesMultiplier')}: x${minesMult.toFixed(2)}</div>
+            <div>${t('minesPotential')}: $${potential.toFixed(2)}</div>
+        `;
+        const btn = document.getElementById('minesCashoutBtn');
+        if (btn) {
+            if (minesRoundId && minesPicks > 0) {
+                btn.innerHTML = `<button class="btn btn-primary" onclick="minesCashout()">${t('minesCashout')} $${potential.toFixed(2)}</button>`;
+            } else {
+                btn.innerHTML = `<button class="btn btn-secondary" disabled>${t('minesCashout')} $0.00</button>`;
+            }
+        }
+    }
+
+    async function minesClickCell(idx) {
+        if (!minesRoundId) {
+            if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+            const r = await postApi('/api/mines/start', { bet: currentBet, mines: minesCount });
+            if (r.error) return tg.showAlert(translateErr(r.error));
+            minesRoundId = r.round_id;
+            minesBet = currentBet;
+            minesGrid = Array(25).fill('hidden');
+            minesPicks = 0;
+            minesMult = 1.0;
+            state.balance = r.balance;
+            updateUI();
+            await revealMinesCell(idx);
+        } else {
+            if (minesGrid[idx] !== 'hidden') return;
+            await revealMinesCell(idx);
+        }
+    }
+
+    async function revealMinesCell(idx) {
+        const r = await postApi('/api/mines/reveal', { round_id: minesRoundId, cell: idx });
+        if (r.error) return tg.showAlert(translateErr(r.error));
+        if (r.mine) {
+            minesGrid[idx] = 'mine-hit';
+            for (const m of r.mines) {
+                if (minesGrid[m] === 'hidden' || minesGrid[m] === 'safe') minesGrid[m] = 'mine';
+            }
+            renderMinesGrid();
+            minesRoundId = null;
+            minesPicks = 0;
+            minesMult = 1.0;
+            updateMinesInfo();
+            tg.showAlert(t('minesBoom'));
+            return;
+        }
+        minesGrid[idx] = 'safe';
+        minesPicks = r.picks;
+        minesMult = r.multiplier;
+        renderMinesGrid();
+        updateMinesInfo();
+    }
+
+    async function minesCashout() {
+        if (!minesRoundId || minesPicks === 0) return;
+        const r = await postApi('/api/mines/cashout', { round_id: minesRoundId });
+        if (r.error) return tg.showAlert(translateErr(r.error));
+        state.balance = r.balance;
+        state.total_rounds++;
+        updateUI();
+        for (const m of r.mines) {
+            if (minesGrid[m] === 'hidden') minesGrid[m] = 'mine';
+        }
+        renderMinesGrid();
+        tg.showAlert(t('minesCashed', r.win.toFixed(2), r.multiplier));
+        minesRoundId = null;
+        minesPicks = 0;
+        minesMult = 1.0;
+        updateMinesInfo();
+    }
+
+    // ---------- ROULETTE ----------
+    let selectedRouletteBet = null;
+    let selectedRouletteValue = null;
+    let rouletteSpinning = false;
+
+    function buildRouletteReel() {
+        const reel = document.getElementById('rouletteReel');
+        if (!reel) return;
+        const REPS = 8;
+        let html = '';
+        for (let r = 0; r < REPS; r++) {
+            for (const n of WHEEL_ORDER) {
+                const c = n === 0 ? 'green' : (RED_SET.has(n) ? 'red' : 'black');
+                html += `<div class="roulette-cell-strip ${c}">${n}</div>`;
+            }
+        }
+        reel.innerHTML = html;
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateX(0px)';
+    }
+
+    function buildRouletteOutside() {
+        const el = document.getElementById('rouletteOutside');
+        if (!el) return;
+        el.innerHTML = `
+            <button class="roul-btn" data-bet="red" onclick="selectRouletteBet('red')">${t('rouletteRed')}</button>
+            <button class="roul-btn" data-bet="black" onclick="selectRouletteBet('black')">${t('rouletteBlack')}</button>
+            <button class="roul-btn" data-bet="odd" onclick="selectRouletteBet('odd')">${t('rouletteOdd')}</button>
+            <button class="roul-btn" data-bet="even" onclick="selectRouletteBet('even')">${t('rouletteEven')}</button>
+            <button class="roul-btn" data-bet="low" onclick="selectRouletteBet('low')">1-18</button>
+            <button class="roul-btn" data-bet="high" onclick="selectRouletteBet('high')">19-36</button>
+        `;
+    }
+
+    function buildRouletteDozens() {
+        const el = document.getElementById('rouletteDozens');
+        if (!el) return;
+        el.innerHTML = `
+            <button class="roul-btn" data-bet="dozen1" onclick="selectRouletteBet('dozen1')">${t('rouletteDozen1')}</button>
+            <button class="roul-btn" data-bet="dozen2" onclick="selectRouletteBet('dozen2')">${t('rouletteDozen2')}</button>
+            <button class="roul-btn" data-bet="dozen3" onclick="selectRouletteBet('dozen3')">${t('rouletteDozen3')}</button>
+        `;
+    }
+
+    function buildRouletteColumns() {
+        const el = document.getElementById('rouletteColumns');
+        if (!el) return;
+        el.innerHTML = `
+            <button class="roul-btn" data-bet="column1" onclick="selectRouletteBet('column1')">${t('rouletteCol1')}</button>
+            <button class="roul-btn" data-bet="column2" onclick="selectRouletteBet('column2')">${t('rouletteCol2')}</button>
+            <button class="roul-btn" data-bet="column3" onclick="selectRouletteBet('column3')">${t('rouletteCol3')}</button>
+        `;
+    }
+
+    function buildRouletteNumbers() {
+        const el = document.getElementById('rouletteNumberGrid');
+        if (!el) return;
+        let html = '';
+        for (let i = 1; i <= 36; i++) {
+            const c = RED_SET.has(i) ? 'red' : 'black';
+            html += `<button class="roul-num ${c}" data-num="${i}" onclick="selectRouletteNumber(${i})">${i}</button>`;
+        }
+        el.innerHTML = html;
+    }
+
+    function selectRouletteBet(type, value = null) {
+        if (rouletteSpinning) return;
+        selectedRouletteBet = type;
+        selectedRouletteValue = value;
+        updateRouletteBetDisplay();
+        refreshRouletteSelection();
+    }
+
+    function selectRouletteNumber(n) {
+        selectRouletteBet('number', n);
+    }
+
+    function updateRouletteBetDisplay() {
+        const el = document.getElementById('rouletteBetInfo');
+        if (!el) return;
+        if (!selectedRouletteBet) { el.innerText = '—'; return; }
+        const labels = {
+            'red': t('rouletteRed') + ' (1:1)',
+            'black': t('rouletteBlack') + ' (1:1)',
+            'odd': t('rouletteOdd') + ' (1:1)',
+            'even': t('rouletteEven') + ' (1:1)',
+            'low': '1-18 (1:1)',
+            'high': '19-36 (1:1)',
+            'dozen1': t('rouletteDozen1') + ' (2:1)',
+            'dozen2': t('rouletteDozen2') + ' (2:1)',
+            'dozen3': t('rouletteDozen3') + ' (2:1)',
+            'column1': t('rouletteCol1') + ' (2:1)',
+            'column2': t('rouletteCol2') + ' (2:1)',
+            'column3': t('rouletteCol3') + ' (2:1)',
+            'number': t('rouletteNumber') + ' ' + selectedRouletteValue + ' (35:1)'
+        };
+        el.innerText = t('rouletteSelected') + ': ' + (labels[selectedRouletteBet] || selectedRouletteBet);
+    }
+
+    function refreshRouletteSelection() {
+        document.querySelectorAll('.roul-btn').forEach(b => {
+            b.classList.toggle('selected', b.dataset.bet === selectedRouletteBet);
+        });
+        document.querySelectorAll('.roul-num, .roul-zero').forEach(b => {
+            const n = parseInt(b.dataset.num);
+            b.classList.toggle('selected', selectedRouletteBet === 'number' && selectedRouletteValue === n);
+        });
+    }
+
+    async function animateRouletteWheel(number) {
+        const reel = document.getElementById('rouletteReel');
+        const container = document.getElementById('rouletteReelContainer');
+        if (!reel || !container) return;
+        const CELL_W = 60;
+        const WHEEL_LEN = WHEEL_ORDER.length;
+        const targetIdx = WHEEL_ORDER.indexOf(number);
+        const targetRep = 5 + Math.floor(Math.random() * 2);
+        const globalIdx = targetRep * WHEEL_LEN + targetIdx;
+        const containerW = container.clientWidth;
+        const targetPx = globalIdx * CELL_W - containerW / 2 + CELL_W / 2;
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateX(0px)';
+        void reel.offsetWidth;
+        reel.style.transition = 'transform 4.2s cubic-bezier(0.12, 0.8, 0.15, 1)';
+        reel.style.transform = `translateX(-${targetPx}px)`;
+        await new Promise(r => setTimeout(r, 4400));
+    }
+
+    async function spinRoulette() {
+        if (!selectedRouletteBet) return tg.showAlert(t('rouletteSelectBet'));
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        if (rouletteSpinning) return;
+        rouletteSpinning = true;
+        document.getElementById('rouletteSpinBtn').innerHTML = `<button class="btn btn-primary" disabled>${t('rouletteSpinning')}</button>`;
+        const resultEl = document.getElementById('rouletteResult');
+        if (resultEl) { resultEl.innerText = '—'; resultEl.style.background = 'transparent'; resultEl.style.color = 'var(--muted)'; }
+
+        const body = { bet: currentBet, bet_type: selectedRouletteBet };
+        if (selectedRouletteBet === 'number') body.bet_value = selectedRouletteValue;
+        const d = await postApi('/api/roulette/spin', body);
+
+        if (d.error) {
+            tg.showAlert(translateErr(d.error));
+            rouletteSpinning = false;
+            restoreRouletteSpinBtn();
+            return;
+        }
+
+        await animateRouletteWheel(d.number);
+
+        const rEl = document.getElementById('rouletteResult');
+        if (rEl) {
+            const bg = d.color === 'red' ? '#8B0000' : d.color === 'black' ? '#1a1a1a' : '#0a4a0a';
+            rEl.innerText = d.number + ' ' + (d.color === 'red' ? '🔴' : d.color === 'black' ? '⚫' : '🟢');
+            rEl.style.background = bg;
+            rEl.style.color = '#fff';
+        }
+
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+
+        if (d.profit > 0) tg.showAlert(t('rouletteWin', d.profit.toFixed(2)));
+        else tg.showAlert(t('rouletteLose', Math.abs(d.profit).toFixed(2)));
+
+        rouletteSpinning = false;
+        restoreRouletteSpinBtn();
+    }
+
+    function restoreRouletteSpinBtn() {
+        const el = document.getElementById('rouletteSpinBtn');
+        if (el) el.innerHTML = `<button class="btn btn-primary" onclick="spinRoulette()">${t('rouletteSpin')}</button>`;
+    }
+
+    // ---------- BLACKJACK ----------
     let deck = [], pHand = [], dHand = [], isGameActive = false;
     function createDeck() {
         const suits = ['♠', '♥', '♦', '♣']; const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -830,6 +1252,7 @@
         document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">${t('playAgain')}</button>`;
     }
 
+    // ---------- CRASH ----------
     let crashRunning = false, crashMult = 1.00, crashInterval, currentCrashBet = 0;
     async function startCrash() {
         if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
@@ -895,6 +1318,7 @@
         tg.showAlert(t('cashoutMsg', winAmount.toFixed(2), crashMult.toFixed(2)));
     }
 
+    // ---------- SLOTS ----------
     async function startSlotsClassic() {
         if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
         const btn = document.getElementById('slotControls');
@@ -909,34 +1333,24 @@
             if (!el) { clearInterval(anim); return; }
             el.innerHTML = `<span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span><span>${animSyms[Math.floor(Math.random()*6)]}</span>`;
         }, 80);
-        try {
-            const r = await fetch('/api/slots/classic', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: user.id, bet: currentBet })
-            });
-            clearInterval(anim);
-            const d = await r.json().catch(() => ({ error: t('netErr') }));
-            if (d.error || !d.reels) {
-                btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsClassic()">${t('spin')}</button>`;
-                return tg.showAlert(translateErr(d.error));
-            }
-            reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
-            state.balance = d.balance;
-            state.total_rounds++;
-            updateUI();
-            if (d.win > 0) {
-                res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
-                res.style.color = 'var(--green)';
-            } else {
-                res.innerText = t('missed');
-                res.style.color = 'var(--red)';
-            }
-            btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsClassic()">${t('spinAgain')}</button>`;
-        } catch (e) {
-            clearInterval(anim);
+        const d = await postApi('/api/slots/classic', { bet: currentBet });
+        clearInterval(anim);
+        if (d.error || !d.reels) {
             btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsClassic()">${t('spin')}</button>`;
-            tg.showAlert(t('errPrefix') + (e.message || t('netErr')));
+            return tg.showAlert(translateErr(d.error));
         }
+        reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+        if (d.win > 0) {
+            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
+            res.style.color = 'var(--green)';
+        } else {
+            res.innerText = t('missed');
+            res.style.color = 'var(--red)';
+        }
+        btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsClassic()">${t('spinAgain')}</button>`;
     }
 
     async function startSlotsLucky7() {
@@ -953,34 +1367,24 @@
             if (!el) { clearInterval(anim); return; }
             el.innerHTML = `<span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span><span>${animSyms[Math.floor(Math.random()*3)]}</span>`;
         }, 80);
-        try {
-            const r = await fetch('/api/slots/lucky7', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: user.id, bet: currentBet })
-            });
-            clearInterval(anim);
-            const d = await r.json().catch(() => ({ error: t('netErr') }));
-            if (d.error || !d.reels) {
-                btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spin')}</button>`;
-                return tg.showAlert(translateErr(d.error));
-            }
-            reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
-            state.balance = d.balance;
-            state.total_rounds++;
-            updateUI();
-            if (d.win > 0) {
-                res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
-                res.style.color = 'var(--green)';
-            } else {
-                res.innerText = t('missed');
-                res.style.color = 'var(--red)';
-            }
-            btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spinAgain')}</button>`;
-        } catch (e) {
-            clearInterval(anim);
+        const d = await postApi('/api/slots/lucky7', { bet: currentBet });
+        clearInterval(anim);
+        if (d.error || !d.reels) {
             btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spin')}</button>`;
-            tg.showAlert(t('errPrefix') + (e.message || t('netErr')));
+            return tg.showAlert(translateErr(d.error));
         }
+        reels.innerHTML = d.reels.map(s => `<span>${s}</span>`).join('');
+        state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+        if (d.win > 0) {
+            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
+            res.style.color = 'var(--green)';
+        } else {
+            res.innerText = t('missed');
+            res.style.color = 'var(--red)';
+        }
+        btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spinAgain')}</button>`;
     }
 
     // ============ INIT ============
