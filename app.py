@@ -10,7 +10,7 @@ TOKEN = os.environ.get('TELEGRAM_TOKEN', '8879662302:AAGUpOTng02XIMIRZe7xf154qKa
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-ADMIN_ID = 7695713296  # ID числом
+ADMIN_ID = 7695713296
 WEBAPP_URL = "https://my-casino-bot-2.onrender.com"
 
 RED_ROULETTE_NUMBERS = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
@@ -40,6 +40,13 @@ def init_db():
     conn.close()
 
 init_db()
+
+# ====== ПРИНУДИТЕЛЬНО УДАЛЯЕМ ВЕБХУК ПРИ СТАРТЕ ======
+try:
+    bot.remove_webhook()
+    print("Webhook removed successfully.")
+except Exception as e:
+    print("Error removing webhook:", e)
 
 @app.route('/api/ping')
 def ping():
@@ -190,7 +197,7 @@ def withdraw():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============ ИСПРАВЛЕННЫЙ ОБРАБОТЧИК КНОПОК ============
+# ============ ОБРАБОТЧИК КНОПОК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
     try:
@@ -198,7 +205,7 @@ def handle_admin_action(call):
     except Exception:
         pass
 
-    if str(call.from_user.id) != str(ADMIN_ID):
+    if call.from_user.id != ADMIN_ID:
         return
 
     try:
@@ -584,7 +591,6 @@ def server_error(e):
 def index():
     return send_file('index.html')
 
-# ============ ЧИСТЫЙ СТАРТ БЕЗ ПОДПИСОК ============
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup()
@@ -594,6 +600,10 @@ def start(message):
 
 if __name__ == "__main__":
     import threading
-    # skip_pending=True обязательно
+    # Удаляем старые зависшие вебхуки
+    try:
+        bot.remove_webhook()
+    except:
+        pass
     threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), threaded=True)
