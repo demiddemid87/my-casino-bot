@@ -22,6 +22,10 @@ def init_db():
     conn.close()
 init_db()
 
+@app.route('/api/ping')
+def ping():
+    return jsonify({'ok': True, 'routes': ['slots_classic', 'slots_lucky7', 'baccarat']})
+
 @app.route('/api/user', methods=['GET'])
 def get_user():
     user_id = request.args.get('id')
@@ -176,7 +180,7 @@ def support():
 @app.route('/api/slots/classic', methods=['POST'])
 def slots_classic():
     try:
-        data = request.json
+        data = request.get_json(silent=True) or {}
         user_id = int(data['id'])
         bet = float(data['bet'])
         if bet <= 0:
@@ -217,12 +221,12 @@ def slots_classic():
         conn.close()
         return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': new_bal})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Ошибка сервера: ' + str(e)}), 500
 
 @app.route('/api/slots/lucky7', methods=['POST'])
 def slots_lucky7():
     try:
-        data = request.json
+        data = request.get_json(silent=True) or {}
         user_id = int(data['id'])
         bet = float(data['bet'])
         if bet <= 0:
@@ -268,7 +272,125 @@ def slots_lucky7():
         conn.close()
         return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': new_bal})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Ошибка сервера: ' + str(e)}), 500
+
+# ============ BACCARAT ============
+BACC_SUITS = ['♠', '♥', '♦', '♣']
+BACC_VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+
+def bacc_new_deck():
+    d = [{'v': v, 's': s} for s in BACC_SUITS for v in BACC_VALUES]
+    random.shuffle(d)
+    return d
+
+def bacc_value(card):
+    v = card['v']
+    if v == 'A': return 1
+    if v in ('10', 'J', 'Q', 'K'): return 0
+    return int(v)
+
+def bacc_score(hand):
+    return sum(bacc_value(c) for c in hand) % 10
+
+def bacc_play():
+    deck = bacc_new_deck()
+    player = [deck.pop(), deck.pop()]
+    banker = [deck.pop(), deck.pop()]
+    ps = bacc_score(player)
+    bs = bacc_score(banker)
+
+    if ps < 8 and bs < 8:
+        p3 = None
+        if ps <= 5:
+            p3 = deck.pop()
+            player.append(p3)
+            ps = bacc_score(player)
+
+        if p3 is None:
+            if bs <= 5:
+                banker.append(deck.pop())
+                bs = bacc_score(banker)
+        else:
+            p3v = bacc_value(p3)
+            draw = False
+            if bs <= 2: draw = True
+            elif bs == 3: draw = (p3v != 8)
+            elif bs == 4: draw = (p3v in (2, 3, 4, 5, 6, 7))
+            elif bs == 5: draw = (p3v in (4, 5, 6, 7))
+            elif bs == 6: draw = (p3v in (6, 7))
+            if draw:
+                banker.append(deck.pop())
+                bs = bacc_score(banker)
+
+    if ps > bs: winner = 'player'
+    elif bs > ps: winner = 'banker'
+    else: winner = 'tie'
+
+    return player, banker, ps, bs, winner
+
+@app.route('/api/baccarat/play', methods=['POST'])
+def baccarat_play():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        bet_on = data.get('bet_on', 'player')
+
+        if bet <= 0:
+            return jsonify({'error': 'Ставка должна быть больше 0'}), 400
+        if bet_on not in ('player', 'banker', 'tie'):
+            return jsonify({'error': 'Неверный тип ставки'}), 400
+
+        conn = sqlite3.connect('casino.db')
+        c = conn.cursor()
+        c.execute("SELECT balance FROM users WHERE id=?", (user_id,))
+        row = c.fetchone()
+        if not row or row[0] < bet:
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
+
+        player, banker, ps, bs, winner = bacc_play()
+
+        profit = 0
+        if bet_on == 'player':
+            if winner == 'player': profit = bet
+            elif winner == 'tie': profit = 0
+            else: profit = -bet
+        elif bet_on == 'banker':
+            if winner == 'banker': profit = round(bet * 0.95, 2)
+            elif winner == 'tie': profit = 0
+            else: profit = -bet
+        elif bet_on == 'tie':
+            if winner == 'tie': profit = round(bet * 8, 2)
+            else: profit = -bet
+
+        new_bal = round(row[0] + profit, 2)
+        c.execute("UPDATE users SET balance=?, total_rounds = total_rounds + 1 WHERE id=?", (new_bal, user_id))
+        if profit > 0:
+            c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (profit, user_id))
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'player_hand': player,
+            'banker_hand': banker,
+            'player_score': ps,
+            'banker_score': bs,
+            'winner': winner,
+            'bet_on': bet_on,
+            'profit': profit,
+            'balance': new_bal
+        })
+    except Exception as e:
+        return jsonify({'error': 'Ошибка сервера: ' + str(e)}), 500
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({'error': 'not_found', 'path': request.path}), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return jsonify({'error': 'server_error'}), 500
 
 @app.route('/')
 def index():
