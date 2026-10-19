@@ -7,7 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --surface: rgba(20, 20, 25, 0.85); --gold: #FFD700; --text: #ffffff; --muted: #8b8b93; --border: rgba(255, 215, 0, 0.3); --red: #E53935; }
+        :root { --bg: #050505; --surface: rgba(20, 20, 25, 0.85); --gold: #FFD700; --text: #ffffff; --muted: #8b8b93; --border: rgba(255, 215, 0, 0.3); --red: #E53935; --green: #4CAF50; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; padding: 15px 15px 90px; min-height: 100vh; overflow-x: hidden; background-image: radial-gradient(circle at top, #1a1508 0%, #050505 60%); background-attachment: fixed; }
         .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
@@ -57,6 +57,8 @@
         .bet-selector { display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 340px; margin-bottom: 15px; flex-wrap: wrap; }
         .chip { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
         .chip.active { background: var(--gold); color: #000; border-color: var(--gold); }
+        
+        /* Blackjack CSS */
         .bj-table { display: flex; flex-direction: column; width: 100%; max-width: 400px; background: #0a2a1a; border: 4px solid #3a1a0a; border-radius: 20px; padding: 20px 10px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); margin-bottom: 20px; }
         .bj-zone { text-align: center; margin-bottom: 15px; min-height: 120px; }
         .bj-score { display: inline-block; background: #000; color: var(--gold); padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 14px; border: 1px solid var(--border); margin-bottom: 10px; }
@@ -67,6 +69,15 @@
         .playing-card.black { color: #111; }
         .playing-card.back { background: repeating-linear-gradient(45deg, #111, #111 5px, #333 5px, #333 10px); border: 2px solid #fff; }
         .playing-card .suit { font-size: 24px; text-align: right; line-height: 1; }
+
+        /* Crash CSS */
+        .crash-container { width: 100%; max-width: 400px; height: 250px; background: #000; border: 2px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; margin-bottom: 20px; }
+        .crash-multiplier { font-size: 64px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; text-shadow: 0 0 20px rgba(255,215,0,0.5); z-index: 2; }
+        .crash-status { font-size: 14px; color: var(--muted); margin-top: 10px; z-index: 2; }
+        .crash-rocket { font-size: 40px; position: absolute; bottom: 10%; left: 10%; transition: all 0.1s linear; z-index: 1; }
+        .crash-boom { color: var(--red); font-size: 48px; animation: explode 0.5s forwards; }
+        @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
         .wallet-selector { display: flex; gap: 10px; margin-bottom: 15px; }
         .wallet-btn { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
         .wallet-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
@@ -85,7 +96,7 @@
         <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
         <div class="balance-container">
             <div class="balance" id="headerBalance">$0.00</div>
-            <div class="refresh-btn" onclick="loadUser()">🔄</div>
+            <div class="refresh-btn" onclick="loadUser(true)">🔄</div>
         </div>
     </div>
 
@@ -212,16 +223,18 @@
             particlesContainer.appendChild(p);
         }
 
-        async function loadUser() {
+        async function loadUser(manual = false) {
             try {
                 const res = await fetch(`/api/user?id=${user.id}&username=${user.username}`);
                 const data = await res.json();
-                if(state.balance !== data.balance) {
-                    state.balance = data.balance;
-                    updateUI();
-                }
-                state.total_rounds = data.total_rounds; state.best_result = data.best_result;
-            } catch (e) { console.log(e); }
+                state.balance = data.balance;
+                state.total_rounds = data.total_rounds;
+                state.best_result = data.best_result;
+                updateUI();
+                if(manual) tg.showAlert('Баланс обновлен!');
+            } catch (e) { 
+                if(manual) tg.showAlert('Сервер спит, подождите 50 секунд и попробуйте снова.');
+            }
         }
 
         function updateUI() {
@@ -235,12 +248,12 @@
             document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2);
         }
 
-        // АВТО-ОБНОВЛЕНИЕ БАЛАНСА КАЖДЫЕ 3 СЕКУНДЫ (если не открыта игра)
+        // Автообновление баланса (каждые 5 сек)
         setInterval(() => {
-            if (!document.getElementById('gameModal').classList.contains('open')) {
-                loadUser();
+            if (!document.getElementById('gameModal').classList.contains('open') && !document.hidden) {
+                loadUser(false);
             }
-        }, 3000);
+        }, 5000);
 
         function switchView(view) {
             document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
@@ -251,9 +264,12 @@
         }
 
         const gamesData = {
-            pop: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' }, { id: 'slots', icon: '🎰', name: 'Слоты', desc: 'Скоро' } ],
+            pop: [ 
+                { id: 'crash', icon: '🚀', name: 'Ракетка', desc: 'Успей забрать' },
+                { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' }
+            ],
             table: [ { id: 'blackjack', icon: '🃏', name: 'Blackjack', desc: '21 очко' } ],
-            slots: [ { id: 'slots', icon: '🎰', name: 'Слоты', desc: 'Скоро' } ]
+            slots: [ { id: 'crash', icon: '🚀', name: 'Ракетка', desc: 'Успей забрать' } ]
         };
 
         function switchTab(tab) {
@@ -290,7 +306,7 @@
                 const data = await res.json();
                 if(res.ok) { tg.showAlert(`✅ Заявка на пополнение $${amt} создана!`); loadHistory(); } 
                 else { tg.showAlert(data.error); }
-            } catch(e) { tg.showAlert('Ошибка сети'); }
+            } catch(e) { tg.showAlert('Ошибка'); }
         }
 
         async function doWithdraw() {
@@ -375,14 +391,38 @@
                 renderBetChips('betChips');
                 document.getElementById('pScore').innerText = '0'; document.getElementById('dScore').innerText = '?';
                 document.getElementById('playerCards').innerHTML = ''; document.getElementById('dealerCards').innerHTML = '';
+            } else if (gameId === 'crash') {
+                title.innerText = '🚀 Ракетка (Crash)';
+                content.innerHTML = `
+                    ${chipsHTML}
+                    <div class="crash-container">
+                        <div class="crash-multiplier" id="crashMult">1.00x</div>
+                        <div class="crash-status" id="crashStatus">Готов к запуску</div>
+                        <div class="crash-rocket" id="crashRocket">🚀</div>
+                    </div>
+                    <div id="crashControls" style="width: 100%; max-width: 340px; display: flex; justify-content: center;">
+                        <button class="btn btn-primary" onclick="startCrash()">Запустить</button>
+                    </div>
+                `;
+                renderBetChips('betChips');
+                document.getElementById('crashMult').style.color = 'var(--gold)';
+                document.getElementById('crashMult').innerText = '1.00x';
+                document.getElementById('crashStatus').innerText = 'Готов к запуску';
+                document.getElementById('crashRocket').style.display = 'block';
+                document.getElementById('crashRocket').style.bottom = '10%';
+                document.getElementById('crashRocket').style.left = '10%';
             } else {
                 title.innerText = 'В разработке';
-                content.innerHTML = `<div style="text-align:center; margin-top:50px; color:var(--muted);">Эта игра появится совсем скоро!</div>`;
+                content.innerHTML = `<div style="text-align:center; margin-top:50px; color:var(--muted);">Скоро!</div>`;
             }
         }
 
-        function closeGame() { document.getElementById('gameModal').classList.remove('open'); }
+        function closeGame() { 
+            document.getElementById('gameModal').classList.remove('open');
+            if(crashRunning) { clearInterval(crashInterval); crashRunning = false; }
+        }
 
+        // --- BLACKJACK ---
         let deck = [], pHand = [], dHand = [], isGameActive = false;
         function createDeck() {
             const suits = ['♠', '♥', '♦', '♣']; const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -409,7 +449,6 @@
             document.getElementById('dealerCards').innerHTML = dHand.map((c, i) => renderCard(c, hideDealer && i === 1)).join('');
             document.getElementById('dScore').innerText = hideDealer ? getCardValue(dHand[0]) : calcScore(dHand);
         }
-
         async function startBlackjack() {
             if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
             state.balance -= currentBet; state.total_rounds++; updateUI();
@@ -445,6 +484,88 @@
             }
             tg.showAlert(msg);
             document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">Играть снова</button>`;
+        }
+
+        // --- CRASH (РАКЕТКА) ---
+        let crashRunning = false, crashMult = 1.00, crashInterval, currentCrashBet = 0;
+        async function startCrash() {
+            if (state.balance < currentBet) return tg.showAlert('Недостаточно средств!');
+            if (crashRunning) return;
+
+            state.balance -= currentBet; state.total_rounds++; updateUI();
+            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+
+            crashRunning = true;
+            currentCrashBet = currentBet;
+            crashMult = 1.00;
+            
+            const multEl = document.getElementById('crashMult');
+            const statusEl = document.getElementById('crashStatus');
+            const rocketEl = document.getElementById('crashRocket');
+            const controls = document.getElementById('crashControls');
+
+            multEl.style.color = 'var(--gold)';
+            multEl.innerText = '1.00x';
+            statusEl.innerText = 'Взлетаем...';
+            rocketEl.style.display = 'block';
+            rocketEl.style.bottom = '10%';
+            rocketEl.style.left = '10%';
+            rocketEl.classList.remove('crash-boom');
+            rocketEl.innerText = '🚀';
+
+            controls.innerHTML = `<button class="btn btn-secondary" style="background:var(--green); color:#fff; border:none;" onclick="cashoutCrash()">Забрать (x1.00)</button>`;
+
+            // Случайный краш от 1.1 до 10.0
+            const crashPoint = 1.1 + Math.random() * 8.9;
+
+            crashInterval = setInterval(() => {
+                crashMult += 0.03;
+                multEl.innerText = crashMult.toFixed(2) + 'x';
+                controls.innerHTML = `<button class="btn btn-secondary" style="background:var(--green); color:#fff; border:none;" onclick="cashoutCrash()">Забрать (x${crashMult.toFixed(2)})</button>`;
+                
+                // Двигаем ракетку
+                const progress = Math.min((crashMult - 1) / 9, 1); // 0 to 1
+                rocketEl.style.bottom = `${10 + progress * 70}%`;
+                rocketEl.style.left = `${10 + progress * 70}%`;
+
+                if (crashMult >= crashPoint) {
+                    clearInterval(crashInterval);
+                    crashRunning = false;
+                    multEl.innerText = 'КРАШ!';
+                    multEl.style.color = 'var(--red)';
+                    statusEl.innerText = `Упало на ${crashPoint.toFixed(2)}x`;
+                    rocketEl.innerText = '💥';
+                    rocketEl.classList.add('crash-boom');
+                    
+                    controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">Заново</button>`;
+                    tg.showAlert(`💥 Ракета взорвалась на ${crashPoint.toFixed(2)}x. Вы проиграли.`);
+                }
+            }, 100);
+        }
+
+        async function cashoutCrash() {
+            if (!crashRunning) return;
+            crashRunning = false;
+            clearInterval(crashInterval);
+
+            const winAmount = currentCrashBet * crashMult;
+            state.balance += winAmount;
+            if (winAmount > state.best_result) state.best_result = winAmount;
+            updateUI();
+            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+
+            const multEl = document.getElementById('crashMult');
+            const statusEl = document.getElementById('crashStatus');
+            const rocketEl = document.getElementById('crashRocket');
+            const controls = document.getElementById('crashControls');
+
+            multEl.innerText = 'Забрано!';
+            multEl.style.color = 'var(--green)';
+            statusEl.innerText = `Вы забрали $${winAmount.toFixed(2)} (x${crashMult.toFixed(2)})`;
+            rocketEl.innerText = '✅';
+            
+            controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">Заново</button>`;
+            tg.showAlert(`🎉 Вы забрали $${winAmount.toFixed(2)} на множителе x${crashMult.toFixed(2)}!`);
         }
 
         switchTab('pop');
