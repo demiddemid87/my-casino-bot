@@ -11,6 +11,7 @@ bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 ADMIN_ID = '7695713296'
+WEBAPP_URL = "https://my-casino-bot-2.onrender.com"
 
 RED_ROULETTE_NUMBERS = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
 MINES_ROUNDS = {}
@@ -23,7 +24,22 @@ def init_db():
                  (id INTEGER PRIMARY KEY, username TEXT, balance REAL, total_rounds INTEGER, best_result REAL)''')
     c.execute('''CREATE TABLE IF NOT EXISTS transactions 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type TEXT, method TEXT, amount REAL, status TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    # Одноразовая чистка неиспользованных демо-балансов ($10000 без игры и без депозита)
+    # Миграции: добавить поля регистрации
+    for col, typ in [('phone', 'TEXT'), ('reg_name', 'TEXT'), ('registered', 'INTEGER DEFAULT 0')]:
+        try:
+            c.execute(f"ALTER TABLE users ADD COLUMN {col} {typ}")
+        except sqlite3.OperationalError:
+            pass
+    # Старые активные пользователи считаются зарегистрированными
+    try:
+        c.execute("""UPDATE users SET registered=1 
+                     WHERE registered=0 
+                     AND (balance > 0 OR total_rounds > 0 OR id IN (
+                         SELECT DISTINCT user_id FROM transactions
+                     ))""")
+    except Exception:
+        pass
+    # Чистка неиспользованных демо-балансов
     try:
         c.execute("""UPDATE users SET balance = 0 
                      WHERE balance = 10000.0 
@@ -52,14 +68,54 @@ def get_user():
     if not user_id: return jsonify({'error': 'No ID'}), 400
     conn = sqlite3.connect('casino.db')
     c = conn.cursor()
-    c.execute("SELECT balance, total_rounds, best_result FROM users WHERE id=?", (user_id,))
+    c.execute("SELECT balance, total_rounds, best_result, phone, reg_name, registered FROM users WHERE id=?", (user_id,))
     user = c.fetchone()
     if not user:
-        c.execute("INSERT INTO users (id, username, balance, total_rounds, best_result) VALUES (?, ?, ?, ?, ?)", (user_id, username, 0.0, 0, 0.0))
+        c.execute("INSERT INTO users (id, username, balance, total_rounds, best_result, registered) VALUES (?, ?, ?, ?, ?, 0)",
+                  (user_id, username, 0.0, 0, 0.0))
         conn.commit()
-        user = (0.0, 0, 0.0)
+        user = (0.0, 0, 0.0, None, None, 0)
     conn.close()
-    return jsonify({'balance': user[0], 'total_rounds': user[1], 'best_result': user[2]})
+    return jsonify({
+        'balance': user[0],
+        'total_rounds': user[1],
+        'best_result': user[2],
+        'phone': user[3],
+        'reg_name': user[4],
+        'registered': bool(user[5])
+    })
+
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    try:
+        data = request.json
+        user_id = int(data['id'])
+        phone = (data.get('phone') or '').strip()
+        name = (data.get('name') or '').strip()
+        if len(phone) < 7:
+            return jsonify({'error': 'Укажите корректный номер телефона'}), 400
+        if len(name) < 2:
+            return jsonify({'error': 'Укажите имя (минимум 2 символа)'}), 400
+        conn = sqlite3.connect('casino.db')
+        c = conn.cursor()
+        c.execute("SELECT id FROM users WHERE id=?", (user_id,))
+        if not c.fetchone():
+            c.execute("INSERT INTO users (id, balance, registered) VALUES (?, 0.0, 0)", (user_id,))
+        c.execute("SELECT id FROM users WHERE phone=? AND id!=?", (phone, user_id))
+        if c.fetchone():
+            conn.close()
+            return jsonify({'error': 'Этот номер уже зарегистрирован'}), 400
+        c.execute("UPDATE users SET phone=?, reg_name=?, registered=1 WHERE id=?", (phone, name, user_id))
+        conn.commit()
+        conn.close()
+        try:
+            bot.send_message(ADMIN_ID, f"👤 Новая регистрация\nID: {user_id}\nИмя: {name}\nТелефон: {phone}")
+        except Exception:
+            pass
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/save', methods=['POST'])
@@ -93,17 +149,20 @@ def deposit():
         min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0}
         if amount < min_limits.get(method, 15.0):
             return jsonify({'error': f'Минимальная сумма для {method} - ${min_limits.get(method, 15.0)}'}), 400
-        
         conn = sqlite3.connect('casino.db')
         c = conn.cursor()
+        c.execute("SELECT registered FROM users WHERE id=?", (user_id,))
+        reg = c.fetchone()
+        if not reg or not reg[0]:
+            conn.close()
+            return jsonify({'error': 'Сначала зарегистрируйтесь'}), 400
         c.execute("INSERT INTO transactions (user_id, type, method, amount, status) VALUES (?, 'Deposit', ?, ?, 'Pending')", (user_id, method, amount))
         tx_id = c.lastrowid
         conn.commit()
         conn.close()
-        
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_dep_{tx_id}"), types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_dep_{tx_id}"))
-        bot.send_message(ADMIN_ID, f"💰 **Заявка на пополнение #{tx_id}**\nID: {user_id}\nСумма: ${amount}\nСеть: {method}", reply_markup=markup, parse_mode='Markdown')
+        bot.send_message(ADMIN_ID, f"💰 Заявка на пополнение #{tx_id}\nID: {user_id}\nСумма: ${amount}\nСеть: {method}", reply_markup=markup)
         return jsonify({'status': 'ok'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -115,18 +174,18 @@ def withdraw():
         data = request.json
         user_id, amount, method = int(data['id']), float(data['amount']), data.get('method', 'USDT')
         min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0}
-        
         if amount < min_limits.get(method, 15.0):
             return jsonify({'error': f'Минимальная сумма для {method} - ${min_limits.get(method, 15.0)}'}), 400
-            
         conn = sqlite3.connect('casino.db')
         c = conn.cursor()
-        c.execute("SELECT balance FROM users WHERE id=?", (user_id,))
+        c.execute("SELECT balance, registered FROM users WHERE id=?", (user_id,))
         row = c.fetchone()
         if not row:
             conn.close()
             return jsonify({'error': 'Пользователь не найден'}), 404
-            
+        if not row[1]:
+            conn.close()
+            return jsonify({'error': 'Сначала зарегистрируйтесь'}), 400
         bal = row[0]
         if bal >= amount:
             c.execute("UPDATE users SET balance = balance - ? WHERE id=?", (amount, user_id))
@@ -134,10 +193,9 @@ def withdraw():
             tx_id = c.lastrowid
             conn.commit()
             conn.close()
-            
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("✅ Выплачено", callback_data=f"app_wd_{tx_id}"), types.InlineKeyboardButton("❌ Отклонить (Возврат)", callback_data=f"rej_wd_{tx_id}"))
-            bot.send_message(ADMIN_ID, f"💸 **Заявка на вывод #{tx_id}**\nID: {user_id}\nСумма: ${amount}\nСеть: {method}", reply_markup=markup, parse_mode='Markdown')
+            bot.send_message(ADMIN_ID, f"💸 Заявка на вывод #{tx_id}\nID: {user_id}\nСумма: ${amount}\nСеть: {method}", reply_markup=markup)
             return jsonify({'status': 'ok'})
         else:
             conn.close()
@@ -148,54 +206,75 @@ def withdraw():
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
-    if str(call.from_user.id) != ADMIN_ID: return bot.answer_callback_query(call.id, "Нет прав.")
-    action, tx_type, tx_id = call.data.split('_')[0], call.data.split('_')[1], call.data.split('_')[2]
-    
-    conn = sqlite3.connect('casino.db')
-    c = conn.cursor()
-    c.execute("SELECT user_id, amount, status FROM transactions WHERE id=?", (tx_id,))
-    tx = c.fetchone()
-    
-    if not tx or tx[2] != 'Pending':
+    try:
+        if str(call.from_user.id) != ADMIN_ID:
+            bot.answer_callback_query(call.id, "❌ Нет прав")
+            return
+        parts = call.data.split('_')
+        action, tx_type, tx_id = parts[0], parts[1], int(parts[2])
+        conn = sqlite3.connect('casino.db')
+        c = conn.cursor()
+        c.execute("SELECT user_id, amount, status FROM transactions WHERE id=?", (tx_id,))
+        tx = c.fetchone()
+        if not tx or tx[2] != 'Pending':
+            conn.close()
+            bot.answer_callback_query(call.id, "❌ Заявка уже обработана")
+            return
+        user_id, amount = int(tx[0]), float(tx[1])
+        status_line = ""
+        user_msg = ""
+        if action == 'app' and tx_type == 'dep':
+            c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (amount, user_id))
+            c.execute("UPDATE transactions SET status = 'Completed' WHERE id=?", (tx_id,))
+            status_line = f"✅ Пополнение #{tx_id} одобрено"
+            user_msg = f"✅ Ваш депозит на ${amount} одобрен! Баланс пополнен."
+        elif action == 'rej' and tx_type == 'dep':
+            c.execute("UPDATE transactions SET status = 'Rejected' WHERE id=?", (tx_id,))
+            status_line = f"❌ Пополнение #{tx_id} отклонено"
+            user_msg = f"❌ Ваш депозит на ${amount} отклонен."
+        elif action == 'app' and tx_type == 'wd':
+            c.execute("UPDATE transactions SET status = 'Completed' WHERE id=?", (tx_id,))
+            status_line = f"✅ Вывод #{tx_id} выплачен"
+            user_msg = f"✅ Ваш вывод на ${amount} успешно выплачен!"
+        elif action == 'rej' and tx_type == 'wd':
+            c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (amount, user_id))
+            c.execute("UPDATE transactions SET status = 'Rejected' WHERE id=?", (tx_id,))
+            status_line = f"❌ Вывод #{tx_id} отклонен (средства возвращены)"
+            user_msg = f"❌ Ваш вывод на ${amount} отклонен. Средства возвращены на баланс."
+        conn.commit()
         conn.close()
-        return bot.edit_message_text("❌ Заявка уже обработана.", call.message.chat.id, call.message.message_id)
-        
-    user_id, amount = int(tx[0]), float(tx[1])
-    
-    if action == 'app' and tx_type == 'dep':
-        c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (amount, user_id))
-        c.execute("UPDATE transactions SET status = 'Completed' WHERE id=?", (tx_id,))
-        new_text = call.message.text + "\n\n✅ **Пополнение одобрено**"
-        try: bot.send_message(user_id, f"✅ Ваш депозит на ${amount} одобрен! Баланс пополнен.")
-        except: pass
-    elif action == 'rej' and tx_type == 'dep':
-        c.execute("UPDATE transactions SET status = 'Rejected' WHERE id=?", (tx_id,))
-        new_text = call.message.text + "\n\n❌ **Пополнение отклонено**"
-        try: bot.send_message(user_id, f"❌ Ваш депозит на ${amount} отклонен.")
-        except: pass
-    elif action == 'app' and tx_type == 'wd':
-        c.execute("UPDATE transactions SET status = 'Completed' WHERE id=?", (tx_id,))
-        new_text = call.message.text + "\n\n✅ **Вывод выплачен**"
-        try: bot.send_message(user_id, f"✅ Ваш вывод на ${amount} успешно выплачен!")
-        except: pass
-    elif action == 'rej' and tx_type == 'wd':
-        c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (amount, user_id))
-        c.execute("UPDATE transactions SET status = 'Rejected' WHERE id=?", (tx_id,))
-        new_text = call.message.text + "\n\n❌ **Вывод отклонен (средства возвращены)**"
-        try: bot.send_message(user_id, f"❌ Ваш вывод на ${amount} отклонен. Средства возвращены.")
-        except: pass
-        
-    conn.commit()
-    conn.close()
-    bot.edit_message_text(new_text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
+        # 1) Сначала отвечаем на callback — гасит "часики"
+        try:
+            bot.answer_callback_query(call.id, status_line)
+        except Exception as e:
+            print("answer_callback error:", e)
+        # 2) Потом правим сообщение (без Markdown, чтобы не падало)
+        try:
+            new_text = call.message.text + "\n\n" + status_line
+            bot.edit_message_text(new_text, call.message.chat.id, call.message.message_id, reply_markup=None)
+        except Exception as e:
+            print("edit_message error:", e)
+        # 3) Уведомляем игрока + кнопка открыть WebApp
+        try:
+            markup = types.InlineKeyboardMarkup()
+            markup.add(types.InlineKeyboardButton("🎰 Открыть казино", web_app=types.WebAppInfo(url=WEBAPP_URL)))
+            bot.send_message(user_id, user_msg + "\n\nОткройте казино — баланс уже обновлён.", reply_markup=markup)
+        except Exception as e:
+            print("notify user error:", e)
+    except Exception as e:
+        print("Callback handler error:", e)
+        try:
+            bot.answer_callback_query(call.id, "⚠️ Ошибка обработки")
+        except Exception:
+            pass
 
 
 @app.route('/api/support', methods=['POST'])
 def support():
     data = request.json
-    text = f"📩 **Обращение в поддержку**\nОт: @{data.get('username')} (ID: {data.get('id')})\n\n{data.get('message')}"
+    text = f"📩 Обращение в поддержку\nОт: @{data.get('username')} (ID: {data.get('id')})\n\n{data.get('message')}"
     try:
-        bot.send_message(ADMIN_ID, text, parse_mode='Markdown')
+        bot.send_message(ADMIN_ID, text)
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
@@ -494,7 +573,7 @@ def mines_cashout():
         return jsonify({'error': 'Ошибка сервера: ' + str(e)}), 500
 
 
-# ============ ROULETTE (European) ============
+# ============ ROULETTE ============
 @app.route('/api/roulette/spin', methods=['POST'])
 def roulette_spin():
     try:
@@ -528,30 +607,18 @@ def roulette_spin():
         profit = -bet
         if bet_type == 'number' and result == bet_value:
             profit = bet * 35
-        elif bet_type == 'red' and color == 'red':
-            profit = bet
-        elif bet_type == 'black' and color == 'black':
-            profit = bet
-        elif bet_type == 'odd' and result != 0 and result % 2 == 1:
-            profit = bet
-        elif bet_type == 'even' and result != 0 and result % 2 == 0:
-            profit = bet
-        elif bet_type == 'low' and 1 <= result <= 18:
-            profit = bet
-        elif bet_type == 'high' and 19 <= result <= 36:
-            profit = bet
-        elif bet_type == 'dozen1' and 1 <= result <= 12:
-            profit = bet * 2
-        elif bet_type == 'dozen2' and 13 <= result <= 24:
-            profit = bet * 2
-        elif bet_type == 'dozen3' and 25 <= result <= 36:
-            profit = bet * 2
-        elif bet_type == 'column1' and result != 0 and result % 3 == 1:
-            profit = bet * 2
-        elif bet_type == 'column2' and result != 0 and result % 3 == 2:
-            profit = bet * 2
-        elif bet_type == 'column3' and result != 0 and result % 3 == 0:
-            profit = bet * 2
+        elif bet_type == 'red' and color == 'red': profit = bet
+        elif bet_type == 'black' and color == 'black': profit = bet
+        elif bet_type == 'odd' and result != 0 and result % 2 == 1: profit = bet
+        elif bet_type == 'even' and result != 0 and result % 2 == 0: profit = bet
+        elif bet_type == 'low' and 1 <= result <= 18: profit = bet
+        elif bet_type == 'high' and 19 <= result <= 36: profit = bet
+        elif bet_type == 'dozen1' and 1 <= result <= 12: profit = bet * 2
+        elif bet_type == 'dozen2' and 13 <= result <= 24: profit = bet * 2
+        elif bet_type == 'dozen3' and 25 <= result <= 36: profit = bet * 2
+        elif bet_type == 'column1' and result != 0 and result % 3 == 1: profit = bet * 2
+        elif bet_type == 'column2' and result != 0 and result % 3 == 2: profit = bet * 2
+        elif bet_type == 'column3' and result != 0 and result % 3 == 0: profit = bet * 2
         new_bal = round(row[0] + profit, 2)
         c.execute("UPDATE users SET balance=?, total_rounds = total_rounds + 1 WHERE id=?", (new_bal, user_id))
         if profit > 0:
@@ -585,7 +652,7 @@ def index():
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup()
-    web_app = types.WebAppInfo(url="https://my-casino-bot-2.onrender.com")
+    web_app = types.WebAppInfo(url=WEBAPP_URL)
     markup.add(types.InlineKeyboardButton("💎 Открыть MADGEK CASINO", web_app=web_app))
     bot.send_message(message.chat.id, "Добро пожаловать в MADGEK CASINO!", reply_markup=markup)
 
