@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 import os
 import sqlite3
+import random
 from flask import Flask, send_file, request, jsonify
 
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '8879662302:AAGUpOTng02XIMIRZe7xf154qKaJVXakj3o')
@@ -171,6 +172,103 @@ def support():
         bot.send_message(ADMIN_ID, text, parse_mode='Markdown')
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
+
+@app.route('/api/slots/classic', methods=['POST'])
+def slots_classic():
+    try:
+        data = request.json
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        if bet <= 0:
+            return jsonify({'error': 'Ставка должна быть больше 0'}), 400
+        conn = sqlite3.connect('casino.db')
+        c = conn.cursor()
+        c.execute("SELECT balance FROM users WHERE id=?", (user_id,))
+        row = c.fetchone()
+        if not row or row[0] < bet:
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
+
+        symbols = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣']
+        weights = [30, 25, 20, 15, 8, 2]
+        reels = []
+        for _ in range(3):
+            r = random.randint(1, 100)
+            acc = 0
+            for sym, w in zip(symbols, weights):
+                acc += w
+                if r <= acc:
+                    reels.append(sym)
+                    break
+
+        if reels[0] == reels[1] == reels[2]:
+            mult = 50 if reels[0] == '7️⃣' else 20 if reels[0] == '💎' else 10 if reels[0] == '🍇' else 5
+        elif reels[0] == reels[1] or reels[1] == reels[2] or reels[0] == reels[2]:
+            mult = 2 if ('💎' in reels or '7️⃣' in reels) else 1.5
+        else:
+            mult = 0
+
+        win = round(bet * mult, 2)
+        new_bal = round(row[0] - bet + win, 2)
+        c.execute("UPDATE users SET balance=?, total_rounds = total_rounds + 1 WHERE id=?", (new_bal, user_id))
+        if win > 0:
+            c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (win, user_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': new_bal})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/slots/lucky7', methods=['POST'])
+def slots_lucky7():
+    try:
+        data = request.json
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        if bet <= 0:
+            return jsonify({'error': 'Ставка должна быть больше 0'}), 400
+        conn = sqlite3.connect('casino.db')
+        c = conn.cursor()
+        c.execute("SELECT balance FROM users WHERE id=?", (user_id,))
+        row = c.fetchone()
+        if not row or row[0] < bet:
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
+
+        symbols = ['🍒', '🍋', '7️⃣']
+        weights = [45, 40, 15]
+        reels = []
+        for _ in range(3):
+            r = random.randint(1, 100)
+            acc = 0
+            for sym, w in zip(symbols, weights):
+                acc += w
+                if r <= acc:
+                    reels.append(sym)
+                    break
+
+        sevens = reels.count('7️⃣')
+        if sevens == 3:
+            mult = 30
+        elif sevens == 2:
+            mult = 5
+        elif sevens == 1:
+            mult = 1.5
+        elif reels[0] == reels[1] == reels[2]:
+            mult = 3
+        else:
+            mult = 0
+
+        win = round(bet * mult, 2)
+        new_bal = round(row[0] - bet + win, 2)
+        c.execute("UPDATE users SET balance=?, total_rounds = total_rounds + 1 WHERE id=?", (new_bal, user_id))
+        if win > 0:
+            c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (win, user_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': new_bal})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/')
 def index():
