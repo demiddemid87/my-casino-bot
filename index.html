@@ -18,7 +18,9 @@
         .music-btn { background: var(--surface); border: 1px solid var(--gold); color: var(--gold); width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; cursor: pointer; margin-right: auto; margin-left: 15px; }
         .music-btn.playing { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
+        .balance-container { display: flex; align-items: center; gap: 5px; }
         .balance { background: var(--surface); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 14px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
+        .refresh-btn { background: var(--surface); border: 1px solid var(--border); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .tabs-container { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tabs-container::-webkit-scrollbar { display: none; }
         .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: 0.3s; }
@@ -81,7 +83,10 @@
     <div class="header">
         <div class="logo">MADGEK</div>
         <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
-        <div class="balance" id="headerBalance">$0.00</div>
+        <div class="balance-container">
+            <div class="balance" id="headerBalance">$0.00</div>
+            <div class="refresh-btn" onclick="loadUser()">🔄</div>
+        </div>
     </div>
 
     <div id="view-games">
@@ -175,9 +180,6 @@
         <div class="modal-content" id="modalContent"></div>
     </div>
 
-    <!-- НАДПИСЬ ВЕРСИИ ЧТОБЫ ТЫ ВИДЕЛ ЧТО КОД ОБНОВИЛСЯ -->
-    <div style="text-align:center; color:#333; font-size:10px; margin-top:20px;">v3.0</div>
-
     <audio id="bgMusic" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mpeg">
     </audio>
@@ -214,9 +216,12 @@
             try {
                 const res = await fetch(`/api/user?id=${user.id}&username=${user.username}`);
                 const data = await res.json();
-                state.balance = data.balance; state.total_rounds = data.total_rounds; state.best_result = data.best_result;
-                updateUI();
-            } catch (e) { state.balance = 10000; updateUI(); }
+                if(state.balance !== data.balance) {
+                    state.balance = data.balance;
+                    updateUI();
+                }
+                state.total_rounds = data.total_rounds; state.best_result = data.best_result;
+            } catch (e) { console.log(e); }
         }
 
         function updateUI() {
@@ -229,6 +234,13 @@
             document.getElementById('profRounds').innerText = state.total_rounds;
             document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2);
         }
+
+        // АВТО-ОБНОВЛЕНИЕ БАЛАНСА КАЖДЫЕ 3 СЕКУНДЫ (если не открыта игра)
+        setInterval(() => {
+            if (!document.getElementById('gameModal').classList.contains('open')) {
+                loadUser();
+            }
+        }, 3000);
 
         function switchView(view) {
             document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
@@ -278,19 +290,24 @@
                 const data = await res.json();
                 if(res.ok) { tg.showAlert(`✅ Заявка на пополнение $${amt} создана!`); loadHistory(); } 
                 else { tg.showAlert(data.error); }
-            } catch(e) { tg.showAlert('Ошибка'); }
+            } catch(e) { tg.showAlert('Ошибка сети'); }
         }
 
         async function doWithdraw() {
             const amt = parseFloat(document.getElementById('wdAmount').value);
-            if(!amt || amt < minLimits[wdMethod]) return tg.showAlert(`Мин. сумма для ${wdMethod} - $${minLimits[wdMethod]}`);
-            if(state.balance < amt) return tg.showAlert('Недостаточно средств');
+            if(isNaN(amt) || amt <= 0) return tg.showAlert('Введите корректную сумму');
+            if(amt < minLimits[wdMethod]) return tg.showAlert(`Мин. сумма для ${wdMethod} - $${minLimits[wdMethod]}`);
+            if(state.balance < amt) return tg.showAlert(`Недостаточно средств. Баланс: $${state.balance.toFixed(2)}`);
+            
             try {
                 const res = await fetch('/api/withdraw', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, amount: amt, method: wdMethod }) });
                 const data = await res.json();
-                if(res.ok) { state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод создана!`); loadHistory(); } 
-                else { tg.showAlert(data.error); }
-            } catch(e) { tg.showAlert('Ошибка'); }
+                if(res.ok) { 
+                    state.balance -= amt; updateUI(); tg.showAlert(`✅ Заявка на вывод создана!`); loadHistory(); 
+                } else { 
+                    tg.showAlert(data.error || 'Ошибка сервера'); 
+                }
+            } catch(e) { tg.showAlert('Ошибка сети'); }
         }
 
         async function loadHistory() {
