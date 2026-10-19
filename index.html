@@ -29,11 +29,13 @@
         .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: 0.3s; font-family: inherit; }
         .tab-btn.active { background: rgba(255,215,0,0.1); color: var(--gold); border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
         .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 15px; text-align: center; transition: 0.2s; cursor: pointer; }
-        .game-card:active { transform: scale(0.96); border-color: var(--gold); }
-        .game-card .icon { font-size: 36px; margin-bottom: 10px; display: block; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); }
-        .game-card h3 { font-size: 14px; font-weight: 800; color: var(--gold); }
-        .game-card p { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 15px; text-align: center; transition: 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .game-card::before { content: ''; position: absolute; inset: -50%; background: linear-gradient(45deg, transparent 40%, rgba(255,215,0,0.15) 50%, transparent 60%); animation: shine 4s infinite; }
+        @keyframes shine { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+        .game-card:active { transform: scale(0.96); border-color: var(--gold); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+        .game-card .icon { font-size: 36px; margin-bottom: 10px; display: block; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); position: relative; z-index: 1; }
+        .game-card h3 { font-size: 14px; font-weight: 800; color: var(--gold); position: relative; z-index: 1; }
+        .game-card p { font-size: 11px; color: var(--muted); margin-top: 4px; position: relative; z-index: 1; }
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); }
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 100; }
         .nav-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; transition: 0.3s; cursor: pointer; font-family: inherit; }
@@ -60,7 +62,7 @@
         .modal-content { padding: 20px; flex: 1; display: flex; flex-direction: column; align-items: center; }
         .bet-selector { display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 340px; margin-bottom: 15px; flex-wrap: wrap; }
         .chip { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .chip.active { background: var(--gold); color: #000; border-color: var(--gold); }
+        .chip.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.5); }
         .rules-box { width: 100%; max-width: 340px; margin-bottom: 15px; }
         .rules-toggle { width: 100%; background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--border); padding: 10px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
         .rules-content { background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 8px; font-size: 12.5px; line-height: 1.55; color: var(--text); }
@@ -122,12 +124,160 @@
         .roul-zero { width: 100%; max-width: 340px; padding: 10px; margin-bottom: 6px; font-size: 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-family: inherit; border: 1px solid rgba(0,0,0,0.3); color: #fff; transition: 0.2s; background: #0a4a0a; }
         .roul-zero.selected { outline: 3px solid var(--gold); outline-offset: -1px; }
 
+        /* ============ PLINKO ============ */
+        .plinko-wrap {
+            width: 100%; max-width: 360px;
+            background: linear-gradient(180deg, #0a0a1a 0%, #150520 100%);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            padding: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(255,215,0,0.15), 0 0 20px rgba(255,215,0,0.2);
+        }
+        #plinkoCanvas { display: block; width: 100%; height: auto; border-radius: 10px; }
+        .plinko-history {
+            display: flex; gap: 4px; width: 100%; max-width: 340px;
+            margin-bottom: 10px; justify-content: center; flex-wrap: wrap; min-height: 22px;
+        }
+        .plinko-history span {
+            font-size: 10px; font-weight: 800; padding: 3px 8px;
+            border-radius: 10px; animation: histIn 0.3s ease-out;
+        }
+        @keyframes histIn { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0); } }
+
+        /* ============ TOWER ============ */
+        .tower-header {
+            width: 100%; max-width: 340px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 12px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+            text-align: center;
+        }
+        .tower-header > div > div:first-child { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+        .tower-header > div > div:last-child { font-size: 15px; font-weight: 800; color: var(--gold); margin-top: 3px; }
+        .tower-grid {
+            width: 100%; max-width: 340px;
+            display: flex; flex-direction: column; gap: 5px;
+            margin-bottom: 12px;
+        }
+        .tower-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+            opacity: 0.35; transition: 0.3s;
+        }
+        .tower-row.active { opacity: 1; }
+        .tower-row.passed { opacity: 0.9; }
+        .tower-cell {
+            height: 42px; border-radius: 10px;
+            background: rgba(20,20,25,0.95);
+            border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer; transition: 0.2s;
+            font-weight: 800; color: var(--muted);
+        }
+        .tower-row.active .tower-cell { border-color: var(--gold); box-shadow: 0 0 8px rgba(255,215,0,0.3); }
+        .tower-row.active .tower-cell:hover { background: rgba(255,215,0,0.15); transform: scale(1.05); }
+        .tower-row.active .tower-cell:active { transform: scale(0.95); }
+        .tower-cell.safe {
+            background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(56,142,60,0.7));
+            border-color: var(--green);
+            color: #fff;
+            cursor: default;
+            animation: safeReveal 0.4s ease-out;
+        }
+        @keyframes safeReveal {
+            0% { transform: scale(0.5) rotateY(0); }
+            50% { transform: scale(1.15) rotateY(180deg); }
+            100% { transform: scale(1) rotateY(360deg); }
+        }
+        .tower-cell.trap {
+            background: linear-gradient(135deg, rgba(229,57,53,0.7), rgba(183,28,28,0.9));
+            border-color: var(--red);
+            color: #fff;
+            cursor: default;
+            animation: trapReveal 0.5s ease-out;
+        }
+        @keyframes trapReveal {
+            0% { transform: scale(0.5); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .tower-cell.trap-revealed {
+            background: rgba(229,57,53,0.25);
+            border-color: var(--red);
+            color: rgba(255,255,255,0.6);
+            cursor: default;
+        }
+        .tower-controls {
+            width: 100%; max-width: 340px;
+            display: flex; gap: 8px; margin-bottom: 10px;
+        }
+
+        /* ============ EFFECTS ============ */
+        #effectsLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+        .confetti {
+            position: absolute; width: 10px; height: 10px;
+            top: -20px; will-change: transform;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(900deg); opacity: 0; }
+        }
+        .flash-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+            animation: flashFade 0.7s ease-out forwards;
+        }
+        @keyframes flashFade {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .float-text {
+            position: fixed; font-size: 36px; font-weight: 900;
+            font-family: 'Cinzel', serif;
+            pointer-events: none; z-index: 9999;
+            animation: floatUp 1.6s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+            text-shadow: 0 0 20px currentColor, 0 4px 8px rgba(0,0,0,0.8);
+            white-space: nowrap;
+        }
+        @keyframes floatUp {
+            0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
+            25% { transform: translate(-50%, -30px) scale(1.3); opacity: 1; }
+            60% { transform: translate(-50%, -90px) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -180px) scale(0.9); opacity: 0; }
+        }
+        body.shake { animation: shakeAnim 0.45s; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-8px) rotate(-0.5deg); }
+            30% { transform: translateX(8px) rotate(0.5deg); }
+            45% { transform: translateX(-6px); }
+            60% { transform: translateX(6px); }
+            75% { transform: translateX(-3px); }
+            90% { transform: translateX(3px); }
+        }
+        .pulse-win { animation: pulseWin 0.9s ease-out; }
+        @keyframes pulseWin {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.8); }
+            50% { box-shadow: 0 0 40px 25px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+        .pulse-loss { animation: pulseLoss 0.6s ease-out; }
+        @keyframes pulseLoss {
+            0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.8); }
+            50% { box-shadow: 0 0 40px 25px rgba(229, 57, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
+        }
+
         #audioPrompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate; pointer-events: none; text-align: center; }
         @keyframes bounce { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
     </style>
 </head>
 <body>
 
+    <div id="effectsLayer"></div>
     <div id="audioPrompt" data-i18n="audioPrompt">👆 Нажмите в любом месте для звука 🔊</div>
     <div class="particles" id="particles"></div>
 
@@ -272,6 +422,8 @@
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Лови семёрки',
             mines:'Мины', minesDesc:'5×5, открой безопасные',
             roulette:'Рулетка', rouletteDesc:'Европейская',
+            plinko:'Plinko', plinkoDesc:'Шарик вниз',
+            tower:'Башня', towerDesc:'Поднимайся выше',
             balanceLbl:'Баланс', topupLbl:'Пополнение (Заявка)', withdrawLbl:'Вывод средств',
             historyLbl:'История', createReq:'Создать заявку', sendBtn:'Отправить',
             msgPlaceholder:'Ваше сообщение...', supportTitle:'Поддержка',
@@ -296,6 +448,8 @@
             rulesLucky:'3 барабана. Три 7️⃣ = x30, две 7️⃣ = x5, одна 7️⃣ = x1.5. Три одинаковых (не 7) = x3.',
             rulesMines:'Поле 5×5. Выберите количество мин и откройте безопасные клетки. Каждая безопасная клетка увеличивает множитель. Нажмите «Забрать», чтобы забрать текущий выигрыш. Попадётесь на мину — потеряете ставку.',
             rulesRoulette:'Европейская рулетка (37 чисел, 0-36). Ставки: число (35:1), красное/чёрное (1:1), чёт/нечет (1:1), 1-18/19-36 (1:1), дюжина (2:1), колонка (2:1). 0 — преимущество казино.',
+            rulesPlinko:'Шарик падает вниз по полю с колышками и попадает в один из 9 слотов. Множители: от x0.3 до x28. Чем ближе к краям — тем больше выигрыш, но тем реже туда попадает шарик.',
+            rulesTower:'8 уровней, на каждом 3 клетки — одна из них ловушка. Угадай безопасную и поднимайся выше. Множитель растёт с каждым уровнем: x1.42 → x24.35. Забери выигрыш в любой момент. Попадёшь на ловушку — потеряешь ставку.',
             insufficient:'Недостаточно средств!', balanceUpdated:'Баланс обновлен!',
             serverSleep:'Сервер спит, подождите 50 секунд.',
             netErr:'Ошибка сети', errPrefix:'Ошибка: ',
@@ -336,6 +490,11 @@
             regPhoneErr:'Укажите корректный номер телефона',
             regRequired:'Сначала зарегистрируйтесь',
             editRegBtn:'✏️ Изменить данные',
+            plinkoDrop:'🎯 Бросить шарик', plinkoDropping:'🎯 Летит...',
+            towerLevel:'Уровень', towerMult:'Множитель', towerPotential:'Потенциал',
+            towerStart:'🚀 Начать', towerCashout:'💰 Забрать',
+            towerWin:'🎉 Забрано ${0} (x{1})!', towerLose:'💥 Ловушка! Ставка потеряна',
+            towerSelectLane:'Выберите клетку',
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile',
@@ -347,6 +506,8 @@
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens',
             mines:'Mines', minesDesc:'5×5, reveal safe',
             roulette:'Roulette', rouletteDesc:'European',
+            plinko:'Plinko', plinkoDesc:'Drop the ball',
+            tower:'Tower', towerDesc:'Climb higher',
             balanceLbl:'Balance', topupLbl:'Deposit (Request)', withdrawLbl:'Withdraw funds',
             historyLbl:'History', createReq:'Create request', sendBtn:'Send',
             msgPlaceholder:'Your message...', supportTitle:'Support',
@@ -371,6 +532,8 @@
             rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5. Three of a kind (not 7) = x3.',
             rulesMines:'5×5 grid. Choose mine count and reveal safe cells. Each safe cell increases the multiplier. Press "Cash out" to collect. Hit a mine — lose your bet.',
             rulesRoulette:'European roulette (37 numbers, 0-36). Bets: straight (35:1), red/black (1:1), odd/even (1:1), 1-18/19-36 (1:1), dozen (2:1), column (2:1). 0 is the house edge.',
+            rulesPlinko:'Ball drops through a peg field and lands in one of 9 slots. Multipliers: from x0.3 to x28. Edges pay more but hit rarely.',
+            rulesTower:'8 levels, 3 cells each — one is a trap. Pick a safe cell to climb. Multiplier grows: x1.42 → x24.35. Cash out anytime. Hit a trap — lose your bet.',
             insufficient:'Insufficient funds!', balanceUpdated:'Balance updated!',
             serverSleep:'Server is sleeping, wait 50 seconds.',
             netErr:'Network error', errPrefix:'Error: ',
@@ -411,6 +574,11 @@
             regPhoneErr:'Please enter a valid phone number',
             regRequired:'Please register first',
             editRegBtn:'✏️ Edit data',
+            plinkoDrop:'🎯 Drop ball', plinkoDropping:'🎯 Dropping...',
+            towerLevel:'Level', towerMult:'Multiplier', towerPotential:'Potential',
+            towerStart:'🚀 Start', towerCashout:'💰 Cash out',
+            towerWin:'🎉 Cashed ${0} (x{1})!', towerLose:'💥 Trap! Bet lost',
+            towerSelectLane:'Pick a cell',
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil',
@@ -422,6 +590,8 @@
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki',
             mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
             roulette:'Ruletka', rouletteDesc:'Europejska',
+            plinko:'Plinko', plinkoDesc:'Upuść kulkę',
+            tower:'Wieża', towerDesc:'Wspinaj się wyżej',
             balanceLbl:'Saldo', topupLbl:'Wpłata (Wniosek)', withdrawLbl:'Wypłata środków',
             historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
             msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc',
@@ -446,6 +616,8 @@
             rulesLucky:'3 bębny. Trzy 7️⃣ = x30, dwie 7️⃣ = x5, jedna 7️⃣ = x1.5. Trzy takie same (nie 7) = x3.',
             rulesMines:'Pole 5×5. Wybierz liczbę min i odkrywaj bezpieczne komórki. Każda bezpieczna komórka zwiększa mnożnik. Naciśnij „Odbierz", aby zgarnąć wygraną. Trafisz minę — tracisz zakład.',
             rulesRoulette:'Ruletka europejska (37 liczb, 0-36). Zakłady: numer (35:1), czerwone/czarne (1:1), nieparzyste/parzyste (1:1), 1-18/19-36 (1:1), tuzin (2:1), kolumna (2:1). 0 to przewaga kasyna.',
+            rulesPlinko:'Kulka spada przez pole kołków i ląduje w jednym z 9 slotów. Mnożniki: od x0.3 do x28. Krawędzie płacą więcej, ale trafiają rzadziej.',
+            rulesTower:'8 poziomów, po 3 komórki — jedna to pułapka. Wybierz bezpieczną i wspinaj się. Mnożnik rośnie: x1.42 → x24.35. Odbierz w dowolnym momencie. Trafisz pułapkę — tracisz zakład.',
             insufficient:'Niewystarczające środki!', balanceUpdated:'Saldo zaktualizowane!',
             serverSleep:'Serwer śpi, poczekaj 50 sekund.',
             netErr:'Błąd sieci', errPrefix:'Błąd: ',
@@ -486,6 +658,11 @@
             regPhoneErr:'Podaj prawidłowy numer telefonu',
             regRequired:'Najpierw się zarejestruj',
             editRegBtn:'✏️ Edytuj dane',
+            plinkoDrop:'🎯 Rzuć kulkę', plinkoDropping:'🎯 Spada...',
+            towerLevel:'Poziom', towerMult:'Mnożnik', towerPotential:'Potencjał',
+            towerStart:'🚀 Start', towerCashout:'💰 Odbierz',
+            towerWin:'🎉 Odebrano ${0} (x{1})!', towerLose:'💥 Pułapka! Zakład przepadł',
+            towerSelectLane:'Wybierz komórkę',
         }
     };
 
@@ -530,8 +707,75 @@
     const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
     const RED_SET = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
+    const PLINKO_MULTS = [28, 4, 0.8, 0.5, 0.3, 0.5, 0.8, 4, 28];
+    const TOWER_MULTS = [1.42, 2.14, 3.20, 4.81, 7.21, 10.82, 16.24, 24.35];
+
     const music = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
+
+    // ============ EFFECTS SYSTEM ============
+    function spawnConfetti(count = 40) {
+        const layer = document.getElementById('effectsLayer');
+        const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#95E1D3', '#F38181', '#AA96DA', '#FFB6C1'];
+        for (let i = 0; i < count; i++) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.background = colors[Math.floor(Math.random() * colors.length)];
+            c.style.animation = `confettiFall ${1.5 + Math.random() * 1.5}s ease-out forwards`;
+            c.style.animationDelay = (Math.random() * 0.3) + 's';
+            c.style.width = (5 + Math.random() * 8) + 'px';
+            c.style.height = (5 + Math.random() * 8) + 'px';
+            if (Math.random() > 0.5) c.style.borderRadius = '50%';
+            layer.appendChild(c);
+            setTimeout(() => c.remove(), 3200);
+        }
+    }
+
+    function flashScreen(color = 'rgba(255,215,0,0.35)') {
+        const flash = document.createElement('div');
+        flash.className = 'flash-overlay';
+        flash.style.background = color;
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 750);
+    }
+
+    function floatText(text, color = '#4CAF50') {
+        const el = document.createElement('div');
+        el.className = 'float-text';
+        el.innerText = text;
+        el.style.color = color;
+        el.style.left = '50%';
+        el.style.top = '45vh';
+        document.getElementById('effectsLayer').appendChild(el);
+        setTimeout(() => el.remove(), 1700);
+    }
+
+    function shakeScreen() {
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 500);
+    }
+
+    function pulseEl(el, type = 'win') {
+        if (!el) return;
+        const cls = type === 'win' ? 'pulse-win' : 'pulse-loss';
+        el.classList.add(cls);
+        setTimeout(() => el.classList.remove(cls), 1000);
+    }
+
+    function bigWin(amount, multiplier) {
+        spawnConfetti(amount >= 200 ? 80 : 40);
+        flashScreen('rgba(255,215,0,0.3)');
+        floatText('+$' + amount.toFixed(2) + (multiplier ? ' x' + multiplier : ''), '#FFD700');
+    }
+
+    function bigLoss(amount) {
+        shakeScreen();
+        flashScreen('rgba(229,57,53,0.3)');
+        if (amount) floatText('-$' + amount.toFixed(2), '#E53935');
+    }
+
+    // ============ END EFFECTS ============
 
     let hasGreeted = false;
     document.body.addEventListener('click', () => {
@@ -585,6 +829,12 @@
         } catch (e) {
             return { error: t('netErr') };
         }
+    }
+
+    async function saveUserBalance() {
+        try {
+            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+        } catch (e) { console.log('save error', e); }
     }
 
     async function loadUser(manual = false) {
@@ -691,6 +941,8 @@
 
     const gamesData = {
         pop: [
+            { id: 'plinko', icon: '🎯', nameKey: 'plinko', descKey: 'plinkoDesc' },
+            { id: 'tower', icon: '🏰', nameKey: 'tower', descKey: 'towerDesc' },
             { id: 'crash', icon: '🚀', nameKey: 'crash', descKey: 'crashDesc' },
             { id: 'mines', icon: '💣', nameKey: 'mines', descKey: 'minesDesc' },
             { id: 'roulette', icon: '🎡', nameKey: 'roulette', descKey: 'rouletteDesc' },
@@ -702,9 +954,9 @@
             { id: 'roulette', icon: '🎡', nameKey: 'roulette', descKey: 'rouletteDesc' }
         ],
         slots: [
-            { id: 'crash', icon: '🚀', nameKey: 'crash', descKey: 'crashDesc' },
             { id: 'slots_classic', icon: '🎰', nameKey: 'slotsClassic', descKey: 'slotsClassicDesc' },
-            { id: 'slots_lucky7', icon: '7️⃣', nameKey: 'slotsLucky', descKey: 'slotsLuckyDesc' }
+            { id: 'slots_lucky7', icon: '7️⃣', nameKey: 'slotsLucky', descKey: 'slotsLuckyDesc' },
+            { id: 'plinko', icon: '🎯', nameKey: 'plinko', descKey: 'plinkoDesc' }
         ]
     };
 
@@ -967,6 +1219,38 @@
             buildRouletteNumbers();
             updateRouletteBetDisplay();
             refreshRouletteSelection();
+        } else if (gameId === 'plinko') {
+            title.innerText = '🎯 ' + t('plinko');
+            content.innerHTML = `
+                ${rulesHTML('rulesPlinko')}
+                ${chipsHTML}
+                <div class="plinko-history" id="plinkoHistory"></div>
+                <div class="plinko-wrap">
+                    <canvas id="plinkoCanvas" width="340" height="380"></canvas>
+                </div>
+                <div id="plinkoControls" style="width:100%; max-width:340px; display:flex; justify-content:center;">
+                    <button class="btn btn-primary" id="plinkoBtn" onclick="startPlinko()">${t('plinkoDrop')}</button>
+                </div>
+            `;
+            renderBetChips('betChips');
+            plinkoInProgress = false;
+            plinkoHistory = [];
+            drawPlinkoBoard(null);
+        } else if (gameId === 'tower') {
+            title.innerText = '🏰 ' + t('tower');
+            content.innerHTML = `
+                ${rulesHTML('rulesTower')}
+                ${chipsHTML}
+                <div class="tower-header">
+                    <div><div>${t('towerLevel')}</div><div id="towerLevelDisp">0/8</div></div>
+                    <div><div>${t('towerMult')}</div><div id="towerMultDisp">x1.00</div></div>
+                    <div><div>${t('towerPotential')}</div><div id="towerPotentialDisp">$0.00</div></div>
+                </div>
+                <div class="tower-grid" id="towerGrid"></div>
+                <div class="tower-controls" id="towerControls"></div>
+            `;
+            renderBetChips('betChips');
+            towerReset();
         }
     }
 
@@ -1003,9 +1287,11 @@
         if (d.profit > 0) {
             result.innerText = t('baccWin', winnerName, d.profit.toFixed(2));
             result.style.color = 'var(--green)';
+            bigWin(d.profit);
         } else if (d.profit < 0) {
             result.innerText = t('baccLose', winnerName, Math.abs(d.profit).toFixed(2));
             result.style.color = 'var(--red)';
+            shakeScreen();
         } else {
             result.innerText = t('baccTie');
             result.style.color = 'var(--gold)';
@@ -1017,6 +1303,7 @@
         document.getElementById('gameModal').classList.remove('open');
         if (crashRunning) { clearInterval(crashInterval); crashRunning = false; }
         minesRoundId = null;
+        plinkoInProgress = false;
     }
 
     // ---------- MINES ----------
@@ -1117,6 +1404,7 @@
             minesPicks = 0;
             minesMult = 1.0;
             updateMinesInfo();
+            bigLoss(minesBet);
             tg.showAlert(t('minesBoom'));
             return;
         }
@@ -1138,6 +1426,7 @@
             if (minesGrid[m] === 'hidden') minesGrid[m] = 'mine';
         }
         renderMinesGrid();
+        bigWin(r.win, 'x' + r.multiplier.toFixed(2));
         tg.showAlert(t('minesCashed', r.win.toFixed(2), r.multiplier));
         minesRoundId = null;
         minesPicks = 0;
@@ -1301,14 +1590,15 @@
             rEl.innerText = d.number + ' ' + (d.color === 'red' ? '🔴' : d.color === 'black' ? '⚫' : '🟢');
             rEl.style.background = bg;
             rEl.style.color = '#fff';
+            pulseEl(rEl, d.profit > 0 ? 'win' : 'loss');
         }
 
         state.balance = d.balance;
         state.total_rounds++;
         updateUI();
 
-        if (d.profit > 0) tg.showAlert(t('rouletteWin', d.profit.toFixed(2)));
-        else tg.showAlert(t('rouletteLose', Math.abs(d.profit).toFixed(2)));
+        if (d.profit > 0) { bigWin(d.profit); tg.showAlert(t('rouletteWin', d.profit.toFixed(2))); }
+        else { bigLoss(currentBet); tg.showAlert(t('rouletteLose', Math.abs(d.profit).toFixed(2))); }
 
         rouletteSpinning = false;
         restoreRouletteSpinBtn();
@@ -1344,7 +1634,7 @@
     async function startBlackjack() {
         if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
         state.balance -= currentBet; state.total_rounds++; updateUI();
-        await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+        await saveUserBalance();
         isGameActive = true; createDeck(); pHand = [deck.pop(), deck.pop()]; dHand = [deck.pop(), deck.pop()]; updateBjUI();
         const controls = document.getElementById('bjControls');
         if (calcScore(pHand) === 21) { controls.innerHTML = `<button class="btn btn-primary" onclick="endBlackjack('blackjack')">Blackjack!</button>`; }
@@ -1354,7 +1644,7 @@
         if (!isGameActive) return;
         pHand.push(deck.pop()); updateBjUI();
         if (calcScore(pHand) > 21) {
-            isGameActive = false; tg.showAlert(t('bjBust'));
+            isGameActive = false; bigLoss(currentBet); tg.showAlert(t('bjBust'));
             document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">${t('playAgain')}</button>`;
         }
     }
@@ -1371,9 +1661,10 @@
         else { winAmount = currentBet; msg = t('bjTieMsg', currentBet.toFixed(2)); }
         if (winAmount > 0) {
             state.balance += winAmount; if (winAmount > state.best_result) state.best_result = winAmount;
-            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+            await saveUserBalance();
             updateUI();
-        }
+            if (winAmount > currentBet) bigWin(winAmount - currentBet);
+        } else { bigLoss(currentBet); }
         tg.showAlert(msg);
         document.getElementById('bjControls').innerHTML = `<button class="btn btn-primary" onclick="openGame('blackjack')">${t('playAgain')}</button>`;
     }
@@ -1384,7 +1675,7 @@
         if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
         if (crashRunning) return;
         state.balance -= currentBet; state.total_rounds++; updateUI();
-        await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+        await saveUserBalance();
         crashRunning = true;
         currentCrashBet = currentBet;
         crashMult = 1.00;
@@ -1418,6 +1709,7 @@
                 rocketEl.innerText = '💥';
                 rocketEl.classList.add('crash-boom');
                 controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">${t('playAgain')}</button>`;
+                bigLoss(currentCrashBet);
                 tg.showAlert(t('crashedMsg', crashPoint.toFixed(2)));
             }
         }, 100);
@@ -1431,7 +1723,7 @@
         state.balance += winAmount;
         if (winAmount > state.best_result) state.best_result = winAmount;
         updateUI();
-        await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, balance: state.balance, total_rounds: state.total_rounds, best_result: state.best_result }) });
+        await saveUserBalance();
         const multEl = document.getElementById('crashMult');
         const statusEl = document.getElementById('crashStatus');
         const rocketEl = document.getElementById('crashRocket');
@@ -1441,6 +1733,7 @@
         statusEl.innerText = `+$${winAmount.toFixed(2)} (x${crashMult.toFixed(2)})`;
         rocketEl.innerText = '✅';
         controls.innerHTML = `<button class="btn btn-primary" onclick="startCrash()">${t('playAgain')}</button>`;
+        bigWin(winAmount - currentCrashBet, 'x' + crashMult.toFixed(2));
         tg.showAlert(t('cashoutMsg', winAmount.toFixed(2), crashMult.toFixed(2)));
     }
 
@@ -1472,9 +1765,11 @@
         if (d.win > 0) {
             res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
             res.style.color = 'var(--green)';
+            bigWin(d.win, 'x' + d.multiplier);
         } else {
             res.innerText = t('missed');
             res.style.color = 'var(--red)';
+            shakeScreen();
         }
         btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsClassic()">${t('spinAgain')}</button>`;
     }
@@ -1506,18 +1801,334 @@
         if (d.win > 0) {
             res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier);
             res.style.color = 'var(--green)';
+            bigWin(d.win, 'x' + d.multiplier);
         } else {
             res.innerText = t('missed');
             res.style.color = 'var(--red)';
+            shakeScreen();
         }
         btn.innerHTML = `<button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spinAgain')}</button>`;
+    }
+
+    // ============ PLINKO GAME ============
+    let plinkoInProgress = false;
+    let plinkoHistory = [];
+    const PLINKO_ROWS = 8;
+    const PLINKO_SLOTS = 9;
+
+    function drawPlinkoBoard(ballPos) {
+        const canvas = document.getElementById('plinkoCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const slotW = w / PLINKO_SLOTS;
+        const rowH = (h - 50) / (PLINKO_ROWS + 1);
+        const pegR = 3.5;
+        const pegStartY = 35;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Slots bar
+        for (let i = 0; i < PLINKO_SLOTS; i++) {
+            const m = PLINKO_MULTS[i];
+            let color;
+            if (m >= 20) color = '#ff2020';
+            else if (m >= 3) color = '#ff8800';
+            else if (m >= 1) color = '#ffcc00';
+            else color = '#444';
+            ctx.fillStyle = color;
+            ctx.fillRect(i * slotW + 1, h - 18, slotW - 2, 16);
+            ctx.fillStyle = (m >= 1) ? '#000' : '#fff';
+            ctx.font = 'bold 10px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(m + 'x', i * slotW + slotW / 2, h - 10);
+        }
+
+        // Pegs
+        for (let r = 0; r < PLINKO_ROWS; r++) {
+            const count = r + 2;
+            const y = pegStartY + r * rowH;
+            const startX = (w - (count - 1) * slotW) / 2;
+            for (let i = 0; i < count; i++) {
+                const x = startX + i * slotW;
+                const grad = ctx.createRadialGradient(x - 1, y - 1, 0.5, x, y, pegR);
+                grad.addColorStop(0, '#fff5b0');
+                grad.addColorStop(1, '#B8860B');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(x, y, pegR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#8B6914';
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+
+        // Ball
+        if (ballPos) {
+            const grad = ctx.createRadialGradient(ballPos.x - 2, ballPos.y - 2, 1, ballPos.x, ballPos.y, 7);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(0.7, '#FFD700');
+            grad.addColorStop(1, '#B8860B');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(ballPos.x, ballPos.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 15;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    async function startPlinko() {
+        if (plinkoInProgress) return;
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        plinkoInProgress = true;
+        const btn = document.getElementById('plinkoBtn');
+        if (btn) { btn.disabled = true; btn.innerText = t('plinkoDropping'); }
+        state.balance -= currentBet;
+        state.total_rounds++;
+        updateUI();
+        await saveUserBalance();
+
+        // Generate fair path
+        const choices = [];
+        for (let i = 0; i < PLINKO_ROWS; i++) choices.push(Math.random() < 0.5);
+        const slot = choices.filter(c => c).length;
+        const multiplier = PLINKO_MULTS[slot];
+        const winAmount = currentBet * multiplier;
+
+        // Compute waypoints
+        const canvas = document.getElementById('plinkoCanvas');
+        const w = canvas.width, h = canvas.height;
+        const slotW = w / PLINKO_SLOTS;
+        const rowH = (h - 50) / (PLINKO_ROWS + 1);
+        const pegStartY = 35;
+
+        const waypoints = [{ x: w / 2, y: 15 }];
+        let x = w / 2;
+        for (let r = 0; r < PLINKO_ROWS; r++) {
+            const y = pegStartY + r * rowH + rowH / 2;
+            x += choices[r] ? (slotW / 2) : (-slotW / 2);
+            waypoints.push({ x, y });
+        }
+        const finalX = slotW * slot + slotW / 2;
+        waypoints.push({ x: finalX, y: h - 28 });
+
+        // Animate
+        await new Promise(resolve => {
+            let wpIdx = 0;
+            let t = 0;
+            const speed = 0.045;
+            function step() {
+                if (wpIdx >= waypoints.length - 1) {
+                    drawPlinkoBoard(waypoints[waypoints.length - 1]);
+                    resolve();
+                    return;
+                }
+                t += speed;
+                if (t >= 1) { t = 0; wpIdx++; }
+                if (wpIdx >= waypoints.length - 1) {
+                    drawPlinkoBoard(waypoints[waypoints.length - 1]);
+                    resolve();
+                    return;
+                }
+                const from = waypoints[wpIdx];
+                const to = waypoints[wpIdx + 1];
+                const eased = t * t;
+                const arc = -Math.sin(t * Math.PI) * 2;
+                drawPlinkoBoard({
+                    x: from.x + (to.x - from.x) * t,
+                    y: from.y + (to.y - from.y) * eased + arc
+                });
+                requestAnimationFrame(step);
+            }
+            step();
+        });
+
+        // Award
+        state.balance += winAmount;
+        if (winAmount > state.best_result) state.best_result = winAmount;
+        updateUI();
+        await saveUserBalance();
+
+        // History
+        plinkoHistory.unshift({ m: multiplier });
+        if (plinkoHistory.length > 8) plinkoHistory.pop();
+        renderPlinkoHistory();
+
+        if (multiplier >= 1) {
+            bigWin(winAmount - currentBet, 'x' + multiplier);
+        } else {
+            shakeScreen();
+            flashScreen('rgba(229,57,53,0.2)');
+        }
+
+        plinkoInProgress = false;
+        if (btn) { btn.disabled = false; btn.innerText = t('plinkoDrop'); }
+        setTimeout(() => drawPlinkoBoard(null), 800);
+    }
+
+    function renderPlinkoHistory() {
+        const el = document.getElementById('plinkoHistory');
+        if (!el) return;
+        el.innerHTML = plinkoHistory.map(h => {
+            let color;
+            if (h.m >= 20) color = 'background:#ff2020;color:#fff;';
+            else if (h.m >= 3) color = 'background:#ff8800;color:#fff;';
+            else if (h.m >= 1) color = 'background:#ffcc00;color:#000;';
+            else color = 'background:#444;color:#fff;';
+            return `<span style="${color}">${h.m}x</span>`;
+        }).join('');
+    }
+
+    // ============ TOWER GAME ============
+    let towerActive = false;
+    let towerLevel = 0;
+    let towerBet = 0;
+    let towerTraps = [];
+    let towerPicks = [];
+
+    function towerReset() {
+        towerActive = false;
+        towerLevel = 0;
+        towerBet = 0;
+        towerTraps = [];
+        towerPicks = [];
+        renderTowerGrid();
+        updateTowerHeader();
+        const ctrl = document.getElementById('towerControls');
+        if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="startTower()">${t('towerStart')}</button>`;
+    }
+
+    function renderTowerGrid() {
+        const grid = document.getElementById('towerGrid');
+        if (!grid) return;
+        let html = '';
+        for (let r = TOWER_MULTS.length - 1; r >= 0; r--) {
+            let rowClass = 'tower-row';
+            if (towerActive && r === towerLevel) rowClass += ' active';
+            else if (towerPicks[r] !== undefined && r < towerLevel) rowClass += ' passed';
+            let cellsHtml = '';
+            for (let lane = 0; lane < 3; lane++) {
+                let cls = 'tower-cell';
+                let content = '?';
+                const picked = towerPicks[r] === lane;
+                const isTrap = towerTraps[r] === lane;
+                if (picked && !isTrap) { cls += ' safe'; content = '💎'; }
+                else if (picked && isTrap) { cls += ' trap'; content = '💥'; }
+                else if (towerTraps[r] !== undefined && towerPicks[r] !== undefined && r === towerLevel) {
+                    // reveal trap on loss
+                    if (isTrap) { cls += ' trap-revealed'; content = '💣'; }
+                }
+                const onclick = (towerActive && r === towerLevel) ? `onclick="towerPick(${r}, ${lane})"` : '';
+                cellsHtml += `<div class="${cls}" ${onclick}>${content}</div>`;
+            }
+            html += `<div class="${rowClass}">${cellsHtml}</div>`;
+        }
+        grid.innerHTML = html;
+    }
+
+    function updateTowerHeader() {
+        const lvlEl = document.getElementById('towerLevelDisp');
+        const multEl = document.getElementById('towerMultDisp');
+        const potEl = document.getElementById('towerPotentialDisp');
+        if (!lvlEl || !multEl || !potEl) return;
+        lvlEl.innerText = towerLevel + '/' + TOWER_MULTS.length;
+        const mult = towerLevel > 0 ? TOWER_MULTS[towerLevel - 1] : 1.0;
+        multEl.innerText = 'x' + mult.toFixed(2);
+        potEl.innerText = '$' + (towerBet * mult).toFixed(2);
+    }
+
+    async function startTower() {
+        if (towerActive) return;
+        if (state.balance < currentBet) return tg.showAlert(t('insufficient'));
+        state.balance -= currentBet;
+        state.total_rounds++;
+        updateUI();
+        await saveUserBalance();
+        towerActive = true;
+        towerLevel = 0;
+        towerBet = currentBet;
+        towerTraps = [];
+        towerPicks = [];
+        for (let r = 0; r < TOWER_MULTS.length; r++) towerTraps.push(Math.floor(Math.random() * 3));
+        renderTowerGrid();
+        updateTowerHeader();
+        const ctrl = document.getElementById('towerControls');
+        if (ctrl) ctrl.innerHTML = `<button class="btn btn-secondary" disabled>${t('towerCashout')} $0.00</button>`;
+    }
+
+    async function towerPick(row, lane) {
+        if (!towerActive || row !== towerLevel) return;
+        towerPicks[row] = lane;
+        if (lane === towerTraps[row]) {
+            // Lose
+            towerActive = false;
+            renderTowerGrid();
+            bigLoss(towerBet);
+            tg.showAlert(t('towerLose'));
+            const ctrl = document.getElementById('towerControls');
+            if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
+            updateTowerHeader();
+            return;
+        }
+        // Safe
+        towerLevel++;
+        renderTowerGrid();
+        updateTowerHeader();
+        const mult = TOWER_MULTS[towerLevel - 1];
+        const potential = towerBet * mult;
+        const ctrl = document.getElementById('towerControls');
+        if (towerLevel >= TOWER_MULTS.length) {
+            // Max reached
+            await towerCashoutAuto();
+            return;
+        }
+        if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerCashout()">${t('towerCashout')} $${potential.toFixed(2)}</button>`;
+    }
+
+    async function towerCashout() {
+        if (!towerActive || towerLevel === 0) return;
+        const mult = TOWER_MULTS[towerLevel - 1];
+        const winAmount = towerBet * mult;
+        state.balance += winAmount;
+        if (winAmount > state.best_result) state.best_result = winAmount;
+        updateUI();
+        await saveUserBalance();
+        towerActive = false;
+        bigWin(winAmount, 'x' + mult.toFixed(2));
+        tg.showAlert(t('towerWin', winAmount.toFixed(2), mult.toFixed(2)));
+        const ctrl = document.getElementById('towerControls');
+        if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
+        // Reveal traps
+        for (let r = 0; r < TOWER_MULTS.length; r++) {
+            if (towerPicks[r] === undefined) towerPicks[r] = -1;
+        }
+        renderTowerGrid();
+    }
+
+    async function towerCashoutAuto() {
+        // Reached max level - auto cashout
+        const mult = TOWER_MULTS[TOWER_MULTS.length - 1];
+        const winAmount = towerBet * mult;
+        state.balance += winAmount;
+        if (winAmount > state.best_result) state.best_result = winAmount;
+        updateUI();
+        await saveUserBalance();
+        towerActive = false;
+        bigWin(winAmount, 'x' + mult.toFixed(2));
+        tg.showAlert(t('towerWin', winAmount.toFixed(2), mult.toFixed(2)));
+        const ctrl = document.getElementById('towerControls');
+        if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
     }
 
     // ============ INIT ============
     document.documentElement.lang = lang;
     applyLang();
     switchTab('pop');
-    // Кэш: если в прошлый раз не был зарегистрирован — модалка сразу
     if (localStorage.getItem('reg_state') !== 'yes') {
         document.getElementById('registerModal').classList.add('open');
     }
