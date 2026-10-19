@@ -1,36 +1,113 @@
 import telebot
 from telebot import types
 import os
-from flask import Flask, send_file
+import sqlite3
+from flask import Flask, send_file, request, jsonify
 
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '8879662302:AAGUpOTng02XIMIRZe7xf154qKaJVXakj3o')
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-# Отдаем наш HTML файл
+ADMIN_ID = '7695713296' # Твой ID
+
+def init_db():
+    conn = sqlite3.connect('casino.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users 
+                 (id INTEGER PRIMARY KEY, username TEXT, balance REAL, total_rounds INTEGER, best_result REAL)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS transactions 
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type TEXT, amount REAL, status TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
+init_db()
+
+@app.route('/api/user', methods=['GET'])
+def get_user():
+    user_id = request.args.get('id')
+    username = request.args.get('username', 'Игрок')
+    if not user_id: return jsonify({'error': 'No ID'}), 400
+    
+    conn = sqlite3.connect('casino.db')
+    c = conn.cursor()
+    c.execute("SELECT balance, total_rounds, best_result FROM users WHERE id=?", (user_id,))
+    user = c.fetchone()
+    
+    if not user:
+        c.execute("INSERT INTO users (id, username, balance, total_rounds, best_result) VALUES (?, ?, ?, ?, ?)", 
+                  (user_id, username, 10000.0, 0, 0.0))
+        conn.commit()
+        user = (10000.0, 0, 0.0)
+    conn.close()
+    return jsonify({'balance': user[0], 'total_rounds': user[1], 'best_result': user[2]})
+
+@app.route('/api/transactions', methods=['GET'])
+def get_transactions():
+    user_id = request.args.get('id')
+    conn = sqlite3.connect('casino.db')
+    c = conn.cursor()
+    c.execute("SELECT id, type, amount, status, date FROM transactions WHERE user_id=? ORDER BY date DESC LIMIT 20", (user_id,))
+    rows = c.fetchall()
+    conn.close()
+    return jsonify([{'id': r[0], 'type': r[1], 'amount': r[2], 'status': r[3], 'date': r[4]} for r in rows])
+
+@app.route('/api/deposit', methods=['POST'])
+def deposit():
+    data = request.json
+    user_id, amount = data['id'], float(data['amount'])
+    conn = sqlite3.connect('casino.db')
+    c = conn.cursor()
+    c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (amount, user_id))
+    c.execute("INSERT INTO transactions (user_id, type, amount, status) VALUES (?, 'Deposit', ?, 'Completed')", (user_id, amount))
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'ok'})
+
+@app.route('/api/withdraw', methods=['POST'])
+def withdraw():
+    data = request.json
+    user_id, amount = data['id'], float(data['amount'])
+    conn = sqlite3.connect('casino.db')
+    c = conn.cursor()
+    c.execute("SELECT balance FROM users WHERE id=?", (user_id,))
+    bal = c.fetchone()[0]
+    
+    if bal >= amount:
+        c.execute("UPDATE users SET balance = balance - ? WHERE id=?", (amount, user_id))
+        c.execute("INSERT INTO transactions (user_id, type, amount, status) VALUES (?, 'Withdrawal', ?, 'Pending')", (user_id, amount))
+        conn.commit()
+        conn.close()
+        
+        try:
+            bot.send_message(ADMIN_ID, f"💸 **Новая заявка на вывод**\nID игрока: {user_id}\nСумма: ${amount}")
+        except Exception as e: print("Ошибка отправки сообщения:", e)
+        return jsonify({'status': 'ok'})
+    
+    conn.close()
+    return jsonify({'error': 'Недостаточно средств'}), 400
+
+@app.route('/api/support', methods=['POST'])
+def support():
+    data = request.json
+    text = f"📩 **Обращение в поддержку**\nОт: @{data.get('username')} (ID: {data.get('id')})\n\n{data.get('message')}"
+    try:
+        bot.send_message(ADMIN_ID, text, parse_mode='Markdown')
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        print("Ошибка отправки сообщения:", e)
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/')
 def index():
     return send_file('index.html')
 
-# Главное меню бота
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup()
-    
-    # Твоя ссылка на Render
     web_app = types.WebAppInfo(url="https://my-casino-bot-2.onrender.com")
-    btn_app = types.InlineKeyboardButton("🎰 Открыть Казино", web_app=web_app)
-    
-    markup.add(btn_app)
-    
-    bot.send_message(message.chat.id, 
-        "👋 Добро пожаловать в Демо-Казино!\n\nНажми на кнопку ниже, чтобы открыть полноценное приложение.", 
-        reply_markup=markup)
+    markup.add(types.InlineKeyboardButton("💎 Открыть MADGEK CASINO", web_app=web_app))
+    bot.send_message(message.chat.id, "Добро пожаловать в MADGEK CASINO!", reply_markup=markup)
 
 if __name__ == "__main__":
     import threading
-    def run_bot():
-        bot.infinity_polling()
-    
-    threading.Thread(target=run_bot).start()
+    threading.Thread(target=bot.infinity_polling).start()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
