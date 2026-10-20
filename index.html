@@ -9,12 +9,23 @@
     <style>
         :root { --bg: #050505; --surface: rgba(20, 20, 25, 0.85); --gold: #FFD700; --text: #ffffff; --muted: #8b8b93; --border: rgba(255, 215, 0, 0.3); --red: #E53935; --green: #4CAF50; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; padding: 15px 15px 90px; min-height: 100vh; overflow-x: hidden; background-image: radial-gradient(circle at top, #1a1508 0%, #050505 60%); background-attachment: fixed; }
-        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-        .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.3; animation: float linear infinite; }
-        @keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; padding: 15px 15px 90px; min-height: 100vh; overflow-x: hidden; background-image: radial-gradient(circle at top, #1a1508 0%, #050505 60%); background-attachment: fixed; position: relative; }
+        
+        /* GOLDEN RAIN EFFECT */
+        .gold-rain-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; overflow: hidden; }
+        .gold-drop { position: absolute; top: -20px; width: 3px; height: 15px; background: linear-gradient(to bottom, rgba(255,215,0,1), rgba(255,215,0,0)); border-radius: 2px; opacity: 0.6; animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(105vh); opacity: 0; } }
+
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -2; }
+        .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.2; animation: float linear infinite; }
+        @keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.4; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
+
         .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border); margin-bottom: 15px; gap: 6px; }
-        .logo { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 900; background: linear-gradient(to right, #FFD700, #FDB931); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+        
+        /* GLOWING LOGO */
+        .logo { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 900; background: linear-gradient(to right, #FFD700, #FFF8DC, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: logoGlow 2s infinite alternate; }
+        @keyframes logoGlow { from { text-shadow: 0 0 5px rgba(255,215,0,0.5); } to { text-shadow: 0 0 20px rgba(255,215,0,1), 0 0 30px rgba(255,215,0,0.6); } }
+
         .music-btn { background: var(--surface); border: 1px solid var(--gold); color: var(--gold); width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; cursor: pointer; }
         .music-btn.playing { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
@@ -176,6 +187,28 @@
         @keyframes spinReel { 0% { transform: translateY(-20px); opacity: 0; } 50% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(20px); opacity: 0; } }
         .bookofra-paytable { font-size: 10px; color: var(--gold); text-align: center; margin-bottom: 10px; font-weight: 700; }
 
+        /* ============ KENO ============ */
+        .keno-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; width: 100%; max-width: 380px; margin-bottom: 15px; }
+        .keno-cell { aspect-ratio: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; color: var(--text); }
+        .keno-cell.selected { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .keno-cell.drawn { background: rgba(229,57,53,0.3); border-color: var(--red); color: #fff; animation: hitKeno 0.5s; }
+        .keno-cell.drawn-match { background: var(--green); border-color: var(--green); color: #fff; animation: hitKenoMatch 0.5s; }
+        @keyframes hitKeno { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        @keyframes hitKenoMatch { 0% { transform: scale(1); box-shadow: 0 0 0 rgba(76,175,80,0.8); } 50% { transform: scale(1.4); box-shadow: 0 0 20px rgba(76,175,80,0.8); } 100% { transform: scale(1); box-shadow: 0 0 0 rgba(76,175,80,0); } }
+
+        /* ============ WHEEL ============ */
+        .wheel-container { width: 100%; max-width: 340px; height: 340px; position: relative; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; }
+        .wheel-bg { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(
+            #E53935 0deg 36deg, #222 36deg 72deg, #4CAF50 72deg 108deg, #222 108deg 144deg,
+            #E53935 144deg 180deg, #9C27B0 180deg 216deg, #222 216deg 252deg, #4CAF50 252deg 288deg,
+            #222 288deg 324deg, #FFD700 324deg 360deg
+        ); border: 6px solid var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.5); }
+        .wheel-pointer { position: absolute; top: -10px; font-size: 30px; color: var(--gold); z-index: 10; text-shadow: 0 0 10px #000; }
+        .wheel-inner { position: absolute; width: 80%; height: 80%; border-radius: 50%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); z-index: 5; }
+        .wheel-result-text { font-size: 32px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; }
+        .wheel-segment-text { position: absolute; font-size: 14px; font-weight: 900; color: #fff; text-shadow: 0 1px 3px #000; }
+        #wheelCanvas { position: absolute; width: 100%; height: 100%; z-index: 1; transition: transform 4s cubic-bezier(0.2, 0.8, 0.1, 1); }
+
         /* ============ EFFECTS ============ */
         #effectsLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
         .confetti { position: absolute; width: 10px; height: 10px; top: -20px; will-change: transform; }
@@ -219,6 +252,9 @@
     </style>
 </head>
 <body>
+
+    <!-- GOLDEN RAIN -->
+    <div class="gold-rain-container" id="goldRain"></div>
 
     <div id="effectsLayer"></div>
     <div id="audioPrompt" data-i18n="audioPrompt">👆 Нажмите в любом месте для звука 🔊</div>
@@ -475,6 +511,21 @@
     </audio>
 
     <script>
+    // GOLDEN RAIN JS
+    function initGoldRain() {
+        const container = document.getElementById('goldRain');
+        for(let i=0; i<30; i++) {
+            let drop = document.createElement('div');
+            drop.className = 'gold-drop';
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            drop.style.animationDelay = (Math.random() * 5) + 's';
+            drop.style.height = (Math.random() * 15 + 10) + 'px';
+            container.appendChild(drop);
+        }
+    }
+    initGoldRain();
+
     // ============ i18n ============
     const i18n = {
         ru: {
@@ -487,6 +538,8 @@
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 барабана',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Лови семёрки',
             slotsBook:'Book of Ra', slotsBookDesc:'Книга Фараона',
+            keno:'Кено', kenoDesc:'Лотерея на 80 чисел',
+            wheel:'Колесо', wheelDesc:'Крути и выигрывай',
             mines:'Мины', minesDesc:'5×5, открой безопасные',
             roulette:'Рулетка', rouletteDesc:'Европейская',
             plinko:'Plinko', plinkoDesc:'Шарик вниз',
@@ -514,6 +567,8 @@
             rulesClassic:'3 барабана. Три одинаковых: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Два одинаковых: x1.5 (x2 с 💎 или 7️⃣).',
             rulesLucky:'3 барабана. Три 7️⃣ = x30, две 7️⃣ = x5, одна 7️⃣ = x1.5. Три одинаковых (не 7) = x3.',
             rulesBook:'5 барабанов. Книга (📖) — самый ценный символ: 5 книг = x100, 4 книги = x20, 3 книги = x5. Остальные символы (🐈,👁️,🏺,🗿,🐍) дают x50 за 5 штук.',
+            rulesKeno:'Выберите от 1 до 10 чисел. Система вытянет 20 шаров. Чем больше совпадений, тем выше множитель. Выигрыш зависит от количества угаданных чисел.',
+            rulesWheel:'Колесо разделено на 10 секторов: x0, x1.5, x2, x5, x10. Нажмите «Крутить» и ждите, где остановится указатель.',
             rulesMines:'Поле 5×5. Выберите количество мин и откройте безопасные клетки. Каждая безопасная клетка увеличивает множитель. Нажмите «Забрать», чтобы забрать текущий выигрыш. Попадётесь на мину — потеряете ставку.',
             rulesRoulette:'Европейская рулетка (37 чисел, 0-36). Ставки: число (35:1), красное/чёрное (1:1), чёт/нечет (1:1), 1-18/19-36 (1:1), дюжина (2:1), колонка (2:1). 0 — преимущество казино.',
             rulesPlinko:'Шарик падает вниз по полю с колышками и попадает в один из 9 слотов. Множители: от x0.3 до x28. Чем ближе к краям — тем больше выигрыш, но тем реже туда попадает шарик.',
@@ -568,6 +623,8 @@
             towerSelectLane:'Выберите клетку',
             diceRoll:'🎲 Бросить', diceRolling:'🎲 Крутим...', diceOver:'БОЛЬШЕ', diceUnder:'МЕНЬШЕ',
             diceMultiplier:'Множитель', diceWinChance:'Шанс выигрыша',
+            kenoPlay:'Играть', kenoDrawn:'Выпало', kenoMatches:'Совпадений', kenoPickNum:'Выберите числа', kenoMax:'Максимум 10 чисел',
+            wheelSpinBtn:'Крутить колесо', wheelResult:'Результат',
             kycTitle:'🛡️ KYC Верификация', kycDesc:'Пройдите верификацию для вывода крупных сумм.', goKyc:'Пройти KYC',
             kycNamePh:'ФИО на английском', kycCountryPh:'Страна проживания', kycSubmit:'Отправить',
             notPassed:'Не пройдена', pendingKyc:'На проверке', approvedKyc:'Пройдена',
@@ -587,6 +644,8 @@
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens',
             slotsBook:'Book of Ra', slotsBookDesc:'Book of Pharaoh',
+            keno:'Keno', kenoDesc:'80 numbers lottery',
+            wheel:'Wheel', wheelDesc:'Spin and win',
             mines:'Mines', minesDesc:'5×5, reveal safe',
             roulette:'Roulette', rouletteDesc:'European',
             plinko:'Plinko', plinkoDesc:'Drop the ball',
@@ -614,6 +673,8 @@
             rulesClassic:'3 reels. Three of a kind: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Two of a kind: x1.5 (x2 with 💎 or 7️⃣).',
             rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5. Three of a kind (not 7) = x3.',
             rulesBook:'5 reels. Book (📖) is the most valuable: 5 books = x100, 4 books = x20, 3 books = x5. Other symbols (🐈,👁️,🏺,🗿,🐍) pay x50 for 5 of a kind.',
+            rulesKeno:'Pick 1 to 10 numbers. The system draws 20 balls. The more matches, the higher the multiplier. Payout depends on matches.',
+            rulesWheel:'The wheel has 10 segments: x0, x1.5, x2, x5, x10. Spin and wait for the pointer to stop.',
             rulesMines:'5×5 grid. Choose mine count and reveal safe cells. Each safe cell increases the multiplier. Press "Cash out" to collect. Hit a mine — lose your bet.',
             rulesRoulette:'European roulette (37 numbers, 0-36). Bets: straight (35:1), red/black (1:1), odd/even (1:1), 1-18/19-36 (1:1), dozen (2:1), column (2:1). 0 is the house edge.',
             rulesPlinko:'Ball drops through a peg field and lands in one of 9 slots. Multipliers: from x0.3 to x28. Edges pay more but hit rarely.',
@@ -668,6 +729,8 @@
             towerSelectLane:'Pick a cell',
             diceRoll:'🎲 Roll', diceRolling:'🎲 Rolling...', diceOver:'OVER', diceUnder:'UNDER',
             diceMultiplier:'Multiplier', diceWinChance:'Win chance',
+            kenoPlay:'Play', kenoDrawn:'Drawn', kenoMatches:'Matches', kenoPickNum:'Pick numbers', kenoMax:'Max 10 numbers',
+            wheelSpinBtn:'Spin Wheel', wheelResult:'Result',
             kycTitle:'🛡️ KYC Verification', kycDesc:'Complete verification to withdraw large amounts.', goKyc:'Go to KYC',
             kycNamePh:'Full Name in English', kycCountryPh:'Country of Residence', kycSubmit:'Submit',
             notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved',
@@ -687,6 +750,8 @@
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki',
             slotsBook:'Book of Ra', slotsBookDesc:'Księga Faraona',
+            keno:'Keno', kenoDesc:'Loteria na 80 liczb',
+            wheel:'Koło', wheelDesc:'Kręcić i wygrywać',
             mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
             roulette:'Ruletka', rouletteDesc:'Europejska',
             plinko:'Plinko', plinkoDesc:'Upuść kulkę',
@@ -714,6 +779,8 @@
             rulesClassic:'3 bębny. Trzy takie same: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Dwa takie same: x1.5 (x2 z 💎 lub 7️⃣).',
             rulesLucky:'3 bębny. Trzy 7️⃣ = x30, dwie 7️⃣ = x5, jedna 7️⃣ = x1.5. Trzy takie same (nie 7) = x3.',
             rulesBook:'5 bębnów. Księga (📖) jest najcenniejsza: 5 ksiąg = x100, 4 księgi = x20, 3 księgi = x5. Inne symbole (🐈,👁️,🏺,🗿,🐍) dają x50 za 5 sztuk.',
+            rulesKeno:'Wybierz od 1 do 10 liczb. System losuje 20 kul. Im więcej trafień, tym wyższy mnożnik.',
+            rulesWheel:'Koło podzielone jest na 10 sektorów: x0, x1.5, x2, x5, x10. Naciśnij „Kręcić” i czekaj na wynik.',
             rulesMines:'Pole 5×5. Wybierz liczbę min i odkrywaj bezpieczne komórki. Każda bezpieczna komórka zwiększa mnożnik. Naciśnij „Odbierz", aby zgarnąć wygraną. Trafisz minę — tracisz zakład.',
             rulesRoulette:'Ruletka europejska (37 liczb, 0-36). Zakłady: numer (35:1), czerwone/czarne (1:1), nieparzyste/parzyste (1:1), 1-18/19-36 (1:1), tuzin (2:1), kolumna (2:1). 0 to przewaga kasyna.',
             rulesPlinko:'Kulka spada przez pole kołków i ląduje w jednym z 9 slotów. Mnożniki: od x0.3 do x28. Krawędzie płacą więcej, ale trafiają rzadziej.',
@@ -768,6 +835,8 @@
             towerSelectLane:'Wybierz komórkę',
             diceRoll:'🎲 Rzuć', diceRolling:'🎲 Toczy się...', diceOver:'WIĘCEJ', diceUnder:'MNIEJ',
             diceMultiplier:'Mnożnik', diceWinChance:'Szansa',
+            kenoPlay:'Zagraj', kenoDrawn:'Wylosowano', kenoMatches:'Trafienia', kenoPickNum:'Wybierz liczby', kenoMax:'Maksymalnie 10 liczb',
+            wheelSpinBtn:'Kręcić kołem', wheelResult:'Wynik',
             kycTitle:'🛡️ Weryfikacja KYC', kycDesc:'Przejdź weryfikację, aby wypłacać duże kwoty.', goKyc:'Przejdź KYC',
             kycNamePh:'Imię i nazwisko po angielsku', kycCountryPh:'Kraj zamieszkania', kycSubmit:'Wyślij',
             notPassed:'Nieprzepuszczony', pendingKyc:'W trakcie', approvedKyc:'Zatwierdzony',
@@ -997,7 +1066,6 @@
             state.loaded = true;
             localStorage.setItem('reg_state', state.registered ? 'yes' : 'no');
             
-            // ФИКС РЕГИСТРАЦИИ: Если в базе сбросилось, но в памяти есть данные - авто-восстановление
             if (!state.registered && localStorage.getItem('saved_phone')) {
                 const name = localStorage.getItem('saved_name');
                 const phone = localStorage.getItem('saved_phone');
@@ -1161,7 +1229,6 @@
         const profEmail = document.getElementById('profEmail');
         if (profEmail) profEmail.innerText = state.email || '—';
 
-        // KYC UI Update
         const kycBadge = document.getElementById('kycStatusBadge');
         const kycBtn = document.getElementById('kycBtn');
         if (kycBadge && kycBtn) {
@@ -1205,6 +1272,7 @@
 
     const gamesData = {
         pop: [
+            { id: 'wheel', icon: '🎡', nameKey: 'wheel', descKey: 'wheelDesc' },
             { id: 'dice', icon: '🎲', nameKey: 'dice', descKey: 'diceDesc' },
             { id: 'plinko', icon: '🎯', nameKey: 'plinko', descKey: 'plinkoDesc' },
             { id: 'tower', icon: '🏰', nameKey: 'tower', descKey: 'towerDesc' },
@@ -1219,10 +1287,10 @@
             { id: 'roulette', icon: '🎡', nameKey: 'roulette', descKey: 'rouletteDesc' }
         ],
         slots: [
+            { id: 'keno', icon: '🔢', nameKey: 'keno', descKey: 'kenoDesc' },
             { id: 'slots_book', icon: '📖', nameKey: 'slotsBook', descKey: 'slotsBookDesc' },
             { id: 'slots_classic', icon: '🎰', nameKey: 'slotsClassic', descKey: 'slotsClassicDesc' },
-            { id: 'slots_lucky7', icon: '7️⃣', nameKey: 'slotsLucky', descKey: 'slotsLuckyDesc' },
-            { id: 'plinko', icon: '🎯', nameKey: 'plinko', descKey: 'plinkoDesc' }
+            { id: 'slots_lucky7', icon: '7️⃣', nameKey: 'slotsLucky', descKey: 'slotsLuckyDesc' }
         ]
     };
 
@@ -1395,6 +1463,36 @@
             diceTarget = 50;
             diceCondition = 'under';
             updateDiceUI();
+        } else if (gameId === 'keno') {
+            title.innerText = '🔢 ' + t('keno');
+            content.innerHTML = `
+                ${rulesHTML('rulesKeno')}
+                ${chipsHTML}
+                <div style="text-align:center; margin-bottom:10px; color:var(--muted); font-size:12px;">${t('kenoMax')}</div>
+                <div class="keno-grid" id="kenoGrid"></div>
+                <div id="kenoControls" style="width:100%; max-width:340px; display:flex; justify-content:center;">
+                    <button class="btn btn-primary" onclick="playKeno()">${t('kenoPlay')}</button>
+                </div>
+            `;
+            renderBetChips('betChips');
+            buildKenoGrid();
+        } else if (gameId === 'wheel') {
+            title.innerText = '🎡 ' + t('wheel');
+            content.innerHTML = `
+                ${rulesHTML('rulesWheel')}
+                ${chipsHTML}
+                <div class="wheel-container">
+                    <div class="wheel-pointer">▼</div>
+                    <div class="wheel-bg" id="wheelBg"></div>
+                    <div class="wheel-inner" id="wheelInner"><span class="wheel-result-text" id="wheelResultText">?</span></div>
+                    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                </div>
+                <div id="wheelControls" style="width:100%; max-width:340px; display:flex; justify-content:center;">
+                    <button class="btn btn-primary" onclick="spinWheel()">${t('wheelSpinBtn')}</button>
+                </div>
+            `;
+            renderBetChips('betChips');
+            drawWheelTexts();
         } else if (gameId === 'slots_book') {
             title.innerText = '📖 ' + t('slotsBook');
             content.innerHTML = `
@@ -1581,6 +1679,158 @@
             renderBetChips('betChips');
             towerReset();
         }
+    }
+
+    // ============ KENO LOGIC ============
+    let kenoSelected = [];
+    function buildKenoGrid() {
+        const grid = document.getElementById('kenoGrid');
+        if (!grid) return;
+        let html = '';
+        for (let i = 1; i <= 80; i++) {
+            html += `<div class="keno-cell" id="kenoCell_${i}" onclick="toggleKenoNum(${i})">${i}</div>`;
+        }
+        grid.innerHTML = html;
+        kenoSelected = [];
+    }
+
+    function toggleKenoNum(num) {
+        const idx = kenoSelected.indexOf(num);
+        const el = document.getElementById(`kenoCell_${num}`);
+        
+        if (idx > -1) {
+            kenoSelected.splice(idx, 1);
+            el.classList.remove('selected');
+        } else {
+            if (kenoSelected.length >= 10) return tg.showAlert(t('kenoMax'));
+            kenoSelected.push(num);
+            el.classList.add('selected');
+        }
+    }
+
+    async function playKeno() {
+        if (kenoSelected.length === 0) return tg.showAlert('Выберите хотя бы одно число!');
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
+        
+        const btn = document.querySelector('#kenoControls button');
+        btn.disabled = true; btn.innerText = t('spinning');
+        
+        // Сброс старых цветов
+        for (let i = 1; i <= 80; i++) {
+            document.getElementById(`kenoCell_${i}`).className = 'keno-cell';
+        }
+        
+        const d = await postApi('/api/keno/play', { bet: currentBet, numbers: kenoSelected });
+        
+        if (d.error) {
+            btn.disabled = false; btn.innerText = t('kenoPlay');
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        // Анимация вытягивания шаров
+        let count = 0;
+        let anim = setInterval(() => {
+            if (count >= 20) {
+                clearInterval(anim);
+                // Подсветка совпадений
+                d.drawn.forEach(n => {
+                    const el = document.getElementById(`kenoCell_${n}`);
+                    if (kenoSelected.includes(n)) el.className = 'keno-cell drawn-match';
+                    else el.className = 'keno-cell drawn';
+                });
+                // Результат
+                if (d.win > 0) {
+                    bigWin(d.win, d.multiplier);
+                } else {
+                    bigLoss(currentBet);
+                }
+                btn.disabled = false; btn.innerText = t('kenoPlay');
+                if (currentCurrency === 'UAH') state.balance_uah = d.balance; else state.balance = d.balance;
+                state.total_rounds++; updateUI();
+                return;
+            }
+            const n = d.drawn[count];
+            const el = document.getElementById(`kenoCell_${n}`);
+            if (el) el.style.background = 'var(--red)';
+            count++;
+        }, 100);
+    }
+
+    // ============ WHEEL LOGIC ============
+    function drawWheelTexts() {
+        const canvas = document.getElementById('wheelCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const cx = w/2, cy = h/2;
+        const radius = w/2 - 10;
+        
+        ctx.clearRect(0, 0, w, h);
+        const vals = ['x1.5', 'x0', 'x2', 'x0', 'x1.5', 'x5', 'x0', 'x2', 'x0', 'x10'];
+        
+        for (let i = 0; i < 10; i++) {
+            const angle = i * (Math.PI * 2 / 10);
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle + Math.PI / 10);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 18px Montserrat';
+            ctx.fillText(vals[i], radius - 10, 6);
+            ctx.restore();
+        }
+    }
+
+    async function spinWheel() {
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
+        
+        const btn = document.querySelector('#wheelControls button');
+        btn.disabled = true; btn.innerText = t('spinning');
+        
+        const d = await postApi('/api/wheel/spin', { bet: currentBet });
+        
+        if (d.error) {
+            btn.disabled = false; btn.innerText = t('wheelSpinBtn');
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        const canvas = document.getElementById('wheelCanvas');
+        const resultText = document.getElementById('wheelResultText');
+        
+        // Сектора идут по часовой стрелке. 
+        // Угол выигрышного сектора: idx * 36 градусов (центр сектора)
+        // Указатель сверху (0 градусов). Значит, чтобы выигрышный сектор стал на 0, нужно повернуть на -(idx*36).
+        // Добавим 5 полных оборотов для красоты.
+        
+        const targetAngle = 360 * 5 - (d.index * 36);
+        
+        canvas.style.transform = `rotate(${targetAngle}deg)`;
+        
+        // Очищаем текст на время вращения
+        resultText.innerText = '?';
+        
+        setTimeout(() => {
+            resultText.innerText = 'x' + d.multiplier;
+            resultText.style.color = d.win > 0 ? 'var(--green)' : 'var(--red)';
+            
+            if (d.win > 0) bigWin(d.win, d.multiplier);
+            else bigLoss(currentBet);
+            
+            if (currentCurrency === 'UAH') state.balance_uah = d.balance; else state.balance = d.balance;
+            state.total_rounds++; updateUI();
+            
+            btn.disabled = false; btn.innerText = t('wheelSpinBtn');
+            
+            // Сброс вращения для следующего спина
+            setTimeout(() => {
+                canvas.style.transition = 'none';
+                canvas.style.transform = `rotate(0deg)`;
+                setTimeout(() => canvas.style.transition = 'transform 4s cubic-bezier(0.2, 0.8, 0.1, 1)', 50);
+            }, 1000);
+            
+        }, 4100); // Ждем окончания CSS анимации
     }
 
     // ============ BOOK OF RA LOGIC ============
