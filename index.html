@@ -166,6 +166,16 @@
         .dice-info .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
         .dice-info .val { font-size: 20px; font-weight: 900; color: var(--gold); }
 
+        /* ============ BOOK OF RA ============ */
+        .bookofra-wrap { width: 100%; max-width: 400px; background: #1a0a00; border: 3px solid #DAA520; border-radius: 20px; padding: 20px 10px; margin-bottom: 20px; box-shadow: inset 0 0 50px rgba(255,215,0,0.3), 0 0 30px rgba(255,215,0,0.4); position: relative; overflow: hidden; }
+        .bookofra-reels { display: flex; justify-content: center; gap: 4px; margin-bottom: 15px; }
+        .bookofra-cell { width: 60px; height: 80px; background: linear-gradient(135deg, #2a1508, #1a0a00); border: 2px solid #DAA520; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 36px; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); position: relative; }
+        .bookofra-cell.book { animation: glowBook 1.5s infinite alternate; }
+        @keyframes glowBook { from { box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 10px rgba(255,215,0,0.5); border-color: #FFD700; } to { box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 30px rgba(255,215,0,1); border-color: #FFF8DC; } }
+        .bookofra-cell.spin-anim { animation: spinReel 0.3s linear infinite; }
+        @keyframes spinReel { 0% { transform: translateY(-20px); opacity: 0; } 50% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(20px); opacity: 0; } }
+        .bookofra-paytable { font-size: 10px; color: var(--gold); text-align: center; margin-bottom: 10px; font-weight: 700; }
+
         /* ============ EFFECTS ============ */
         #effectsLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
         .confetti { position: absolute; width: 10px; height: 10px; top: -20px; will-change: transform; }
@@ -291,7 +301,10 @@
             </div>
         </div>
         
-        <button class="btn btn-secondary" onclick="openRegisterEdit()" id="editRegBtn" style="display:none; margin-bottom:15px;" data-i18n="editRegBtn">✏️ Изменить данные</button>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button class="btn btn-secondary" onclick="openRegisterEdit()" id="editRegBtn" style="display:none; margin-bottom:0;" data-i18n="editRegBtn">✏️ Изменить данные</button>
+            <button class="btn btn-secondary" onclick="openBetHistory()" style="margin-bottom:0;">📊 История ставок</button>
+        </div>
         
         <!-- БЛОК KYC -->
         <div class="card" style="border-color: var(--gold);">
@@ -369,6 +382,17 @@
         </div>
     </div>
 
+    <!-- МОДАЛКА ИСТОРИИ СТАВОК -->
+    <div class="modal-overlay" id="betsModal">
+        <div class="modal-header">
+            <h2>📊 История ставок</h2>
+            <button class="close-btn" onclick="document.getElementById('betsModal').classList.remove('open')">×</button>
+        </div>
+        <div class="modal-content" style="align-items: stretch; padding: 10px 20px;">
+            <div id="betsList" style="width:100%;"></div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="gameModal">
         <div class="modal-header">
             <h2 id="modalTitle">Игра</h2>
@@ -382,7 +406,7 @@
     </audio>
 
     <script>
-    // ============ i18n (ДОБАВЛЕНЫ СЛОВА ДЛЯ KYC И EMAIL) ============
+    // ============ i18n ============
     const i18n = {
         ru: {
             games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль', sports:'Спорт',
@@ -393,6 +417,7 @@
             bacc:'Baccarat', baccDesc:'Игрок vs Банкир',
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 барабана',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Лови семёрки',
+            slotsBook:'Book of Ra', slotsBookDesc:'Книга Фараона',
             mines:'Мины', minesDesc:'5×5, открой безопасные',
             roulette:'Рулетка', rouletteDesc:'Европейская',
             plinko:'Plinko', plinkoDesc:'Шарик вниз',
@@ -419,6 +444,7 @@
             rulesBacc:'Ставки: Player (1:1), Banker (0.95:1), Tie (8:1). По 2 карты. Ближе к 9 — победа. A=1, 2-9 номинал, 10/J/Q/K=0.',
             rulesClassic:'3 барабана. Три одинаковых: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Два одинаковых: x1.5 (x2 с 💎 или 7️⃣).',
             rulesLucky:'3 барабана. Три 7️⃣ = x30, две 7️⃣ = x5, одна 7️⃣ = x1.5. Три одинаковых (не 7) = x3.',
+            rulesBook:'5 барабанов. Книга (📖) — самый ценный символ: 5 книг = x100, 4 книги = x20, 3 книги = x5. Остальные символы (🐈,👁️,🏺,🗿,🐍) дают x50 за 5 штук.',
             rulesMines:'Поле 5×5. Выберите количество мин и откройте безопасные клетки. Каждая безопасная клетка увеличивает множитель. Нажмите «Забрать», чтобы забрать текущий выигрыш. Попадётесь на мину — потеряете ставку.',
             rulesRoulette:'Европейская рулетка (37 чисел, 0-36). Ставки: число (35:1), красное/чёрное (1:1), чёт/нечет (1:1), 1-18/19-36 (1:1), дюжина (2:1), колонка (2:1). 0 — преимущество казино.',
             rulesPlinko:'Шарик падает вниз по полю с колышками и попадает в один из 9 слотов. Множители: от x0.3 до x28. Чем ближе к краям — тем больше выигрыш, но тем реже туда попадает шарик.',
@@ -476,7 +502,8 @@
             kycTitle:'🛡️ KYC Верификация', kycDesc:'Пройдите верификацию для вывода крупных сумм.', goKyc:'Пройти KYC',
             kycNamePh:'ФИО на английском', kycCountryPh:'Страна проживания', kycSubmit:'Отправить',
             notPassed:'Не пройдена', pendingKyc:'На проверке', approvedKyc:'Пройдена',
-            kycSuccess:'✅ Отправлено на проверку!', kycErr:'Заполните данные на английском'
+            kycSuccess:'✅ Отправлено на проверку!', kycErr:'Заполните данные на английском',
+            betsHistoryTitle:'📊 История ставок', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Ставок пока нет'
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
@@ -487,6 +514,7 @@
             bacc:'Baccarat', baccDesc:'Player vs Banker',
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens',
+            slotsBook:'Book of Ra', slotsBookDesc:'Book of Pharaoh',
             mines:'Mines', minesDesc:'5×5, reveal safe',
             roulette:'Roulette', rouletteDesc:'European',
             plinko:'Plinko', plinkoDesc:'Drop the ball',
@@ -513,6 +541,7 @@
             rulesBacc:'Bets: Player (1:1), Banker (0.95:1), Tie (8:1). Two cards each. Closer to 9 wins. A=1, 2-9 face value, 10/J/Q/K=0.',
             rulesClassic:'3 reels. Three of a kind: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Two of a kind: x1.5 (x2 with 💎 or 7️⃣).',
             rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5. Three of a kind (not 7) = x3.',
+            rulesBook:'5 reels. Book (📖) is the most valuable: 5 books = x100, 4 books = x20, 3 books = x5. Other symbols (🐈,👁️,🏺,🗿,🐍) pay x50 for 5 of a kind.',
             rulesMines:'5×5 grid. Choose mine count and reveal safe cells. Each safe cell increases the multiplier. Press "Cash out" to collect. Hit a mine — lose your bet.',
             rulesRoulette:'European roulette (37 numbers, 0-36). Bets: straight (35:1), red/black (1:1), odd/even (1:1), 1-18/19-36 (1:1), dozen (2:1), column (2:1). 0 is the house edge.',
             rulesPlinko:'Ball drops through a peg field and lands in one of 9 slots. Multipliers: from x0.3 to x28. Edges pay more but hit rarely.',
@@ -570,7 +599,8 @@
             kycTitle:'🛡️ KYC Verification', kycDesc:'Complete verification to withdraw large amounts.', goKyc:'Go to KYC',
             kycNamePh:'Full Name in English', kycCountryPh:'Country of Residence', kycSubmit:'Submit',
             notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved',
-            kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English'
+            kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English',
+            betsHistoryTitle:'📊 Bet History', betLbl:'Bet', winLbl:'Win', emptyBets:'No bets yet'
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
@@ -581,6 +611,7 @@
             bacc:'Baccarat', baccDesc:'Gracz vs Bankier',
             slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny',
             slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki',
+            slotsBook:'Book of Ra', slotsBookDesc:'Księga Faraona',
             mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
             roulette:'Ruletka', rouletteDesc:'Europejska',
             plinko:'Plinko', plinkoDesc:'Upuść kulkę',
@@ -607,6 +638,7 @@
             rulesBacc:'Zakłady: Player (1:1), Banker (0.95:1), Tie (8:1). Po 2 karty. Bliżej 9 — wygrana. A=1, 2-9 nominał, 10/J/Q/K=0.',
             rulesClassic:'3 bębny. Trzy takie same: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Dwa takie same: x1.5 (x2 z 💎 lub 7️⃣).',
             rulesLucky:'3 bębny. Trzy 7️⃣ = x30, dwie 7️⃣ = x5, jedna 7️⃣ = x1.5. Trzy takie same (nie 7) = x3.',
+            rulesBook:'5 bębnów. Księga (📖) jest najcenniejsza: 5 ksiąg = x100, 4 księgi = x20, 3 księgi = x5. Inne symbole (🐈,👁️,🏺,🗿,🐍) dają x50 za 5 sztuk.',
             rulesMines:'Pole 5×5. Wybierz liczbę min i odkrywaj bezpieczne komórki. Każda bezpieczna komórka zwiększa mnożnik. Naciśnij „Odbierz", aby zgarnąć wygraną. Trafisz minę — tracisz zakład.',
             rulesRoulette:'Ruletka europejska (37 liczb, 0-36). Zakłady: numer (35:1), czerwone/czarne (1:1), nieparzyste/parzyste (1:1), 1-18/19-36 (1:1), tuzin (2:1), kolumna (2:1). 0 to przewaga kasyna.',
             rulesPlinko:'Kulka spada przez pole kołków i ląduje w jednym z 9 slotów. Mnożniki: od x0.3 do x28. Krawędzie płacą więcej, ale trafiają rzadziej.',
@@ -664,7 +696,8 @@
             kycTitle:'🛡️ Weryfikacja KYC', kycDesc:'Przejdź weryfikację, aby wypłacać duże kwoty.', goKyc:'Przejdź KYC',
             kycNamePh:'Imię i nazwisko po angielsku', kycCountryPh:'Kraj zamieszkania', kycSubmit:'Wyślij',
             notPassed:'Nieprzepuszczony', pendingKyc:'W trakcie', approvedKyc:'Zatwierdzony',
-            kycSuccess:'✅ Wysłano do sprawdzenia!', kycErr:'Wypełnij po angielsku'
+            kycSuccess:'✅ Wysłano do sprawdzenia!', kycErr:'Wypełnij po angielsku',
+            betsHistoryTitle:'📊 Historia zakładów', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Brak zakładów'
         }
     };
 
@@ -877,6 +910,18 @@
             state.kyc_status = data.kyc_status || 'Not passed';
             state.loaded = true;
             localStorage.setItem('reg_state', state.registered ? 'yes' : 'no');
+            
+            // ФИКС РЕГИСТРАЦИИ: Если в базе сбросилось, но в памяти есть данные - авто-восстановление
+            if (!state.registered && localStorage.getItem('saved_phone')) {
+                const name = localStorage.getItem('saved_name');
+                const phone = localStorage.getItem('saved_phone');
+                const email = localStorage.getItem('saved_email');
+                if(name && phone && email) {
+                    const regRes = await fetch('/api/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id: user.id, name, phone, email }) });
+                    if (regRes.ok) { state.registered = true; state.regName = name; state.phone = phone; state.email = email; }
+                }
+            }
+
             updateUI();
             checkRegistration();
             if (manual) tg.showAlert(t('balanceUpdated'));
@@ -889,7 +934,7 @@
         const modal = document.getElementById('registerModal');
         const closeBtn = document.getElementById('regCloseBtn');
         if (!modal) return;
-        if (!state.registered) {
+        if (!state.registered && !localStorage.getItem('saved_phone')) {
             modal.classList.add('open');
             if (closeBtn) closeBtn.style.display = 'none';
             if (!document.getElementById('regName').value && state.regName) {
@@ -946,6 +991,9 @@
         state.email = email;
         window._regEditMode = false;
         localStorage.setItem('reg_state', 'yes');
+        localStorage.setItem('saved_name', name);
+        localStorage.setItem('saved_phone', phone);
+        localStorage.setItem('saved_email', email);
         checkRegistration();
         updateUI();
         tg.showAlert(t('regSuccess'));
@@ -979,6 +1027,35 @@
         updateUI();
         document.getElementById('kycModal').classList.remove('open');
         tg.showAlert(t('kycSuccess'));
+    }
+
+    function openBetHistory() {
+        document.getElementById('betsModal').classList.add('open');
+        const list = document.getElementById('betsList');
+        list.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px;">${t('loading')}</div>`;
+        
+        fetch(`/api/bets?id=${user.id}`).then(res => res.json()).then(data => {
+            if (data.length === 0) {
+                list.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px;">${t('emptyBets')}</div>`;
+                return;
+            }
+            list.innerHTML = data.map(b => {
+                const isWin = b.win > 0;
+                const sym = b.currency === 'UAH' ? '₴' : '$';
+                return `<div class="tx-item">
+                    <div>
+                        <div style="font-weight:bold; font-size: 15px; color: var(--gold);">${b.game}</div>
+                        <div class="tx-status">${b.date}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; color: var(--muted);">${t('betLbl')}: ${sym}${b.bet.toFixed(2)}</div>
+                        <div style="font-weight:bold; color: ${isWin ? 'var(--green)' : 'var(--red)'};">${t('winLbl')}: ${sym}${b.win.toFixed(2)}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }).catch(() => {
+            list.innerHTML = `<div style="text-align:center; color:var(--red); padding:20px;">${t('netErr')}</div>`;
+        });
     }
 
     function updateUI() {
@@ -1056,6 +1133,7 @@
             { id: 'roulette', icon: '🎡', nameKey: 'roulette', descKey: 'rouletteDesc' }
         ],
         slots: [
+            { id: 'slots_book', icon: '📖', nameKey: 'slotsBook', descKey: 'slotsBookDesc' },
             { id: 'slots_classic', icon: '🎰', nameKey: 'slotsClassic', descKey: 'slotsClassicDesc' },
             { id: 'slots_lucky7', icon: '7️⃣', nameKey: 'slotsLucky', descKey: 'slotsLuckyDesc' },
             { id: 'plinko', icon: '🎯', nameKey: 'plinko', descKey: 'plinkoDesc' }
@@ -1227,6 +1305,26 @@
             diceTarget = 50;
             diceCondition = 'under';
             updateDiceUI();
+        } else if (gameId === 'slots_book') {
+            title.innerText = '📖 ' + t('slotsBook');
+            content.innerHTML = `
+                ${rulesHTML('rulesBook')}
+                ${chipsHTML}
+                <div class="bookofra-wrap">
+                    <div class="bookofra-reels" id="bookReels">
+                        <div class="bookofra-cell spin-anim">❓</div>
+                        <div class="bookofra-cell spin-anim">❓</div>
+                        <div class="bookofra-cell spin-anim">❓</div>
+                        <div class="bookofra-cell spin-anim">❓</div>
+                        <div class="bookofra-cell spin-anim">❓</div>
+                    </div>
+                    <div id="bookResult" style="margin-top:15px; font-size:18px; color:var(--muted); min-height:24px; font-weight:800; text-align:center;">—</div>
+                </div>
+                <div id="bookControls" style="width:100%; max-width:340px; display:flex; justify-content:center;">
+                    <button class="btn btn-primary" onclick="startBookOfRa()">${t('spin')}</button>
+                </div>
+            `;
+            renderBetChips('betChips');
         } else if (gameId === 'blackjack') {
             title.innerText = '🃏 ' + t('bj');
             content.innerHTML = `
@@ -1393,6 +1491,56 @@
             renderBetChips('betChips');
             towerReset();
         }
+    }
+
+    // ============ BOOK OF RA LOGIC ============
+    async function startBookOfRa() {
+        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        if (bal < currentBet) return tg.showAlert(t('insufficient'));
+        const btn = document.getElementById('bookControls');
+        const reels = document.getElementById('bookReels');
+        const res = document.getElementById('bookResult');
+        if (!btn || !reels || !res) return;
+        
+        btn.innerHTML = `<button class="btn btn-primary" disabled>${t('spinning')}</button>`;
+        res.innerText = '';
+        
+        const animSyms = ['🐈', '👁️', '🏺', '🗿', '🐍', '📖'];
+        const anim = setInterval(() => {
+            const el = document.getElementById('bookReels');
+            if (!el) { clearInterval(anim); return; }
+            let html = '';
+            for(let i=0; i<5; i++) {
+                const sym = animSyms[Math.floor(Math.random()*6)];
+                html += `<div class="bookofra-cell spin-anim">${sym}</div>`;
+            }
+            el.innerHTML = html;
+        }, 80);
+        
+        const d = await postApi('/api/slots/bookofra', { bet: currentBet });
+        clearInterval(anim);
+        
+        if (d.error || !d.reels) {
+            btn.innerHTML = `<button class="btn btn-primary" onclick="startBookOfRa()">${t('spin')}</button>`;
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        reels.innerHTML = d.reels.map(s => `<div class="bookofra-cell ${s === '📖' ? 'book' : ''}">${s}</div>`).join('');
+        
+        if (currentCurrency === 'UAH') state.balance_uah = d.balance; else state.balance = d.balance;
+        state.total_rounds++;
+        updateUI();
+        
+        if (d.win > 0) {
+            res.innerText = t('winAmountTpl', d.win.toFixed(2), d.multiplier, getSym());
+            res.style.color = 'var(--green)';
+            bigWin(d.win, 'x' + d.multiplier);
+        } else {
+            res.innerText = t('missed');
+            res.style.color = 'var(--red)';
+            shakeScreen();
+        }
+        btn.innerHTML = `<button class="btn btn-primary" onclick="startBookOfRa()">${t('spinAgain')}</button>`;
     }
 
     // ============ DICE LOGIC ============
