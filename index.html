@@ -198,7 +198,6 @@
         .live-bet-info { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; padding: 8px; background: rgba(0,0,0,0.4); border-radius: 10px; min-height: 38px; display: flex; align-items: center; justify-content: center; }
         .live-bet-info b { color: var(--gold); }
 
-        /* Рулеточный стол */
         .roulette-table { background: linear-gradient(180deg, #0a4a0a, #052a05); border: 3px solid #DAA520; border-radius: 16px; padding: 10px; margin-bottom: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.6); }
 
         .roul-zero-row { display: flex; gap: 4px; margin-bottom: 6px; }
@@ -235,6 +234,185 @@
         .live-spin-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; font-weight: 900; font-size: 16px; letter-spacing: 1.5px; cursor: pointer; font-family: inherit; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,215,0,0.4); text-transform: uppercase; }
         .live-spin-btn:active { transform: scale(0.97); }
         .live-spin-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+        /* ============ LIVE BLACKJACK ============ */
+        .live-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .live-tab { flex: 1; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; transition: 0.2s; letter-spacing: 0.5px; }
+        .live-tab.active { background: rgba(255,215,0,0.15); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+        .live-tab:active { transform: scale(0.97); }
+
+        .live-bj-table {
+            background: radial-gradient(ellipse at center, #0a5a0a 0%, #052a05 70%, #032003 100%);
+            border: 3px solid #DAA520;
+            border-radius: 20px;
+            padding: 20px 15px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.7), 0 0 20px rgba(255,215,0,0.2);
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .live-bj-table::before {
+            content: 'BLACKJACK PAYS 3 TO 2';
+            position: absolute;
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255,215,0,0.12);
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            letter-spacing: 4px;
+            font-weight: 900;
+            pointer-events: none;
+            white-space: nowrap;
+            text-align: center;
+            width: 100%;
+        }
+        .live-bj-table::after {
+            content: 'DEALER MUST STAND ON 17';
+            position: absolute;
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255,215,0,0.08);
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            font-weight: 700;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .live-bj-zone { text-align: center; position: relative; z-index: 1; }
+        .live-bj-label {
+            display: inline-block;
+            background: rgba(0,0,0,0.75);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        .live-bj-cards {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            min-height: 100px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .live-bj-card {
+            width: 65px;
+            height: 92px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+            font-weight: 900;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.65);
+            animation: bjCardDeal 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+            position: relative;
+        }
+        @keyframes bjCardDeal {
+            from { transform: translateY(-40px) scale(0.7) rotate(-8deg); opacity: 0; }
+            to { transform: translateY(0) scale(1) rotate(0); opacity: 1; }
+        }
+        .live-bj-card.red { color: #E53935; }
+        .live-bj-card.black { color: #111; }
+        .live-bj-card.back {
+            background: repeating-linear-gradient(45deg, #4a0a0a, #4a0a0a 6px, #7a1a1a 6px, #7a1a1a 12px);
+            border: 2px solid #FFD700;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.65), 0 0 15px rgba(255,215,0,0.4);
+        }
+        .live-bj-card.back::after {
+            content: '★';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFD700;
+            font-size: 26px;
+            text-shadow: 0 0 8px rgba(255,215,0,0.8);
+        }
+        .live-bj-card .v-top { font-size: 16px; line-height: 1; }
+        .live-bj-card .suit-big { font-size: 26px; text-align: right; line-height: 1; }
+        .live-bj-card .suit-small { font-size: 14px; position: absolute; top: 22px; left: 6px; }
+        .live-bj-score {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700, #B8860B);
+            color: #000;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 15px;
+            margin-top: 6px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+        }
+        .live-bj-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            width: 100%;
+        }
+        .live-bj-actions button {
+            flex: 1;
+            padding: 14px 8px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: 0.2s;
+        }
+        .live-bj-actions button:active { transform: scale(0.97); }
+        .live-bj-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .live-bj-hit { background: linear-gradient(135deg, #4CAF50, #2E7D32); color: #fff; box-shadow: 0 4px 12px rgba(76,175,80,0.4); }
+        .live-bj-stand { background: linear-gradient(135deg, #E53935, #B71C1C); color: #fff; box-shadow: 0 4px 12px rgba(229,57,53,0.4); }
+        .live-bj-double { background: linear-gradient(135deg, #9C27B0, #6A1B9A); color: #fff; box-shadow: 0 4px 12px rgba(156,39,176,0.4); }
+        .live-bj-deal {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #FFD700, #B8860B);
+            color: #000;
+            font-weight: 900;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+            transition: 0.2s;
+        }
+        .live-bj-deal:active { transform: scale(0.97); }
+        .live-bj-deal:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+        .live-bj-result {
+            text-align: center;
+            font-size: 17px;
+            font-weight: 900;
+            margin: 12px 0;
+            min-height: 26px;
+            letter-spacing: 0.5px;
+            transition: 0.3s;
+        }
+        .live-bj-result.win { color: #4CAF50; text-shadow: 0 0 15px rgba(76,175,80,0.6); animation: resultPop 0.5s ease-out; }
+        .live-bj-result.lose { color: #E53935; }
+        .live-bj-result.push { color: var(--gold); }
     </style>
 </head>
 <body>
@@ -276,60 +454,98 @@
             <div class="dealer-avatar">👩‍💼</div>
             <div class="dealer-speech">
                 <div class="dealer-name">🎤 АННА · LIVE DEALER</div>
-                <div class="dealer-text" id="dealerText">Добро пожаловать за стол! Выберите ставку и нажмите «Крутить».</div>
+                <div class="dealer-text" id="dealerText">Добро пожаловать за стол! Выберите игру.</div>
             </div>
         </div>
 
-        <!-- История -->
-        <div class="live-history" id="liveHistory"></div>
+        <!-- Вкладки игр -->
+        <div class="live-tabs">
+            <button class="live-tab active" onclick="switchLiveGame('roulette')">🎡 Рулетка</button>
+            <button class="live-tab" onclick="switchLiveGame('blackjack')">🃏 Блэкджек</button>
+        </div>
 
-        <!-- Колесо -->
-        <div class="live-wheel-wrap">
-            <canvas id="liveWheelCanvas" width="340" height="340"></canvas>
-            <div class="live-result-badge" id="liveResultBadge">
-                <div class="live-result-num" id="liveResultNum">?</div>
+        <!-- ============ LIVE ROULETTE ============ -->
+        <div id="live-roulette-view">
+            <div class="live-history" id="liveHistory"></div>
+
+            <div class="live-wheel-wrap">
+                <canvas id="liveWheelCanvas" width="340" height="340"></canvas>
+                <div class="live-result-badge" id="liveResultBadge">
+                    <div class="live-result-num" id="liveResultNum">?</div>
+                </div>
+            </div>
+
+            <div class="live-bet-info" id="liveBetInfo">Выберите ставку на столе</div>
+
+            <div class="roulette-table">
+                <div class="roul-zero-row">
+                    <button class="roul-zero-btn" data-bet="number" data-val="0" onclick="selectLiveBet('number', 0)">0</button>
+                </div>
+                <div class="roul-numbers-rows" id="liveNumbersGrid"></div>
+                <div class="roul-outside-rows">
+                    <button class="roul-outside-btn" data-bet="dozen1" onclick="selectLiveBet('dozen1')">1-я 12</button>
+                    <button class="roul-outside-btn" data-bet="dozen2" onclick="selectLiveBet('dozen2')">2-я 12</button>
+                    <button class="roul-outside-btn" data-bet="dozen3" onclick="selectLiveBet('dozen3')">3-я 12</button>
+                </div>
+                <div class="roul-outside-rows">
+                    <button class="roul-outside-btn" data-bet="low" onclick="selectLiveBet('low')">1-18</button>
+                    <button class="roul-outside-btn" data-bet="even" onclick="selectLiveBet('even')">ЧЁТ</button>
+                    <button class="roul-outside-btn red-bg" data-bet="red" onclick="selectLiveBet('red')">КРАСНОЕ</button>
+                </div>
+                <div class="roul-outside-rows">
+                    <button class="roul-outside-btn" data-bet="high" onclick="selectLiveBet('high')">19-36</button>
+                    <button class="roul-outside-btn" data-bet="odd" onclick="selectLiveBet('odd')">НЕЧЁТ</button>
+                    <button class="roul-outside-btn black-bg" data-bet="black" onclick="selectLiveBet('black')">ЧЁРНОЕ</button>
+                </div>
+                <div class="roul-outside-rows">
+                    <button class="roul-outside-btn" data-bet="column1" onclick="selectLiveBet('column1')">Кол. 1</button>
+                    <button class="roul-outside-btn" data-bet="column2" onclick="selectLiveBet('column2')">Кол. 2</button>
+                    <button class="roul-outside-btn" data-bet="column3" onclick="selectLiveBet('column3')">Кол. 3</button>
+                </div>
+            </div>
+
+            <div class="live-bet-panel">
+                <div class="live-chips-row" id="liveChipsRow"></div>
+                <div class="live-amount-row">
+                    <input type="number" id="liveBetAmount" value="10" min="1" step="1" oninput="updateLivePotential()">
+                    <div class="live-potential" id="livePotential">Потенциал: $0</div>
+                </div>
+                <button class="live-spin-btn" id="liveSpinBtn" onclick="spinLiveRoulette()" disabled>🎡 Сделать ставку и крутить</button>
             </div>
         </div>
 
-        <!-- Инфо о ставке -->
-        <div class="live-bet-info" id="liveBetInfo">Выберите ставку на столе</div>
+        <!-- ============ LIVE BLACKJACK ============ -->
+        <div id="live-blackjack-view" class="hidden">
+            <div class="live-bj-table">
+                <div class="live-bj-zone">
+                    <div class="live-bj-label">🎩 Дилер</div>
+                    <div class="live-bj-cards" id="liveBjDealerCards"></div>
+                    <div class="live-bj-score" id="liveBjDealerScore">?</div>
+                </div>
+                <div class="live-bj-zone">
+                    <div class="live-bj-cards" id="liveBjPlayerCards"></div>
+                    <div class="live-bj-score" id="liveBjPlayerScore">0</div>
+                    <div class="live-bj-label" style="margin-top:10px; margin-bottom:0;">👤 Вы</div>
+                </div>
+            </div>
 
-        <!-- Стол рулетки -->
-        <div class="roulette-table">
-            <div class="roul-zero-row">
-                <button class="roul-zero-btn" data-bet="number" data-val="0" onclick="selectLiveBet('number', 0)">0</button>
-            </div>
-            <div class="roul-numbers-rows" id="liveNumbersGrid"></div>
-            <div class="roul-outside-rows">
-                <button class="roul-outside-btn" data-bet="dozen1" onclick="selectLiveBet('dozen1')">1-я 12</button>
-                <button class="roul-outside-btn" data-bet="dozen2" onclick="selectLiveBet('dozen2')">2-я 12</button>
-                <button class="roul-outside-btn" data-bet="dozen3" onclick="selectLiveBet('dozen3')">3-я 12</button>
-            </div>
-            <div class="roul-outside-rows">
-                <button class="roul-outside-btn" data-bet="low" onclick="selectLiveBet('low')">1-18</button>
-                <button class="roul-outside-btn" data-bet="even" onclick="selectLiveBet('even')">ЧЁТ</button>
-                <button class="roul-outside-btn red-bg" data-bet="red" onclick="selectLiveBet('red')">КРАСНОЕ</button>
-            </div>
-            <div class="roul-outside-rows">
-                <button class="roul-outside-btn" data-bet="high" onclick="selectLiveBet('high')">19-36</button>
-                <button class="roul-outside-btn" data-bet="odd" onclick="selectLiveBet('odd')">НЕЧЁТ</button>
-                <button class="roul-outside-btn black-bg" data-bet="black" onclick="selectLiveBet('black')">ЧЁРНОЕ</button>
-            </div>
-            <div class="roul-outside-rows">
-                <button class="roul-outside-btn" data-bet="column1" onclick="selectLiveBet('column1')">Кол. 1</button>
-                <button class="roul-outside-btn" data-bet="column2" onclick="selectLiveBet('column2')">Кол. 2</button>
-                <button class="roul-outside-btn" data-bet="column3" onclick="selectLiveBet('column3')">Кол. 3</button>
-            </div>
-        </div>
+            <div class="live-bj-result" id="liveBjResult"></div>
 
-        <!-- Панель ставки -->
-        <div class="live-bet-panel">
-            <div class="live-chips-row" id="liveChipsRow"></div>
-            <div class="live-amount-row">
-                <input type="number" id="liveBetAmount" value="10" min="1" step="1" oninput="updateLivePotential()">
-                <div class="live-potential" id="livePotential">Потенциал: $0</div>
+            <div class="live-bet-panel">
+                <div class="live-chips-row" id="liveBjChipsRow"></div>
+                <div class="live-amount-row">
+                    <input type="number" id="liveBjBetAmount" value="10" min="1" step="1" oninput="updateLiveBjPotential()">
+                    <div class="live-potential" id="liveBjPotential">Потенциал: $20</div>
+                </div>
+                <div id="liveBjDealBtnWrap">
+                    <button class="live-bj-deal" id="liveBjDealBtn" onclick="startLiveBlackjack()">🃏 Сделать ставку и раздать</button>
+                </div>
+                <div class="live-bj-actions hidden" id="liveBjActionButtons">
+                    <button class="live-bj-hit" onclick="liveBjHit()">➕ Взять</button>
+                    <button class="live-bj-stand" onclick="liveBjStand()">✋ Хватит</button>
+                    <button class="live-bj-double" onclick="liveBjDouble()">×2 Удвоить</button>
+                </div>
             </div>
-            <button class="live-spin-btn" id="liveSpinBtn" onclick="spinLiveRoulette()" disabled>🎡 Сделать ставку и крутить</button>
         </div>
     </div>
 
@@ -622,6 +838,8 @@
         }
         updateLivePotential();
         renderLiveChips();
+        if (typeof updateLiveBjPotential === 'function') updateLiveBjPotential();
+        if (typeof renderLiveBjChips === 'function') renderLiveBjChips();
     }
 
     let tg = window.Telegram.WebApp;
@@ -987,7 +1205,7 @@
         document.getElementById('nav-' + view).classList.add('active');
         if (view === 'cash') loadHistory();
         if (view === 'bonus') loadBonusStatus();
-        if (view === 'live') { renderLiveChips(); renderLiveNumbers(); drawLiveWheel(0); }
+        if (view === 'live') { renderLiveChips(); renderLiveNumbers(); drawLiveWheel(0); if (typeof renderLiveBjChips === 'function') renderLiveBjChips(); }
     }
 
     async function loadBonusStatus() {
@@ -1185,7 +1403,6 @@
     function renderLiveNumbers() {
         const el = document.getElementById('liveNumbersGrid');
         if (!el) return;
-        // Классическая раскладка: 12 столбцов (3,6,9..36 / 2,5,8..35 / 1,4,7..34)
         let html = '';
         for (let row = 0; row < 3; row++) {
             for (let col = 0; col < 12; col++) {
@@ -1252,7 +1469,6 @@
         
         ctx.clearRect(0, 0, w, h);
         
-        // Внешнее кольцо
         ctx.beginPath();
         ctx.arc(cx, cy, outerR + 4, 0, Math.PI*2);
         ctx.fillStyle = '#8B6914';
@@ -1262,7 +1478,6 @@
         ctx.translate(cx, cy);
         ctx.rotate(angle);
         
-        // Сектора
         for (let i = 0; i < sectors; i++) {
             const startAngle = i * sectorAngle - Math.PI/2 - sectorAngle/2;
             const endAngle = startAngle + sectorAngle;
@@ -1282,7 +1497,6 @@
             ctx.lineWidth = 1;
             ctx.stroke();
             
-            // Число
             ctx.save();
             ctx.rotate(startAngle + sectorAngle/2);
             ctx.textAlign = 'right';
@@ -1296,7 +1510,6 @@
             ctx.restore();
         }
         
-        // Внутреннее кольцо
         ctx.beginPath();
         ctx.arc(0, 0, innerR, 0, Math.PI*2);
         ctx.fillStyle = '#0a0a0a';
@@ -1305,7 +1518,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // Ступица
         const grad = ctx.createRadialGradient(-8, -8, 2, 0, 0, centerR);
         grad.addColorStop(0, '#FFD700');
         grad.addColorStop(1, '#8B6914');
@@ -1317,7 +1529,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // Крестовина
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 2;
         for (let i = 0; i < 4; i++) {
@@ -1356,10 +1567,9 @@
             return tg.showAlert(translateErr(d.error));
         }
         
-        // Определяем угол для нужного числа
         const idxInOrder = EUROPEAN_ORDER.indexOf(d.number);
         const sectorAngle = (Math.PI * 2) / 37;
-        const targetAngle = -idxInOrder * sectorAngle - Math.PI*2 * 5; // 5 оборотов
+        const targetAngle = -idxInOrder * sectorAngle - Math.PI*2 * 5;
         
         const duration = 4200;
         const startTime = performance.now();
@@ -1372,7 +1582,6 @@
                 liveCurrentWheelAngle = startAngle + (targetAngle - startAngle) * ease;
                 drawLiveWheel(liveCurrentWheelAngle);
                 
-                // Шарик
                 const ballAngle = -Math.PI/2 - Math.PI*2 * 8 * (1 - ease);
                 const ballRadius = outerR() - 15 - Math.sin(t * Math.PI) * 10;
                 drawBallOnWheel(ballAngle, ballRadius);
@@ -1404,7 +1613,6 @@
             requestAnimationFrame(frame);
         });
         
-        // Финал
         liveCurrentWheelAngle = targetAngle % (Math.PI * 2);
         drawLiveWheel(liveCurrentWheelAngle);
         
@@ -1412,7 +1620,6 @@
         state.total_rounds++;
         updateUI();
         
-        // Показать результат
         const badge = document.getElementById('liveResultBadge');
         const numEl = document.getElementById('liveResultNum');
         numEl.innerText = d.number;
@@ -1420,12 +1627,10 @@
         badge.classList.add('show');
         setTimeout(() => badge.classList.remove('show'), 2500);
         
-        // История
         liveHistory.unshift({ number: d.number, color: d.color });
         if (liveHistory.length > 15) liveHistory.pop();
         renderLiveHistory();
         
-        // Реплики дилера
         const colorRu = d.color === 'red' ? 'красное' : d.color === 'black' ? 'чёрное' : 'зеро';
         const sym = getSym();
         if (d.profit > 0) {
@@ -1447,6 +1652,262 @@
         const el = document.getElementById('liveHistory');
         if (!el) return;
         el.innerHTML = liveHistory.map(h => `<div class="live-hist-ball ${h.color}">${h.number}</div>`).join('');
+    }
+
+    // ============ LIVE BLACKJACK ============
+    let liveBjState = null;
+    let liveBjBetAmount = 10;
+
+    function switchLiveGame(game) {
+        document.querySelectorAll('.live-tab').forEach((b, i) => {
+            b.classList.toggle('active', (game === 'roulette' && i === 0) || (game === 'blackjack' && i === 1));
+        });
+        document.getElementById('live-roulette-view').classList.toggle('hidden', game !== 'roulette');
+        document.getElementById('live-blackjack-view').classList.toggle('hidden', game !== 'blackjack');
+        
+        if (game === 'roulette') {
+            drawLiveWheel(liveCurrentWheelAngle);
+            dealerSay('Добро пожаловать за стол рулетки! Выберите ставку.');
+        } else {
+            renderLiveBjChips();
+            updateLiveBjPotential();
+            if (liveBjState) {
+                updateLiveBjUI(liveBjState);
+                if (liveBjState.active) {
+                    document.getElementById('liveBjActionButtons').classList.remove('hidden');
+                    document.getElementById('liveBjDealBtnWrap').classList.add('hidden');
+                    // disable double if > 2 cards
+                    const dbl = document.querySelector('.live-bj-double');
+                    if (dbl) dbl.disabled = (liveBjState.player_hand.length !== 2);
+                } else {
+                    document.getElementById('liveBjActionButtons').classList.add('hidden');
+                    document.getElementById('liveBjDealBtnWrap').classList.remove('hidden');
+                    if (liveBjState.result_text) {
+                        const el = document.getElementById('liveBjResult');
+                        el.innerText = liveBjState.result_text;
+                        el.className = 'live-bj-result ' + (liveBjState.result_type || '');
+                    }
+                }
+            }
+            if (!liveBjState || !liveBjState.active) {
+                dealerSay('Добро пожаловать в Блэкджек! Блэкджек платит 3:2. Удачи!');
+            }
+        }
+    }
+
+    function renderLiveBjChips() {
+        const el = document.getElementById('liveBjChipsRow');
+        if (!el) return;
+        const sym = getSym();
+        el.innerHTML = [1, 5, 10, 50, 100].map(v =>
+            `<button class="live-chip ${liveBjBetAmount === v ? 'active' : ''}" onclick="setLiveBjChip(${v})">${sym}${v}</button>`
+        ).join('');
+    }
+    function setLiveBjChip(v) {
+        liveBjBetAmount = v;
+        document.getElementById('liveBjBetAmount').value = v;
+        renderLiveBjChips();
+        updateLiveBjPotential();
+    }
+    function updateLiveBjPotential() {
+        const el = document.getElementById('liveBjPotential');
+        if (!el) return;
+        const amt = parseFloat(document.getElementById('liveBjBetAmount').value) || 0;
+        el.innerText = 'Потенциал: ' + getSym() + (amt * 2).toFixed(2);
+    }
+
+    function renderLiveBjCard(card, hidden = false) {
+        if (hidden) return `<div class="live-bj-card back"></div>`;
+        const isRed = ['♥', '♦'].includes(card.s);
+        return `<div class="live-bj-card ${isRed ? 'red' : 'black'}">
+            <div class="v-top">${card.v}</div>
+            <div class="suit-small">${card.s}</div>
+            <div class="suit-big">${card.s}</div>
+        </div>`;
+    }
+
+    function updateLiveBjUI(s) {
+        const dc = document.getElementById('liveBjDealerCards');
+        const pc = document.getElementById('liveBjPlayerCards');
+        const ds = document.getElementById('liveBjDealerScore');
+        const ps = document.getElementById('liveBjPlayerScore');
+        
+        if (s.dealer_hand) {
+            if (s.active) {
+                dc.innerHTML = renderLiveBjCard(s.dealer_hand[0]) + renderLiveBjCard(null, true);
+                ds.innerText = s.dealer_value;
+            } else {
+                dc.innerHTML = s.dealer_hand.map(c => renderLiveBjCard(c)).join('');
+                ds.innerText = s.dealer_value;
+            }
+        }
+        if (s.player_hand) {
+            pc.innerHTML = s.player_hand.map(c => renderLiveBjCard(c)).join('');
+            ps.innerText = s.player_value;
+        }
+    }
+
+    async function startLiveBlackjack() {
+        if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
+        const amt = parseFloat(document.getElementById('liveBjBetAmount').value);
+        if (!amt || amt < 1) return tg.showAlert('Мин. ставка: ' + getSym() + '1');
+        
+        const btn = document.getElementById('liveBjDealBtn');
+        btn.disabled = true;
+        btn.innerText = '🎴 Раздаём...';
+        document.getElementById('liveBjResult').innerText = '';
+        document.getElementById('liveBjResult').className = 'live-bj-result';
+        dealerSay('Делаем ставки... Карты раздаются!');
+        
+        const d = await postApi('/api/live/blackjack/start', { bet: amt });
+        
+        if (d.error) {
+            btn.disabled = false;
+            btn.innerText = '🃏 Сделать ставку и раздать';
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        applyServerBalance(d.balance);
+        state.total_rounds++;
+        updateUI();
+        
+        liveBjState = d;
+        liveBjBetAmount = amt;
+        updateLiveBjUI(d);
+        
+        if (!d.active) {
+            document.getElementById('liveBjActionButtons').classList.add('hidden');
+            document.getElementById('liveBjDealBtnWrap').classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerText = '🃏 Сделать ставку и раздать';
+            showLiveBjResult(d);
+        } else {
+            document.getElementById('liveBjActionButtons').classList.remove('hidden');
+            document.getElementById('liveBjDealBtnWrap').classList.add('hidden');
+            document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = false);
+            const dbl = document.querySelector('.live-bj-double');
+            if (dbl) dbl.disabled = (d.player_hand.length !== 2);
+            dealerSay('Ваш ход! Возьмите карту или остановитесь.');
+        }
+    }
+
+    async function liveBjHit() {
+        if (!liveBjState || !liveBjState.active) return;
+        document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = true);
+        dealerSay('Ещё одна карта...');
+        
+        const d = await postApi('/api/live/blackjack/hit', { round_id: liveBjState.round_id });
+        if (d.error) {
+            document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = false);
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        liveBjState = d;
+        updateLiveBjUI(d);
+        
+        if (!d.active) {
+            if (d.balance !== undefined) {
+                applyServerBalance(d.balance);
+                updateUI();
+            }
+            document.getElementById('liveBjActionButtons').classList.add('hidden');
+            document.getElementById('liveBjDealBtnWrap').classList.remove('hidden');
+            const btn = document.getElementById('liveBjDealBtn');
+            btn.disabled = false;
+            btn.innerText = '🃏 Сделать ставку и раздать';
+            showLiveBjResult(d);
+        } else {
+            document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = false);
+            const dbl = document.querySelector('.live-bj-double');
+            if (dbl) dbl.disabled = (d.player_hand.length !== 2);
+        }
+    }
+
+    async function liveBjStand() {
+        if (!liveBjState || !liveBjState.active) return;
+        document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = true);
+        dealerSay('Дилер вскрывает карты...');
+        
+        const d = await postApi('/api/live/blackjack/stand', { round_id: liveBjState.round_id });
+        if (d.error) {
+            document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = false);
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        liveBjState = d;
+        if (d.balance !== undefined) {
+            applyServerBalance(d.balance);
+            updateUI();
+        }
+        updateLiveBjUI(d);
+        
+        document.getElementById('liveBjActionButtons').classList.add('hidden');
+        document.getElementById('liveBjDealBtnWrap').classList.remove('hidden');
+        const btn = document.getElementById('liveBjDealBtn');
+        btn.disabled = false;
+        btn.innerText = '🃏 Сделать ставку и раздать';
+        showLiveBjResult(d);
+    }
+
+    async function liveBjDouble() {
+        if (!liveBjState || !liveBjState.active) return;
+        if (liveBjState.player_hand.length !== 2) return tg.showAlert('Удвоение доступно только на первых 2 картах');
+        document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = true);
+        dealerSay('Удвоение! Одна карта — и всё решено...');
+        
+        const d = await postApi('/api/live/blackjack/double', { round_id: liveBjState.round_id });
+        if (d.error) {
+            document.querySelectorAll('.live-bj-hit, .live-bj-stand, .live-bj-double').forEach(b => b.disabled = false);
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        liveBjState = d;
+        if (d.balance !== undefined) {
+            applyServerBalance(d.balance);
+            updateUI();
+        }
+        updateLiveBjUI(d);
+        
+        document.getElementById('liveBjActionButtons').classList.add('hidden');
+        document.getElementById('liveBjDealBtnWrap').classList.remove('hidden');
+        const btn = document.getElementById('liveBjDealBtn');
+        btn.disabled = false;
+        btn.innerText = '🃏 Сделать ставку и раздать';
+        showLiveBjResult(d);
+    }
+
+    function showLiveBjResult(d) {
+        const el = document.getElementById('liveBjResult');
+        const sym = getSym();
+        let text, type;
+        
+        if (d.profit > 0) {
+            text = d.blackjack
+                ? `🌟 BLACKJACK! +${sym}${d.profit.toFixed(2)}`
+                : `🎉 Выигрыш! +${sym}${d.profit.toFixed(2)}`;
+            type = 'win';
+        } else if (d.profit < 0) {
+            text = `😔 Проигрыш ${sym}${Math.abs(d.profit).toFixed(2)}`;
+            type = 'lose';
+        } else {
+            text = `🤝 Ничья. Возврат ${sym}${(d.bet || 0).toFixed(2)}`;
+            type = 'push';
+        }
+        
+        el.innerText = text;
+        el.className = 'live-bj-result ' + type;
+        d.result_text = text;
+        d.result_type = type;
+        
+        if (d.profit > 0) {
+            bigWin(d.profit);
+            dealerSay(d.blackjack ? `BLACKJACK! Поздравляю, ${sym}${d.profit.toFixed(2)} ваши! 🎉` : `Поздравляю! Вы выиграли ${sym}${d.profit.toFixed(2)}! 🎉`);
+        } else if (d.profit < 0) {
+            bigLoss(Math.abs(d.profit));
+            dealerSay('Увы, дилер выиграл. В следующий раз повезёт!');
+        } else {
+            dealerSay('Ничья! Ваша ставка возвращена.');
+        }
     }
 
     // ============ ОБЫЧНЫЕ ИГРЫ ============
