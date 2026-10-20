@@ -23,7 +23,6 @@ def init_db():
                  (id INTEGER PRIMARY KEY, username TEXT, balance REAL, total_rounds INTEGER, best_result REAL)''')
     c.execute('''CREATE TABLE IF NOT EXISTS transactions 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type TEXT, method TEXT, amount REAL, status TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    # НОВАЯ ТАБЛИЦА ДЛЯ ИСТОРИИ СТАВОК
     c.execute('''CREATE TABLE IF NOT EXISTS bets_history 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, game TEXT, bet REAL, win REAL, currency TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     
@@ -39,6 +38,12 @@ def init_db():
             
     try:
         c.execute("ALTER TABLE transactions ADD COLUMN currency TEXT DEFAULT 'USD'")
+    except sqlite3.OperationalError:
+        pass
+        
+    # НОВАЯ КОЛОНКА ДЛЯ РЕКВИЗИТОВ ВЫВОДА
+    try:
+        c.execute("ALTER TABLE transactions ADD COLUMN wallet TEXT")
     except sqlite3.OperationalError:
         pass
 
@@ -295,6 +300,10 @@ def withdraw():
         data = request.json
         user_id, amount, method = int(data['id']), float(data['amount']), data.get('method', 'USDT')
         currency = data.get('currency', 'USD')
+        wallet = (data.get('wallet') or '').strip() # НОВЫЙ ПАРАМЕТР
+        
+        if len(wallet) < 5:
+            return jsonify({'error': 'Укажите корректные реквизиты для вывода'}), 400
         
         min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0, 'UAH': 500.0}
         if amount < min_limits.get(method, 15.0):
@@ -315,7 +324,7 @@ def withdraw():
             else:
                 c.execute("UPDATE users SET balance = balance - ? WHERE id=?", (amount, user_id))
                 
-            c.execute("INSERT INTO transactions (user_id, type, method, amount, status, currency) VALUES (?, 'Withdrawal', ?, ?, 'Pending', ?)", (user_id, method, amount, currency))
+            c.execute("INSERT INTO transactions (user_id, type, method, amount, status, currency, wallet) VALUES (?, 'Withdrawal', ?, ?, 'Pending', ?, ?)", (user_id, method, amount, currency, wallet))
             tx_id = c.lastrowid
             conn.commit()
             conn.close()
@@ -323,7 +332,8 @@ def withdraw():
             sym = 'грн' if currency == 'UAH' else '$'
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("✅ Выплачено", callback_data=f"app_wd_{tx_id}"), types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_wd_{tx_id}"))
-            bot.send_message(ADMIN_ID, f"💸 Заявка на вывод #{tx_id}\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}", reply_markup=markup)
+            # ДОБАВЛЕНЫ РЕКВИЗИТЫ В УВЕДОМЛЕНИЕ АДМИНУ
+            bot.send_message(ADMIN_ID, f"💸 Заявка на вывод #{tx_id}\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}\nРеквизиты: {wallet}", reply_markup=markup)
             return jsonify({'status': 'ok'})
         else:
             conn.close()
