@@ -185,7 +185,6 @@
         @keyframes glowBook { from { box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 10px rgba(255,215,0,0.5); border-color: #FFD700; } to { box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 30px rgba(255,215,0,1); border-color: #FFF8DC; } }
         .bookofra-cell.spin-anim { animation: spinReel 0.3s linear infinite; }
         @keyframes spinReel { 0% { transform: translateY(-20px); opacity: 0; } 50% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(20px); opacity: 0; } }
-        .bookofra-paytable { font-size: 10px; color: var(--gold); text-align: center; margin-bottom: 10px; font-weight: 700; }
 
         /* ============ KENO ============ */
         .keno-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; width: 100%; max-width: 380px; margin-bottom: 15px; }
@@ -206,7 +205,6 @@
         .wheel-pointer { position: absolute; top: -10px; font-size: 30px; color: var(--gold); z-index: 10; text-shadow: 0 0 10px #000; }
         .wheel-inner { position: absolute; width: 80%; height: 80%; border-radius: 50%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); z-index: 5; }
         .wheel-result-text { font-size: 32px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; }
-        .wheel-segment-text { position: absolute; font-size: 14px; font-weight: 900; color: #fff; text-shadow: 0 1px 3px #000; }
         #wheelCanvas { position: absolute; width: 100%; height: 100%; z-index: 1; transition: transform 4s cubic-bezier(0.2, 0.8, 0.1, 1); }
 
         /* ============ EFFECTS ============ */
@@ -249,12 +247,19 @@
         .license-badge { display: flex; align-items: center; gap: 6px; color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
         .license-text { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.4; }
         .license-flag { font-size: 18px; }
+
+        /* BONUS & VIP */
+        .vip-card { border-radius: 16px; padding: 20px; color: #fff; text-align: center; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .vip-bronze { background: linear-gradient(135deg, #5e3a1a, #cd7f32); box-shadow: 0 0 20px rgba(205,127,50,0.3); }
+        .vip-silver { background: linear-gradient(135deg, #555, #C0C0C0); box-shadow: 0 0 20px rgba(192,192,192,0.3); color: #000; }
+        .vip-gold { background: linear-gradient(135deg, #8B6914, #FFD700); box-shadow: 0 0 20px rgba(255,215,0,0.3); color: #000; }
+        .vip-platinum { background: linear-gradient(135deg, #333, #E5E4E2); box-shadow: 0 0 20px rgba(229,228,226,0.3); color: #000; border: 1px solid var(--gold); }
+        .progress-bar-bg { background: rgba(0,0,0,0.5); border-radius: 10px; height: 20px; width: 100%; margin: 10px 0; overflow: hidden; border: 1px solid var(--gold); }
+        .progress-bar-fill { background: linear-gradient(90deg, #FFD700, #FFA500); height: 100%; width: 0%; transition: width 1s ease-out; box-shadow: 0 0 10px var(--gold); }
+        .vip-levels-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     </style>
 </head>
 <body>
-
-    <!-- GOLDEN RAIN -->
-    <div class="gold-rain-container" id="goldRain"></div>
 
     <div id="effectsLayer"></div>
     <div id="audioPrompt" data-i18n="audioPrompt">👆 Нажмите в любом месте для звука 🔊</div>
@@ -296,6 +301,69 @@
             <div class="icon">⚽</div>
             <h2 data-i18n="sportsTitle">Ставки на спорт</h2>
             <p data-i18n="comingSoon">Откроется в скором времени...</p>
+        </div>
+    </div>
+
+    <div id="view-bonus" class="hidden">
+        <!-- Окно активности -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 16px; font-weight: 800; color: var(--gold);" data-i18n="myActivity">📊 Моя активность</div>
+                <div id="vipStatusBadge" style="font-size: 12px; font-weight: 800; color: #cd7f32;">VIP BRONZE</div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; color: var(--muted);">
+                <span data-i18n="wagerTotal">Оборот: <b id="bonusWagerTotal" style="color: var(--gold);">$0</b></span>
+                <span data-i18n="wagerLeft">Осталось: <b id="bonusWagerLeft" style="color: var(--gold);">$2000</b></span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="vipProgressBar"></div>
+            </div>
+            <div style="font-size: 11px; color: var(--muted); text-align: center; margin-top: 5px;" id="nextVipName">До VIP Silver</div>
+        </div>
+
+        <!-- VIP Уровни -->
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="vipLevels">👑 VIP Статусы</div>
+        <div class="vip-levels-grid">
+            <div class="vip-card vip-bronze" style="opacity: 0.5;" id="vipCard1">
+                <div style="font-size: 24px; margin-bottom: 5px;">🥉</div>
+                <div style="font-weight: 900; font-size: 16px;">BRONZE</div>
+                <div style="font-size: 11px; margin-top: 5px;">Wager $2,000</div>
+                <div style="font-size: 12px; font-weight: 800; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 5px;">+$200</div>
+            </div>
+            <div class="vip-card vip-silver" style="opacity: 0.5;" id="vipCard2">
+                <div style="font-size: 24px; margin-bottom: 5px;">🥈</div>
+                <div style="font-weight: 900; font-size: 16px;">SILVER</div>
+                <div style="font-size: 11px; margin-top: 5px;">Wager $10,000</div>
+                <div style="font-size: 12px; font-weight: 800; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 5px;">+$500</div>
+            </div>
+            <div class="vip-card vip-gold" style="opacity: 0.5;" id="vipCard3">
+                <div style="font-size: 24px; margin-bottom: 5px;">🥇</div>
+                <div style="font-weight: 900; font-size: 16px;">GOLD</div>
+                <div style="font-size: 11px; margin-top: 5px;">Wager $30,000</div>
+                <div style="font-size: 12px; font-weight: 800; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 5px;">+$2000</div>
+            </div>
+            <div class="vip-card vip-platinum" style="opacity: 0.5;" id="vipCard4">
+                <div style="font-size: 24px; margin-bottom: 5px;">💎</div>
+                <div style="font-weight: 900; font-size: 16px;">PLATINUM</div>
+                <div style="font-size: 11px; margin-top: 5px;">Wager $100,000</div>
+                <div style="font-size: 12px; font-weight: 800; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 5px;">+$5000</div>
+            </div>
+        </div>
+
+        <!-- Бонусы -->
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; margin-top: 25px; color: var(--gold);" data-i18n="bonusesTitle">🎁 Бонусы</div>
+        
+        <div class="card" style="border-color: var(--gold); background: rgba(255,215,0,0.05);">
+            <div style="font-weight: 800; color: var(--gold); margin-bottom: 10px;" data-i18n="depBonusTitle">💰 100% Бонус на депозит</div>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px; line-height: 1.4;" data-i18n="depBonusDesc">Удвоим ваш последний депозит (до $500). Отыгрыш: x10.</p>
+            <button class="btn btn-primary" onclick="claimDepositBonus()" data-i18n="claimBtn">Активировать</button>
+        </div>
+
+        <div class="card" style="border-color: var(--border);">
+            <div style="font-weight: 800; color: var(--text); margin-bottom: 10px;" data-i18n="persBonusTitle">🎲 Персональный бонус</div>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px; line-height: 1.4;" data-i18n="persBonusDesc">Случайный бонус за вашу активность (от $1 до $5). Отыгрыш: x5.</p>
+            <button class="btn btn-secondary" onclick="claimPersonalBonus()" data-i18n="claimBtn">Активировать</button>
         </div>
     </div>
 
@@ -443,6 +511,7 @@
 
     <div class="nav-bar">
         <button class="nav-btn active" id="nav-games" onclick="switchView('games')"><span class="icon">🎮</span><span data-i18n="games">Игры</span></button>
+        <button class="nav-btn" id="nav-bonus" onclick="switchView('bonus')"><span class="icon">🎁</span><span data-i18n="bonusTab">Бонусы</span></button>
         <button class="nav-btn" id="nav-sports" onclick="switchView('sports')"><span class="icon">⚽</span><span data-i18n="sports">Спорт</span></button>
         <button class="nav-btn" id="nav-cash" onclick="switchView('cash')"><span class="icon">💰</span><span data-i18n="cash">Касса</span></button>
         <button class="nav-btn" id="nav-support" onclick="switchView('support')"><span class="icon">💬</span><span data-i18n="support">Помощь</span></button>
@@ -526,10 +595,10 @@
     }
     initGoldRain();
 
-    // ============ i18n ============
+    // ============ i18n (ДОБАВЛЕНЫ ПЕРЕВОДЫ ДЛЯ БОНУСОВ) ============
     const i18n = {
         ru: {
-            games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль', sports:'Спорт',
+            games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль', sports:'Спорт', bonusTab:'Бонусы',
             line:'Линия', live:'Лайв', sportsTitle:'Ставки на спорт', comingSoon:'Откроется в скором времени...',
             popular:'Популярные', table:'Настольные', slotsTab:'Слоты',
             crash:'Ракетка', crashDesc:'Успей забрать',
@@ -561,70 +630,18 @@
             won:'Забрано!', missed:'😔 Мимо',
             betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
             rulesBtn:'📖 Правила', hideRules:'✖ Скрыть',
-            rulesCrash:'Множитель растёт с момента старта. Нажмите «Забрать», чтобы зафиксировать выигрыш. Если ракета взорвётся раньше — ставка сгорает. Максимум x100.',
-            rulesBj:'Цель — набрать 21 очко или ближе к 21, чем у дилера. 2-10 по номиналу, J/Q/K = 10, туз = 1 или 11. Блэкджек платит x2.5. Дилер берёт до 17.',
-            rulesBacc:'Ставки: Player (1:1), Banker (0.95:1), Tie (8:1). По 2 карты. Ближе к 9 — победа. A=1, 2-9 номинал, 10/J/Q/K=0.',
-            rulesClassic:'3 барабана. Три одинаковых: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Два одинаковых: x1.5 (x2 с 💎 или 7️⃣).',
-            rulesLucky:'3 барабана. Три 7️⃣ = x30, две 7️⃣ = x5, одна 7️⃣ = x1.5. Три одинаковых (не 7) = x3.',
-            rulesBook:'5 барабанов. Книга (📖) — самый ценный символ: 5 книг = x100, 4 книги = x20, 3 книги = x5. Остальные символы (🐈,👁️,🏺,🗿,🐍) дают x50 за 5 штук.',
-            rulesKeno:'Выберите от 1 до 10 чисел. Система вытянет 20 шаров. Чем больше совпадений, тем выше множитель. Выигрыш зависит от количества угаданных чисел.',
-            rulesWheel:'Колесо разделено на 10 секторов: x0, x1.5, x2, x5, x10. Нажмите «Крутить» и ждите, где остановится указатель.',
-            rulesMines:'Поле 5×5. Выберите количество мин и откройте безопасные клетки. Каждая безопасная клетка увеличивает множитель. Нажмите «Забрать», чтобы забрать текущий выигрыш. Попадётесь на мину — потеряете ставку.',
-            rulesRoulette:'Европейская рулетка (37 чисел, 0-36). Ставки: число (35:1), красное/чёрное (1:1), чёт/нечет (1:1), 1-18/19-36 (1:1), дюжина (2:1), колонка (2:1). 0 — преимущество казино.',
-            rulesPlinko:'Шарик падает вниз по полю с колышками и попадает в один из 9 слотов. Множители: от x0.3 до x28. Чем ближе к краям — тем больше выигрыш, но тем реже туда попадает шарик.',
-            rulesTower:'8 уровней, на каждом 3 клетки — одна из них ловушка. Угадай безопасную и поднимайся выше. Множитель растёт с каждым уровнем: x1.42 → x24.35. Забери выигрыш в любой момент. Попадёшь на ловушку — потеряешь ставку.',
-            rulesDice:'Выберите число от 2 до 98. Если выпавшее число будет больше (или меньше) вашего — вы выигрываете. Множитель зависит от шанса: чем меньше шанс, тем больше выигрыш!',
             insufficient:'Недостаточно средств!', balanceUpdated:'Баланс обновлен!',
             serverSleep:'Сервер спит, подождите 50 секунд.',
             netErr:'Ошибка сети', errPrefix:'Ошибка: ',
             enterMsg:'Введите сообщение', sent:'✅ Отправлено!',
             welcomeVoice:'Добро пожаловать в онлайн казино Мэджик!',
             audioPrompt:'👆 Нажмите в любом месте для звука 🔊',
-            tiedLbl:'Ничья',
-            crashedMsg:'💥 Ракета взорвалась на {0}x. Вы проиграли.',
-            cashoutMsg:'🎉 Вы забрали ${0} на множителе x{1}!',
-            winAmountTpl:'🎉 +{2}{0} (x{1})',
-            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Ничья. Возврат ставки',
-            bjBlackjack:'🎉 Блэкджек! +{1}{0}', bjWin:'🎉 Выигрыш {1}{0}!',
-            bjTieMsg:'🤝 Ничья. Возврат {1}{0}', bjDealerWin:'😢 Дилер выиграл.',
-            bjBust:'😢 Перебор!', bjDealerBust:'🎉 Дилер перебрал! Вы выиграли!',
-            depCreated:'✅ Заявка на пополнение создана!',
-            wdCreated:'✅ Заявка на вывод создана!',
-            insufficientBal:'Недостаточно. Баланс: {1}{0}',
-            betPositive:'Ставка должна быть больше 0',
-            minesCountLbl:'Мин', minesPicks:'Открыто', minesMultiplier:'Множитель', minesPotential:'Потенциал',
-            minesCashout:'Забрать', minesBoom:'💥 Бум! Вы попали на мину. Ставка потеряна.',
-            minesCashed:'🎉 Забрано {2}{0} (x{1})!',
-            rouletteSpin:'Крутить', rouletteSpinning:'Крутим...',
-            rouletteSelectBet:'Выберите ставку',
-            rouletteWin:'🎉 Выигрыш {1}{0}!', rouletteLose:'😔 Проигрыш {1}{0}',
-            rouletteRed:'Красное', rouletteBlack:'Чёрное',
-            rouletteOdd:'Нечёт', rouletteEven:'Чёт',
-            rouletteDozen1:'1-я 12', rouletteDozen2:'2-я 12', rouletteDozen3:'3-я 12',
-            rouletteCol1:'Кол. 1', rouletteCol2:'Кол. 2', rouletteCol3:'Кол. 3',
-            rouletteNumber:'Число', rouletteSelected:'Выбрано',
-            regTitle:'📝 Регистрация',
-            regSubtitle:'Зарегистрируйтесь, чтобы получить доступ к играм и кассе',
-            regNamePh:'Ваше имя',
-            regPhonePh:'+7 999 123-45-67',
-            regEmailPh:'Email',
-            regSubmit:'Зарегистрироваться',
-            regNote:'Данные используются для выплат',
-            regSuccess:'✅ Регистрация успешна!',
-            regNameErr:'Имя должно быть не короче 2 символов',
-            regPhoneErr:'Укажите корректный номер телефона',
-            emailErr:'Укажите корректный Email',
-            regRequired:'Сначала зарегистрируйтесь',
-            editRegBtn:'✏️ Изменить данные',
-            plinkoDrop:'🎯 Бросить шарик', plinkoDropping:'🎯 Летит...',
-            towerLevel:'Уровень', towerMult:'Множитель', towerPotential:'Потенциал',
-            towerStart:'🚀 Начать', towerCashout:'💰 Забрать',
-            towerWin:'🎉 Забрано {2}{0} (x{1})!', towerLose:'💥 Ловушка! Ставка потеряна',
-            towerSelectLane:'Выберите клетку',
-            diceRoll:'🎲 Бросить', diceRolling:'🎲 Крутим...', diceOver:'БОЛЬШЕ', diceUnder:'МЕНЬШЕ',
-            diceMultiplier:'Множитель', diceWinChance:'Шанс выигрыша',
-            kenoPlay:'Играть', kenoDrawn:'Выпало', kenoMatches:'Совпадений', kenoPickNum:'Выберите числа', kenoMax:'Максимум 10 чисел',
-            wheelSpinBtn:'Крутить колесо', wheelResult:'Результат',
+            tiedLbl:'Ничья', regTitle:'📝 Регистрация', regSubtitle:'Зарегистрируйтесь, чтобы получить доступ к играм и кассе',
+            regNamePh:'Ваше имя', regPhonePh:'+7 999 123-45-67', regEmailPh:'Email',
+            regSubmit:'Зарегистрироваться', regNote:'Данные используются для выплат',
+            regSuccess:'✅ Регистрация успешна!', regNameErr:'Имя должно быть не короче 2 символов',
+            regPhoneErr:'Укажите корректный номер телефона', emailErr:'Укажите корректный Email',
+            regRequired:'Сначала зарегистрируйтесь', editRegBtn:'✏️ Изменить данные',
             kycTitle:'🛡️ KYC Верификация', kycDesc:'Пройдите верификацию для вывода крупных сумм.', goKyc:'Пройти KYC',
             kycNamePh:'ФИО на английском', kycCountryPh:'Страна проживания', kycSubmit:'Отправить',
             notPassed:'Не пройдена', pendingKyc:'На проверке', approvedKyc:'Пройдена',
@@ -632,219 +649,73 @@
             betsBtn:'📊 История ставок', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Ставок пока нет',
             depRulesTitle:'Реквизиты для перевода:', depRulesText:'После перевода средств нажмите «Создать заявку». Деньги будут зачислены на баланс после подтверждения транзакции администратором.',
             wdWalletPh:'Введите адрес кошелька/карты', copied:'✅ Адрес скопирован!', copyErr:'❌ Ошибка копирования',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO работает по лицензии Кюрасао #365/JAZ. Только для лиц старше 18 лет. Играйте ответственно.'
+            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO работает по лицензии Кюрасао #365/JAZ. Только для лиц старше 18 лет. Играйте ответственно.',
+            myActivity:'📊 Моя активность', wagerTotal:'Оборот:', wagerLeft:'Осталось:', vipLevels:'👑 VIP Статусы',
+            bonusesTitle:'🎁 Бонусы', depBonusTitle:'💰 100% Бонус на депозит', depBonusDesc:'Удвоим ваш последний депозит (до $500). Отыгрыш: x10.',
+            persBonusTitle:'🎲 Персональный бонус', persBonusDesc:'Случайный бонус за вашу активность (от $1 до $5). Отыгрыш: x5.',
+            claimBtn:'Активировать', bonusActivated:'✅ Бонус активирован! Отыграйте {0} для вывода.'
         },
         en: {
-            games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
+            games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports', bonusTab:'Bonuses',
             line:'Line', live:'Live', sportsTitle:'Sports Betting', comingSoon:'Will open soon...',
             popular:'Popular', table:'Table', slotsTab:'Slots',
-            crash:'Rocket', crashDesc:'Cash out in time',
-            bj:'Blackjack', bjDesc:'21 points',
-            bacc:'Baccarat', baccDesc:'Player vs Banker',
-            slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
-            slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens',
-            slotsBook:'Book of Ra', slotsBookDesc:'Book of Pharaoh',
-            keno:'Keno', kenoDesc:'80 numbers lottery',
-            wheel:'Wheel', wheelDesc:'Spin and win',
-            mines:'Mines', minesDesc:'5×5, reveal safe',
-            roulette:'Roulette', rouletteDesc:'European',
-            plinko:'Plinko', plinkoDesc:'Drop the ball',
-            tower:'Tower', towerDesc:'Climb higher',
-            dice:'Dice', diceDesc:'Guess the number',
-            balanceLbl:'Balance', topupLbl:'Deposit (Request)', withdrawLbl:'Withdraw funds',
-            historyLbl:'History', createReq:'Create request', sendBtn:'Send',
-            msgPlaceholder:'Your message...', supportTitle:'Support',
-            roundsLbl:'Rounds', bestWinLbl:'Best win',
-            minAmountPrefix:'Min amount: ', depositLbl:'Deposit', withdrawLblTx:'Withdrawal',
-            pendingLbl:'Pending', completedLbl:'Completed', rejectedLbl:'Rejected',
-            loading:'Loading...', historyEmpty:'No history yet',
-            dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player',
-            take:'Hit', stand:'Stand', playAgain:'Play again',
-            start:'Start', cashoutNow:'Cash out (x{0})',
-            spin:'Spin', spinAgain:'Spin again', spinning:'Spinning...',
-            playBet:'Place bet and play',
-            crashReady:'Ready to launch', flying:'Taking off...', crashed:'CRASH!',
-            won:'Cashed out!', missed:'😔 Missed',
-            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
-            rulesBtn:'📖 Rules', hideRules:'✖ Hide',
-            rulesCrash:'The multiplier grows from start. Press "Cash out" to lock in your winnings. If the rocket explodes earlier — bet is lost. Max x100.',
-            rulesBj:'Goal — reach 21 or get closer to 21 than the dealer. 2-10 face value, J/Q/K = 10, ace = 1 or 11. Blackjack pays x2.5. Dealer draws to 17.',
-            rulesBacc:'Bets: Player (1:1), Banker (0.95:1), Tie (8:1). Two cards each. Closer to 9 wins. A=1, 2-9 face value, 10/J/Q/K=0.',
-            rulesClassic:'3 reels. Three of a kind: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Two of a kind: x1.5 (x2 with 💎 or 7️⃣).',
-            rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5. Three of a kind (not 7) = x3.',
-            rulesBook:'5 reels. Book (📖) is the most valuable: 5 books = x100, 4 books = x20, 3 books = x5. Other symbols (🐈,👁️,🏺,🗿,🐍) pay x50 for 5 of a kind.',
-            rulesKeno:'Pick 1 to 10 numbers. The system draws 20 balls. The more matches, the higher the multiplier. Payout depends on matches.',
-            rulesWheel:'The wheel has 10 segments: x0, x1.5, x2, x5, x10. Spin and wait for the pointer to stop.',
-            rulesMines:'5×5 grid. Choose mine count and reveal safe cells. Each safe cell increases the multiplier. Press "Cash out" to collect. Hit a mine — lose your bet.',
-            rulesRoulette:'European roulette (37 numbers, 0-36). Bets: straight (35:1), red/black (1:1), odd/even (1:1), 1-18/19-36 (1:1), dozen (2:1), column (2:1). 0 is the house edge.',
-            rulesPlinko:'Ball drops through a peg field and lands in one of 9 slots. Multipliers: from x0.3 to x28. Edges pay more but hit rarely.',
-            rulesTower:'8 levels, 3 cells each — one is a trap. Pick a safe cell to climb. Multiplier grows: x1.42 → x24.35. Cash out anytime. Hit a trap — lose your bet.',
-            rulesDice:'Choose a number from 2 to 98. If the rolled number is higher (or lower) than yours — you win. The multiplier depends on the chance: the lower the chance, the higher the payout!',
-            insufficient:'Insufficient funds!', balanceUpdated:'Balance updated!',
-            serverSleep:'Server is sleeping, wait 50 seconds.',
-            netErr:'Network error', errPrefix:'Error: ',
-            enterMsg:'Enter a message', sent:'✅ Sent!',
-            welcomeVoice:'Welcome to Magic online casino!',
-            audioPrompt:'👆 Tap anywhere for sound 🔊',
-            tiedLbl:'Tie',
-            crashedMsg:'💥 Rocket exploded at {0}x. You lost.',
-            cashoutMsg:'🎉 You cashed out ${0} at x{1}!',
-            winAmountTpl:'🎉 +{2}{0} (x{1})',
-            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Tie. Bet returned',
-            bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 Win {1}{0}!',
-            bjTieMsg:'🤝 Tie. Return {1}{0}', bjDealerWin:'😢 Dealer wins.',
-            bjBust:'😢 Bust!', bjDealerBust:'🎉 Dealer bust! You win!',
-            depCreated:'✅ Deposit request created!',
-            wdCreated:'✅ Withdrawal request created!',
-            insufficientBal:'Insufficient. Balance: {1}{0}',
-            betPositive:'Bet must be greater than 0',
-            minesCountLbl:'Mines', minesPicks:'Picks', minesMultiplier:'Multiplier', minesPotential:'Potential',
-            minesCashout:'Cash out', minesBoom:'💥 Boom! You hit a mine. Bet lost.',
-            minesCashed:'🎉 Cashed {2}{0} (x{1})!',
-            rouletteSpin:'Spin', rouletteSpinning:'Spinning...',
-            rouletteSelectBet:'Select a bet',
-            rouletteWin:'🎉 Win {1}{0}!', rouletteLose:'😔 Loss {1}{0}',
-            rouletteRed:'Red', rouletteBlack:'Black',
-            rouletteOdd:'Odd', rouletteEven:'Even',
-            rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12',
-            rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3',
-            rouletteNumber:'Number', rouletteSelected:'Selected',
-            regTitle:'📝 Registration',
-            regSubtitle:'Register to access games and cashier',
-            regNamePh:'Your name',
-            regPhonePh:'+1 555 123-45-67',
-            regEmailPh:'Email',
-            regSubmit:'Register',
-            regNote:'Data is used for payouts',
-            regSuccess:'✅ Registration successful!',
-            regNameErr:'Name must be at least 2 characters',
-            regPhoneErr:'Please enter a valid phone number',
-            emailErr:'Please enter a valid email',
-            regRequired:'Please register first',
-            editRegBtn:'✏️ Edit data',
-            plinkoDrop:'🎯 Drop ball', plinkoDropping:'🎯 Dropping...',
-            towerLevel:'Level', towerMult:'Multiplier', towerPotential:'Potential',
-            towerStart:'🚀 Start', towerCashout:'💰 Cash out',
-            towerWin:'🎉 Cashed {2}{0} (x{1})!', towerLose:'💥 Trap! Bet lost',
-            towerSelectLane:'Pick a cell',
-            diceRoll:'🎲 Roll', diceRolling:'🎲 Rolling...', diceOver:'OVER', diceUnder:'UNDER',
-            diceMultiplier:'Multiplier', diceWinChance:'Win chance',
-            kenoPlay:'Play', kenoDrawn:'Drawn', kenoMatches:'Matches', kenoPickNum:'Pick numbers', kenoMax:'Max 10 numbers',
-            wheelSpinBtn:'Spin Wheel', wheelResult:'Result',
-            kycTitle:'🛡️ KYC Verification', kycDesc:'Complete verification to withdraw large amounts.', goKyc:'Go to KYC',
-            kycNamePh:'Full Name in English', kycCountryPh:'Country of Residence', kycSubmit:'Submit',
-            notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved',
-            kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English',
+            crash:'Rocket', crashDesc:'Cash out in time', bj:'Blackjack', bjDesc:'21 points',
+            bacc:'Baccarat', baccDesc:'Player vs Banker', slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
+            slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens', slotsBook:'Book of Ra', slotsBookDesc:'Book of Pharaoh',
+            keno:'Keno', kenoDesc:'80 numbers lottery', wheel:'Wheel', wheelDesc:'Spin and win',
+            mines:'Mines', minesDesc:'5×5, reveal safe', roulette:'Roulette', rouletteDesc:'European',
+            plinko:'Plinko', plinkoDesc:'Drop the ball', tower:'Tower', towerDesc:'Climb higher', dice:'Dice', diceDesc:'Guess the number',
+            balanceLbl:'Balance', topupLbl:'Deposit (Request)', withdrawLbl:'Withdraw funds', historyLbl:'History', createReq:'Create request', sendBtn:'Send',
+            msgPlaceholder:'Your message...', supportTitle:'Support', roundsLbl:'Rounds', bestWinLbl:'Best win',
+            minAmountPrefix:'Min amount: ', depositLbl:'Deposit', withdrawLblTx:'Withdrawal', pendingLbl:'Pending', completedLbl:'Completed', rejectedLbl:'Rejected',
+            loading:'Loading...', historyEmpty:'No history yet', dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player',
+            take:'Hit', stand:'Stand', playAgain:'Play again', start:'Start', cashoutNow:'Cash out (x{0})', spin:'Spin', spinAgain:'Spin again', spinning:'Spinning...',
+            playBet:'Place bet and play', crashReady:'Ready to launch', flying:'Taking off...', crashed:'CRASH!', won:'Cashed out!', missed:'😔 Missed',
+            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)', rulesBtn:'📖 Rules', hideRules:'✖ Hide',
+            insufficient:'Insufficient funds!', balanceUpdated:'Balance updated!', serverSleep:'Server is sleeping, wait 50 seconds.', netErr:'Network error', errPrefix:'Error: ',
+            enterMsg:'Enter a message', sent:'✅ Sent!', welcomeVoice:'Welcome to Magic online casino!', audioPrompt:'👆 Tap anywhere for sound 🔊', tiedLbl:'Tie',
+            regTitle:'📝 Registration', regSubtitle:'Register to access games and cashier', regNamePh:'Your name', regPhonePh:'+1 555 123-45-67', regEmailPh:'Email',
+            regSubmit:'Register', regNote:'Data is used for payouts', regSuccess:'✅ Registration successful!', regNameErr:'Name must be at least 2 characters',
+            regPhoneErr:'Please enter a valid phone number', emailErr:'Please enter a valid email', regRequired:'Please register first', editRegBtn:'✏️ Edit data',
+            kycTitle:'🛡️ KYC Verification', kycDesc:'Complete verification to withdraw large amounts.', goKyc:'Go to KYC', kycNamePh:'Full Name in English', kycCountryPh:'Country of Residence',
+            kycSubmit:'Submit', notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved', kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English',
             betsBtn:'📊 Bet History', betLbl:'Bet', winLbl:'Win', emptyBets:'No bets yet',
-            depRulesTitle:'Payment Details:', depRulesText:'After the transfer, click "Create Request". Funds will be credited after admin confirmation.',
-            wdWalletPh:'Enter wallet/card address', copied:'✅ Address copied!', copyErr:'❌ Copy error',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO operates under Curacao license #365/JAZ. 18+ only. Play responsibly.'
+            depRulesTitle:'Payment Details:', depRulesText:'After the transfer, click "Create Request". Funds will be credited after admin confirmation.', wdWalletPh:'Enter wallet/card address',
+            copied:'✅ Address copied!', copyErr:'❌ Copy error', licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO operates under Curacao license #365/JAZ. 18+ only. Play responsibly.',
+            myActivity:'📊 My Activity', wagerTotal:'Wager:', wagerLeft:'Left:', vipLevels:'👑 VIP Statuses',
+            bonusesTitle:'🎁 Bonuses', depBonusTitle:'💰 100% Deposit Bonus', depBonusDesc:'Double your last deposit (up to $500). Wager: x10.',
+            persBonusTitle:'🎲 Personal Bonus', persBonusDesc:'Random bonus for your activity ($1 to $5). Wager: x5.',
+            claimBtn:'Claim', bonusActivated:'✅ Bonus activated! Wager {0} to withdraw.'
         },
         pl: {
-            games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
+            games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport', bonusTab:'Bonusy',
             line:'Linia', live:'Na żywo', sportsTitle:'Zakłady sportowe', comingSoon:'Otworzy się wkrótce...',
             popular:'Popularne', table:'Stołowe', slotsTab:'Sloty',
-            crash:'Rakieta', crashDesc:'Odbierz na czas',
-            bj:'Blackjack', bjDesc:'21 punktów',
-            bacc:'Baccarat', baccDesc:'Gracz vs Bankier',
-            slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny',
-            slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki',
-            slotsBook:'Book of Ra', slotsBookDesc:'Księga Faraona',
-            keno:'Keno', kenoDesc:'Loteria na 80 liczb',
-            wheel:'Koło', wheelDesc:'Kręcić i wygrywać',
-            mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
-            roulette:'Ruletka', rouletteDesc:'Europejska',
-            plinko:'Plinko', plinkoDesc:'Upuść kulkę',
-            tower:'Wieża', towerDesc:'Wspinaj się wyżej',
-            dice:'Kości', diceDesc:'Zgadnij liczbę',
-            balanceLbl:'Saldo', topupLbl:'Wpłata (Wniosek)', withdrawLbl:'Wypłata środków',
-            historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
-            msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc',
-            roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana',
-            minAmountPrefix:'Min. kwota: ', depositLbl:'Wpłata', withdrawLblTx:'Wypłata',
-            pendingLbl:'W trakcie', completedLbl:'Zrealizowano', rejectedLbl:'Odrzucono',
-            loading:'Ładowanie...', historyEmpty:'Historia jest pusta',
-            dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz',
-            take:'Dobierz', stand:'Stop', playAgain:'Zagraj ponownie',
-            start:'Start', cashoutNow:'Odbierz (x{0})',
-            spin:'Kręcić', spinAgain:'Kręcić ponownie', spinning:'Kręcimy...',
-            playBet:'Postaw i zagraj',
-            crashReady:'Gotowy do startu', flying:'Startujemy...', crashed:'KRAKS!',
-            won:'Odebrano!', missed:'😔 Pudło',
-            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
-            rulesBtn:'📖 Zasady', hideRules:'✖ Ukryj',
-            rulesCrash:'Mnożnik rośnie od startu. Naciśnij „Odbierz", aby zablokować wygraną. Jeśli rakieta eksploduje wcześniej — zakład przepada. Maks. x100.',
-            rulesBj:'Cel — osiągnąć 21 lub być bliżej 21 niż krupier. 2-10 według nominału, J/Q/K = 10, as = 1 lub 11. Blackjack płaci x2.5. Krupier dobiera do 17.',
-            rulesBacc:'Zakłady: Player (1:1), Banker (0.95:1), Tie (8:1). Po 2 karty. Bliżej 9 — wygrana. A=1, 2-9 nominał, 10/J/Q/K=0.',
-            rulesClassic:'3 bębny. Trzy takie same: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Dwa takie same: x1.5 (x2 z 💎 lub 7️⃣).',
-            rulesLucky:'3 bębny. Trzy 7️⃣ = x30, dwie 7️⃣ = x5, jedna 7️⃣ = x1.5. Trzy takie same (nie 7) = x3.',
-            rulesBook:'5 bębnów. Księga (📖) jest najcenniejsza: 5 ksiąg = x100, 4 księgi = x20, 3 księgi = x5. Inne symbole (🐈,👁️,🏺,🗿,🐍) dają x50 za 5 sztuk.',
-            rulesKeno:'Wybierz od 1 do 10 liczb. System losuje 20 kul. Im więcej trafień, tym wyższy mnożnik.',
-            rulesWheel:'Koło podzielone jest na 10 sektorów: x0, x1.5, x2, x5, x10. Naciśnij „Kręcić” i czekaj na wynik.',
-            rulesMines:'Pole 5×5. Wybierz liczbę min i odkrywaj bezpieczne komórki. Każda bezpieczna komórka zwiększa mnożnik. Naciśnij „Odbierz", aby zgarnąć wygraną. Trafisz minę — tracisz zakład.',
-            rulesRoulette:'Ruletka europejska (37 liczb, 0-36). Zakłady: numer (35:1), czerwone/czarne (1:1), nieparzyste/parzyste (1:1), 1-18/19-36 (1:1), tuzin (2:1), kolumna (2:1). 0 to przewaga kasyna.',
-            rulesPlinko:'Kulka spada przez pole kołków i ląduje w jednym z 9 slotów. Mnożniki: od x0.3 do x28. Krawędzie płacą więcej, ale trafiają rzadziej.',
-            rulesTower:'8 poziomów, po 3 komórki — jedna to pułapka. Wybierz bezpieczną i wspinaj się. Mnożnik rośnie: x1.42 → x24.35. Odbierz w dowolnym momencie. Trafisz pułapkę — tracisz zakład.',
-            rulesDice:'Wybierz liczbę od 2 do 98. Jeśli wyrzucona liczba będzie wyższa (lub niższa) niż twoja — wygrywasz. Mnożnik zależy od szansy: im niższa szansa, tym wyższa wygrana!',
-            insufficient:'Niewystarczające środki!', balanceUpdated:'Saldo zaktualizowane!',
-            serverSleep:'Serwer śpi, poczekaj 50 sekund.',
-            netErr:'Błąd sieci', errPrefix:'Błąd: ',
-            enterMsg:'Wpisz wiadomość', sent:'✅ Wysłano!',
-            welcomeVoice:'Witamy w kasynie online Magic!',
-            audioPrompt:'👆 Dotknij gdziekolwiek, aby włączyć dźwięk 🔊',
-            tiedLbl:'Remis',
-            crashedMsg:'💥 Rakieta eksplodowała na {0}x. Przegrałeś.',
-            cashoutMsg:'🎉 Odebrałeś ${0} na mnożniku x{1}!',
-            winAmountTpl:'🎉 +{2}{0} (x{1})',
-            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Remis. Zakład zwrócony',
-            bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 Wygrana {1}{0}!',
-            bjTieMsg:'🤝 Remis. Zwrot {1}{0}', bjDealerWin:'😢 Krupier wygrał.',
-            bjBust:'😢 Przekroczenie!', bjDealerBust:'🎉 Krupier przekroczył! Wygrywasz!',
-            depCreated:'✅ Wniosek o wpłatę utworzony!',
-            wdCreated:'✅ Wniosek o wypłatę utworzony!',
-            insufficientBal:'Za mało. Saldo: {1}{0}',
-            betPositive:'Zakład musi być większy niż 0',
-            minesCountLbl:'Miny', minesPicks:'Odkryto', minesMultiplier:'Mnożnik', minesPotential:'Potencjał',
-            minesCashout:'Odbierz', minesBoom:'💥 Bum! Trafiłeś na minę. Zakład przepadł.',
-            minesCashed:'🎉 Odebrano {2}{0} (x{1})!',
-            rouletteSpin:'Kręcić', rouletteSpinning:'Kręcimy...',
-            rouletteSelectBet:'Wybierz zakład',
-            rouletteWin:'🎉 Wygrana {1}{0}!', rouletteLose:'😔 Przegrana {1}{0}',
-            rouletteRed:'Czerwone', rouletteBlack:'Czarne',
-            rouletteOdd:'Nieparzyste', rouletteEven:'Parzyste',
-            rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12',
-            rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3',
-            rouletteNumber:'Liczba', rouletteSelected:'Wybrano',
-            regTitle:'📝 Rejestracja',
-            regSubtitle:'Zarejestruj się, aby uzyskać dostęp do gier i kasy',
-            regNamePh:'Twoje imię',
-            regPhonePh:'+48 500 123 456',
-            regEmailPh:'Email',
-            regSubmit:'Zarejestruj się',
-            regNote:'Dane wykorzystywane do wypłat',
-            regSuccess:'✅ Rejestracja zakończona sukcesem!',
-            regNameErr:'Imię musi mieć co najmniej 2 znaki',
-            regPhoneErr:'Podaj prawidłowy numer telefonu',
-            emailErr:'Podaj prawidłowy email',
-            regRequired:'Najpierw się zarejestruj',
-            editRegBtn:'✏️ Edytuj dane',
-            plinkoDrop:'🎯 Rzuć kulkę', plinkoDropping:'🎯 Spada...',
-            towerLevel:'Poziom', towerMult:'Mnożnik', towerPotential:'Potencjał',
-            towerStart:'🚀 Start', towerCashout:'💰 Odbierz',
-            towerWin:'🎉 Odebrano {2}{0} (x{1})!', towerLose:'💥 Pułapka! Zakład przepadł',
-            towerSelectLane:'Wybierz komórkę',
-            diceRoll:'🎲 Rzuć', diceRolling:'🎲 Toczy się...', diceOver:'WIĘCEJ', diceUnder:'MNIEJ',
-            diceMultiplier:'Mnożnik', diceWinChance:'Szansa',
-            kenoPlay:'Zagraj', kenoDrawn:'Wylosowano', kenoMatches:'Trafienia', kenoPickNum:'Wybierz liczby', kenoMax:'Maksymalnie 10 liczb',
-            wheelSpinBtn:'Kręcić kołem', wheelResult:'Wynik',
-            kycTitle:'🛡️ Weryfikacja KYC', kycDesc:'Przejdź weryfikację, aby wypłacać duże kwoty.', goKyc:'Przejdź KYC',
-            kycNamePh:'Imię i nazwisko po angielsku', kycCountryPh:'Kraj zamieszkania', kycSubmit:'Wyślij',
-            notPassed:'Nieprzepuszczony', pendingKyc:'W trakcie', approvedKyc:'Zatwierdzony',
-            kycSuccess:'✅ Wysłano do sprawdzenia!', kycErr:'Wypełnij po angielsku',
+            crash:'Rakieta', crashDesc:'Odbierz na czas', bj:'Blackjack', bjDesc:'21 punktów', bacc:'Baccarat', baccDesc:'Gracz vs Bankier',
+            slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny', slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki', slotsBook:'Book of Ra', slotsBookDesc:'Księga Faraona',
+            keno:'Keno', kenoDesc:'Loteria na 80 liczb', wheel:'Koło', wheelDesc:'Kręcić i wygrywać', mines:'Miny', minesDesc:'5×5, odkryj bezpieczne',
+            roulette:'Ruletka', rouletteDesc:'Europejska', plinko:'Plinko', plinkoDesc:'Upuść kulkę', tower:'Wieża', towerDesc:'Wspinaj się wyżej', dice:'Kości', diceDesc:'Zgadnij liczbę',
+            balanceLbl:'Saldo', topupLbl:'Wpłata (Wniosek)', withdrawLbl:'Wypłata środków', historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
+            msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc', roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana',
+            minAmountPrefix:'Min. kwota: ', depositLbl:'Wpłata', withdrawLblTx:'Wypłata', pendingLbl:'W trakcie', completedLbl:'Zrealizowano', rejectedLbl:'Odrzucono',
+            loading:'Ładowanie...', historyEmpty:'Historia jest pusta', dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz',
+            take:'Dobierz', stand:'Stop', playAgain:'Zagraj ponownie', start:'Start', cashoutNow:'Odbierz (x{0})', spin:'Kręcić', spinAgain:'Kręcić ponownie', spinning:'Kręcimy...',
+            playBet:'Postaw i zagraj', crashReady:'Gotowy do startu', flying:'Startujemy...', crashed:'KRAKS!', won:'Odebrano!', missed:'😔 Pudło',
+            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)', rulesBtn:'📖 Zasady', hideRules:'✖ Ukryj',
+            insufficient:'Niewystarczające środki!', balanceUpdated:'Saldo zaktualizowane!', serverSleep:'Serwer śpi, poczekaj 50 sekund.', netErr:'Błąd sieci', errPrefix:'Błąd: ',
+            enterMsg:'Wpisz wiadomość', sent:'✅ Wysłano!', welcomeVoice:'Witamy w kasynie online Magic!', audioPrompt:'👆 Dotknij gdziekolwiek, aby włączyć dźwięk 🔊', tiedLbl:'Remis',
+            regTitle:'📝 Rejestracja', regSubtitle:'Zarejestruj się, aby uzyskać dostęp do gier i kasy', regNamePh:'Twoje imię', regPhonePh:'+48 500 123 456', regEmailPh:'Email',
+            regSubmit:'Zarejestruj się', regNote:'Dane wykorzystywane do wypłat', regSuccess:'✅ Rejestracja zakończona sukcesem!', regNameErr:'Imię musi mieć co najmniej 2 znaki',
+            regPhoneErr:'Podaj prawidłowy numer telefonu', emailErr:'Podaj prawidłowy email', regRequired:'Najpierw się zarejestruj', editRegBtn:'✏️ Edytuj dane',
+            kycTitle:'🛡️ Weryfikacja KYC', kycDesc:'Przejdź weryfikację, aby wypłacać duże kwoty.', goKyc:'Przejdź KYC', kycNamePh:'Imię i nazwisko po angielsku', kycCountryPh:'Kraj zamieszkania',
+            kycSubmit:'Wyślij', notPassed:'Nieprzepuszczony', pendingKyc:'W trakcie', approvedKyc:'Zatwierdzony', kycSuccess:'✅ Wysłano do sprawdzenia!', kycErr:'Wypełnij po angielsku',
             betsBtn:'📊 Historia zakładów', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Brak zakładów',
-            depRulesTitle:'Dane do płatności:', depRulesText:'Po przelewie kliknij „Utwórz wniosek”. Środki zostaną zaksięgowane po potwierdzeniu przez administratora.',
-            wdWalletPh:'Wpisz adres portfela/karty', copied:'✅ Adres skopiowany!', copyErr:'❌ Błąd kopiowania',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO działa na licencji Curacao #365/JAZ. Tylko 18+. Graj odpowiedzialnie.'
+            depRulesTitle:'Dane do płatności:', depRulesText:'Po przelewie kliknij „Utwórz wniosek”. Środki zostaną zaksięgowane po potwierdzeniu przez administratora.', wdWalletPh:'Wpisz adres portfela/karty',
+            copied:'✅ Adres skopiowany!', copyErr:'❌ Błąd kopiowania', licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO działa na licencji Curacao #365/JAZ. Tylko 18+. Graj odpowiedzialnie.',
+            myActivity:'📊 Moja aktywność', wagerTotal:'Obrót:', wagerLeft:'Zostało:', vipLevels:'👑 Statusy VIP',
+            bonusesTitle:'🎁 Bonusy', depBonusTitle:'💰 100% Bonus od depozytu', depBonusDesc:'Podwój swój ostatni depozyt (do $500). Obrót: x10.',
+            persBonusTitle:'🎲 Bonus osobisty', persBonusDesc:'Losowy bonus za aktywność ($1 do $5). Obrót: x5.',
+            claimBtn:'Aktywuj', bonusActivated:'✅ Bonus aktywowany! Obróć {0}, aby wypłacić.'
         }
     };
 
@@ -907,7 +778,7 @@
     let tg = window.Telegram.WebApp;
     if (tg) tg.expand();
     let user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок', username: 'guest' };
-    let state = { balance: 0, balance_uah: 0, total_rounds: 0, best_result: 0, registered: false, phone: null, regName: null, email: null, kyc_name: null, kyc_country: null, kyc_status: 'Not passed', loaded: false };
+    let state = { balance: 0, balance_uah: 0, total_rounds: 0, best_result: 0, registered: false, phone: null, regName: null, email: null, kyc_name: null, kyc_country: null, kyc_status: 'Not passed', total_wagered: 0, vip_level: 0, bonus_wager_req: 0, loaded: false };
     let isPlaying = false;
     let currentBet = 100;
     let currentTab = 'pop';
@@ -920,6 +791,13 @@
 
     const PLINKO_MULTS = [28, 4, 0.8, 0.5, 0.3, 0.5, 0.8, 4, 28];
     const TOWER_MULTS = [1.42, 2.14, 3.20, 4.81, 7.21, 10.82, 16.24, 24.35];
+
+    const VIP_TARGETS = [
+        { level: 1, name: 'Bronze', target: 2000, reward: 200 },
+        { level: 2, name: 'Silver', target: 10000, reward: 500 },
+        { level: 3, name: 'Gold', target: 30000, reward: 2000 },
+        { level: 4, name: 'Platinum', target: 100000, reward: 5000 }
+    ];
 
     const music = document.getElementById('bgMusic');
     const musicBtn = document.getElementById('musicBtn');
@@ -1063,6 +941,9 @@
             state.kyc_name = data.kyc_name;
             state.kyc_country = data.kyc_country;
             state.kyc_status = data.kyc_status || 'Not passed';
+            state.total_wagered = data.total_wagered || 0;
+            state.vip_level = data.vip_level || 0;
+            state.bonus_wager_req = data.bonus_wager_req || 0;
             state.loaded = true;
             localStorage.setItem('reg_state', state.registered ? 'yes' : 'no');
             
@@ -1212,6 +1093,74 @@
         });
     }
 
+    // ============ BONUS & VIP LOGIC ============
+    async function claimDepositBonus() {
+        const btn = event.target;
+        btn.disabled = true; btn.innerText = '...';
+        
+        const data = await postApi('/api/bonus/claim_deposit');
+        btn.disabled = false; btn.innerText = t('claimBtn');
+        
+        if (data.error) return tg.showAlert(translateErr(data.error));
+        
+        tg.showAlert(t('bonusActivated', '$' + data.wager_req.toFixed(2)));
+        loadUser();
+    }
+
+    async function claimPersonalBonus() {
+        const btn = event.target;
+        btn.disabled = true; btn.innerText = '...';
+        
+        const data = await postApi('/api/bonus/claim_personal');
+        btn.disabled = false; btn.innerText = t('claimBtn');
+        
+        if (data.error) return tg.showAlert(translateErr(data.error));
+        
+        tg.showAlert(t('bonusActivated', '$' + data.wager_req.toFixed(2)));
+        loadUser();
+    }
+
+    function updateBonusUI() {
+        const wagTotal = state.total_wagered || 0;
+        const vipLvl = state.vip_level || 0;
+        
+        document.getElementById('bonusWagerTotal').innerText = '$' + wagTotal.toFixed(2);
+        
+        // Находим следующий уровень
+        let nextVip = VIP_TARGETS.find(v => v.level === vipLvl + 1);
+        
+        if (nextVip) {
+            const left = nextVip.target - wagTotal;
+            document.getElementById('bonusWagerLeft').innerText = '$' + left.toFixed(2);
+            document.getElementById('nextVipName').innerText = `До VIP ${nextVip.name} (Награда: $${nextVip.reward})`;
+            
+            let prevTarget = 0;
+            if (vipLvl > 0) prevTarget = VIP_TARGETS[vipLvl - 1].target;
+            
+            const progress = ((wagTotal - prevTarget) / (nextVip.target - prevTarget)) * 100;
+            document.getElementById('vipProgressBar').style.width = Math.min(100, Math.max(0, progress)) + '%';
+        } else {
+            document.getElementById('bonusWagerLeft').innerText = '$0.00';
+            document.getElementById('nextVipName').innerText = 'Максимальный уровень!';
+            document.getElementById('vipProgressBar').style.width = '100%';
+        }
+
+        // Обновляем карточки
+        const vipNames = ['Bronze', 'Silver', 'Gold', 'Platinum'];
+        const vipColors = ['#cd7f32', '#C0C0C0', '#FFD700', '#E5E4E2'];
+        
+        document.getElementById('vipStatusBadge').innerText = vipLvl > 0 ? 'VIP ' + vipNames[vipLvl - 1].toUpperCase() : 'NO VIP';
+        document.getElementById('vipStatusBadge').style.color = vipLvl > 0 ? vipColors[vipLvl - 1] : '#8b8b93';
+        
+        for (let i = 1; i <= 4; i++) {
+            const card = document.getElementById('vipCard' + i);
+            if (card) {
+                card.style.opacity = (vipLvl >= i) ? '1' : '0.4';
+                card.style.transform = (vipLvl === i) ? 'scale(1.05)' : 'scale(1)';
+            }
+        }
+    }
+
     function updateUI() {
         const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
         const sym = getSym();
@@ -1250,6 +1199,8 @@
 
         const editBtn = document.getElementById('editRegBtn');
         if (editBtn) editBtn.style.display = state.registered ? 'block' : 'none';
+        
+        updateBonusUI();
     }
 
     setInterval(() => {
@@ -1716,7 +1667,6 @@
         const btn = document.querySelector('#kenoControls button');
         btn.disabled = true; btn.innerText = t('spinning');
         
-        // Сброс старых цветов
         for (let i = 1; i <= 80; i++) {
             document.getElementById(`kenoCell_${i}`).className = 'keno-cell';
         }
@@ -1728,18 +1678,15 @@
             return tg.showAlert(translateErr(d.error));
         }
         
-        // Анимация вытягивания шаров
         let count = 0;
         let anim = setInterval(() => {
             if (count >= 20) {
                 clearInterval(anim);
-                // Подсветка совпадений
                 d.drawn.forEach(n => {
                     const el = document.getElementById(`kenoCell_${n}`);
                     if (kenoSelected.includes(n)) el.className = 'keno-cell drawn-match';
                     else el.className = 'keno-cell drawn';
                 });
-                // Результат
                 if (d.win > 0) {
                     bigWin(d.win, d.multiplier);
                 } else {
@@ -1799,16 +1746,8 @@
         const canvas = document.getElementById('wheelCanvas');
         const resultText = document.getElementById('wheelResultText');
         
-        // Сектора идут по часовой стрелке. 
-        // Угол выигрышного сектора: idx * 36 градусов (центр сектора)
-        // Указатель сверху (0 градусов). Значит, чтобы выигрышный сектор стал на 0, нужно повернуть на -(idx*36).
-        // Добавим 5 полных оборотов для красоты.
-        
         const targetAngle = 360 * 5 - (d.index * 36);
-        
         canvas.style.transform = `rotate(${targetAngle}deg)`;
-        
-        // Очищаем текст на время вращения
         resultText.innerText = '?';
         
         setTimeout(() => {
@@ -1823,14 +1762,13 @@
             
             btn.disabled = false; btn.innerText = t('wheelSpinBtn');
             
-            // Сброс вращения для следующего спина
             setTimeout(() => {
                 canvas.style.transition = 'none';
                 canvas.style.transform = `rotate(0deg)`;
                 setTimeout(() => canvas.style.transition = 'transform 4s cubic-bezier(0.2, 0.8, 0.1, 1)', 50);
             }, 1000);
             
-        }, 4100); // Ждем окончания CSS анимации
+        }, 4100);
     }
 
     // ============ BOOK OF RA LOGIC ============
