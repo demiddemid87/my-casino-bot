@@ -210,6 +210,12 @@
         .crypto-wallet-block { background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 13px; }
         .crypto-address { font-family: monospace; color: var(--gold); word-break: break-all; cursor: pointer; padding: 4px; background: rgba(0,0,0,0.3); border-radius: 4px; margin-top: 3px; display: inline-block; }
         .crypto-address:active { background: rgba(255,215,0,0.2); }
+
+        /* LICENSE FOOTER */
+        .license-footer { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 25px; padding: 15px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); border-radius: 10px; opacity: 0.8; }
+        .license-badge { display: flex; align-items: center; gap: 6px; color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+        .license-text { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.4; }
+        .license-flag { font-size: 18px; }
     </style>
 </head>
 <body>
@@ -366,9 +372,36 @@
 
     <div id="view-support" class="hidden">
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="supportTitle">Поддержка</div>
+        
+        <!-- ЛИЦЕНЗИЯ В ПОДДЕРЖКЕ -->
+        <div class="card" style="border-color: var(--gold); background: rgba(255,215,0,0.05);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <span style="font-size: 28px;">🇨🇼</span>
+                <div>
+                    <div style="color: var(--gold); font-weight: 800; font-size: 14px;">Licensed by Curacao eGaming</div>
+                    <div style="color: var(--muted); font-size: 11px;">License #365/JAZ</div>
+                </div>
+            </div>
+            <p style="font-size: 11.5px; color: var(--muted); line-height: 1.5;">
+                MADGEK CASINO работает под международной лицензией Кюрасао. Мы гарантируем честность игр, безопасность средств игроков и конфиденциальность данных. 
+                Все транзакции проходят проверку.
+            </p>
+        </div>
+        
         <div class="card">
             <textarea id="supMessage" placeholder="Ваше сообщение..." data-i18n-ph="msgPlaceholder"></textarea>
             <button class="btn btn-primary" onclick="sendSupport()" data-i18n="sendBtn">Отправить</button>
+        </div>
+    </div>
+
+    <!-- ФУТЕР С ЛИЦЕНЗИЕЙ -->
+    <div class="license-footer" id="licenseFooter">
+        <div class="license-badge">
+            <span class="license-flag">🇨🇼</span>
+            <span data-i18n="licenseText">Licensed by Curacao eGaming</span>
+        </div>
+        <div class="license-text">
+            <span data-i18n="licenseDesc">MADGEK CASINO is operated under Curacao license #365/JAZ. 18+ only. Play responsibly.</span>
         </div>
     </div>
 
@@ -541,7 +574,8 @@
             kycSuccess:'✅ Отправлено на проверку!', kycErr:'Заполните данные на английском',
             betsBtn:'📊 История ставок', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Ставок пока нет',
             depRulesTitle:'Реквизиты для перевода:', depRulesText:'После перевода средств нажмите «Создать заявку». Деньги будут зачислены на баланс после подтверждения транзакции администратором.',
-            wdWalletPh:'Введите адрес кошелька/карты', copied:'✅ Адрес скопирован!', copyErr:'❌ Ошибка копирования'
+            wdWalletPh:'Введите адрес кошелька/карты', copied:'✅ Адрес скопирован!', copyErr:'❌ Ошибка копирования',
+            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO работает по лицензии Кюрасао #365/JAZ. Только для лиц старше 18 лет. Играйте ответственно.'
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
@@ -640,7 +674,8 @@
             kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English',
             betsBtn:'📊 Bet History', betLbl:'Bet', winLbl:'Win', emptyBets:'No bets yet',
             depRulesTitle:'Payment Details:', depRulesText:'After the transfer, click "Create Request". Funds will be credited after admin confirmation.',
-            wdWalletPh:'Enter wallet/card address', copied:'✅ Address copied!', copyErr:'❌ Copy error'
+            wdWalletPh:'Enter wallet/card address', copied:'✅ Address copied!', copyErr:'❌ Copy error',
+            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO operates under Curacao license #365/JAZ. 18+ only. Play responsibly.'
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
@@ -739,7 +774,8 @@
             kycSuccess:'✅ Wysłano do sprawdzenia!', kycErr:'Wypełnij po angielsku',
             betsBtn:'📊 Historia zakładów', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Brak zakładów',
             depRulesTitle:'Dane do płatności:', depRulesText:'Po przelewie kliknij „Utwórz wniosek”. Środki zostaną zaksięgowane po potwierdzeniu przez administratora.',
-            wdWalletPh:'Wpisz adres portfela/karty', copied:'✅ Adres skopiowany!', copyErr:'❌ Błąd kopiowania'
+            wdWalletPh:'Wpisz adres portfela/karty', copied:'✅ Adres skopiowany!', copyErr:'❌ Błąd kopiowania',
+            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO działa na licencji Curacao #365/JAZ. Tylko 18+. Graj odpowiedzialnie.'
         }
     };
 
@@ -1240,12 +1276,12 @@
     async function doWithdraw() {
         if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
         const amt = parseFloat(document.getElementById('wdAmount').value);
-        const wallet = document.getElementById('wdWallet').value.trim(); // ПОЛУЧАЕМ РЕКВИЗИТЫ
+        const wallet = document.getElementById('wdWallet').value.trim();
         const sym = wdMethod === 'UAH' ? '₴' : '$';
         const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
         
         if (isNaN(amt) || amt <= 0) return tg.showAlert(t('enterMsg'));
-        if (!wallet) return tg.showAlert('Введите реквизиты для вывода!'); // ПРОВЕРКА РЕКВИЗИТОВ
+        if (!wallet) return tg.showAlert('Введите реквизиты для вывода!');
         if (amt < minLimits[wdMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[wdMethod] + sym);
         if (bal < amt) return tg.showAlert(t('insufficientBal', bal.toFixed(2), sym));
         
@@ -1488,8 +1524,8 @@
                 ${rulesHTML('rulesRoulette')}
                 ${chipsHTML}
                 <div class="roulette-reel-container" id="rouletteReelContainer">
-rou                    <div class="roulette-pointer">▼</div>
-                    <div class="roulette-reel" id="letteReel"></div>
+                    <div class="roulette-pointer">▼</div>
+                    <div class="roulette-reel" id="rouletteReel"></div>
                 </div>
                 <div class="roulette-result-display" id="rouletteResult" style="background: transparent; color: var(--muted);">—</div>
                 <div class="roulette-bet-info" id="rouletteBetInfo">—</div>
