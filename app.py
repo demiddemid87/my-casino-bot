@@ -24,7 +24,12 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS transactions 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type TEXT, method TEXT, amount REAL, status TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     
-    for col, typ in [('phone', 'TEXT'), ('reg_name', 'TEXT'), ('registered', 'INTEGER DEFAULT 0'), ('balance_uah', 'REAL DEFAULT 0')]:
+    # Добавляем колонки для email и KYC
+    for col, typ in [
+        ('phone', 'TEXT'), ('reg_name', 'TEXT'), ('registered', 'INTEGER DEFAULT 0'), 
+        ('balance_uah', 'REAL DEFAULT 0'), ('email', 'TEXT'), 
+        ('kyc_name', 'TEXT'), ('kyc_country', 'TEXT'), ('kyc_status', 'TEXT DEFAULT "Not passed"')
+    ]:
         try:
             c.execute(f"ALTER TABLE users ADD COLUMN {col} {typ}")
         except sqlite3.OperationalError:
@@ -139,18 +144,19 @@ def get_user():
     if not user_id: return jsonify({'error': 'No ID'}), 400
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
-    c.execute("SELECT balance, total_rounds, best_result, phone, reg_name, registered, balance_uah FROM users WHERE id=?", (user_id,))
+    c.execute("SELECT balance, total_rounds, best_result, phone, reg_name, registered, balance_uah, email, kyc_name, kyc_country, kyc_status FROM users WHERE id=?", (user_id,))
     user = c.fetchone()
     if not user:
         c.execute("INSERT INTO users (id, username, balance, total_rounds, best_result, registered, balance_uah) VALUES (?, ?, ?, ?, ?, 0, ?)",
                   (user_id, username, 0.0, 0, 0.0, 0.0))
         conn.commit()
-        user = (0.0, 0, 0.0, None, None, 0, 0.0)
+        user = (0.0, 0, 0.0, None, None, 0, 0.0, None, None, None, "Not passed")
     conn.close()
     return jsonify({
         'balance': user[0], 'total_rounds': user[1], 'best_result': user[2],
         'phone': user[3], 'reg_name': user[4], 'registered': bool(user[5]),
-        'balance_uah': user[6]
+        'balance_uah': user[6], 'email': user[7], 
+        'kyc_name': user[8], 'kyc_country': user[9], 'kyc_status': user[10]
     })
 
 @app.route('/api/register', methods=['POST'])
@@ -160,22 +166,59 @@ def register():
         user_id = int(data['id'])
         name = (data.get('name') or '').strip()
         phone = (data.get('phone') or '').strip()
-        if len(phone) < 7 or len(name) < 2:
+        email = (data.get('email') or '').strip()
+        
+        if len(phone) < 7 or len(name) < 2 or len(email) < 5:
             return jsonify({'error': 'Неверные данные'}), 400
+            
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
         c.execute("SELECT id FROM users WHERE id=?", (user_id,))
         if not c.fetchone():
             c.execute("INSERT INTO users (id, balance, balance_uah, registered) VALUES (?, 0.0, 0.0, 0)", (user_id,))
+        
+        # Проверка на дубликат номера
         c.execute("SELECT id FROM users WHERE phone=? AND id!=?", (phone, user_id))
         if c.fetchone():
             conn.close()
             return jsonify({'error': 'Этот номер уже зарегистрирован'}), 400
-        c.execute("UPDATE users SET phone=?, reg_name=?, registered=1 WHERE id=?", (phone, name, user_id))
+            
+        c.execute("UPDATE users SET phone=?, reg_name=?, email=?, registered=1 WHERE id=?", (phone, name, email, user_id))
         conn.commit()
         conn.close()
-        try: bot.send_message(ADMIN_ID, f"👤 Регистрация\nID: {user_id}\nИмя: {name}\nТел: {phone}")
-        except: pass
+        
+        try: 
+            bot.send_message(ADMIN_ID, f"👤 Новая регистрация\nID: {user_id}\nИмя: {name}\nТел: {phone}\nEmail: {email}")
+        except: 
+            pass
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/kyc', methods=['POST'])
+def submit_kyc():
+    try:
+        data = request.json or {}
+        user_id = int(data['id'])
+        kyc_name = (data.get('kyc_name') or '').strip()
+        kyc_country = (data.get('kyc_country') or '').strip()
+        
+        if len(kyc_name) < 3 or len(kyc_country) < 2:
+            return jsonify({'error': 'Неверные данные KYC'}), 400
+            
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        
+        # Сохраняем данные и ставим статус "На проверке"
+        c.execute("UPDATE users SET kyc_name=?, kyc_country=?, kyc_status='Pending' WHERE id=?", (kyc_name, kyc_country, user_id))
+        conn.commit()
+        conn.close()
+        
+        try:
+            bot.send_message(ADMIN_ID, f"🛡️ Новая заявка KYC\nID: {user_id}\nФИО: {kyc_name}\nСтрана: {kyc_country}")
+        except: 
+            pass
+            
         return jsonify({'status': 'ok'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -246,10 +289,14 @@ def withdraw():
             
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
-        c.execute("SELECT balance, balance_uah, registered FROM users WHERE id=?", (user_id,))
+        c.execute("SELECT balance, balance_uah, registered, kyc_status FROM users WHERE id=?", (user_id,))
         row = c.fetchone()
         if not row: return jsonify({'error': 'Пользователь не найден'}), 404
         if not row[2]: return jsonify({'error': 'Сначала зарегистрируйтесь'}), 400
+        
+        # Проверка KYC перед выводом (опционально, можно включить требование KYC)
+        # if row[3] != 'Approved':
+        #     return jsonify({'error': 'Для вывода нужно пройти KYC'}), 400
         
         bal = row[1] if currency == 'UAH' else row[0]
         
@@ -284,7 +331,7 @@ def support():
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
-# ============ ИГРЫ ============
+# ============ ИГРЫ (Логика та же) ============
 @app.route('/api/slots/classic', methods=['POST'])
 def slots_classic():
     try:
@@ -458,7 +505,6 @@ def baccarat_play():
         return jsonify({'player_hand': p_cards, 'banker_hand': b_cards, 'player_score': ps, 'banker_score': bs, 'winner': winner, 'profit': profit, 'balance': new_bal})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
-# ============ НОВАЯ ИГРА: КОСТИ ============
 @app.route('/api/dice/roll', methods=['POST'])
 def dice_roll():
     try:
