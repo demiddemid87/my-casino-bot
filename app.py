@@ -73,7 +73,7 @@ def set_user_bal(c, uid, currency, new_bal, best_win=None):
 def log_bet(c, user_id, game, bet, win, currency):
     c.execute("INSERT INTO bets_history (user_id, game, bet, win, currency) VALUES (?, ?, ?, ?, ?)", (user_id, game, bet, win, currency))
 
-# ============ ОБРАБОТЧИКИ КНОПОК ============
+# ============ ОБРАБОТЧИКИ КНОПОК ДЕПОЗИТОВ/ВЫВОДОВ ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
     try:
@@ -86,6 +86,7 @@ def handle_admin_action(call):
 
     try:
         parts = call.data.split('_')
+        if len(parts) < 3: return
         action, tx_type, tx_id = parts[0], parts[1], int(parts[2])
         
         conn = sqlite3.connect('casino.db', timeout=15)
@@ -149,7 +150,7 @@ def handle_admin_action(call):
     except Exception as e:
         print("Callback error:", e)
 
-# ============ KYC ОБРАБОТЧИК ============
+# ============ ОБРАБОТЧИК KYC ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_kyc', 'rej_kyc')))
 def handle_kyc_action(call):
     try:
@@ -162,6 +163,7 @@ def handle_kyc_action(call):
 
     try:
         parts = call.data.split('_')
+        if len(parts) < 3: return
         action, user_id = parts[0], int(parts[2])
         
         conn = sqlite3.connect('casino.db', timeout=15)
@@ -243,7 +245,6 @@ def send_stats(message):
     text += f"📥 <b>Депозиты (успешные):</b>\n  USD: ${dep_usd:.2f}\n  UAH: ₴{dep_uah:.2f}\n\n"
     text += f"📤 <b>Выплаты (успешные):</b>\n  USD: ${wd_usd:.2f}\n  UAH: ₴{wd_uah:.2f}\n\n"
     text += f"⏳ <b>Ожидают обработки:</b>\n  Депозиты: {pend_dep}\n  Выводы: {pend_wd}\n\n"
-    
     text += f"🎮 <b>ТОП-5 игр:</b>\n"
     if top_games:
         for g in top_games: text += f"  {g[0]}: {g[1]} ставок на ${g[2]:.0f}\n"
@@ -465,7 +466,7 @@ def support():
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
-# ============ ИГРЫ ============
+# ============ ИГРЫ (Логика полностью сохранена из Last Variant v7) ============
 @app.route('/api/slots/classic', methods=['POST'])
 def slots_classic():
     try:
@@ -730,14 +731,13 @@ def dice_roll():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============ НОВАЯ ИГРА: КЕНО ============
 @app.route('/api/keno/play', methods=['POST'])
 def keno_play():
     try:
         data = request.get_json(silent=True) or {}
         user_id = int(data['id'])
         bet = float(data['bet'])
-        selected_numbers = data['numbers'] # список чисел от 1 до 80
+        selected_numbers = data['numbers']
         currency = data.get('currency', 'USD')
         
         if not selected_numbers or len(selected_numbers) > 10:
@@ -751,14 +751,10 @@ def keno_play():
             conn.close()
             return jsonify({'error': 'Недостаточно средств'}), 400
         
-        # Генерируем 20 выигрышных чисел
         drawn_numbers = random.sample(range(1, 81), 20)
-        
-        # Считаем совпадения
         matches = len(set(selected_numbers) & set(drawn_numbers))
         picked_count = len(selected_numbers)
         
-        # Таблица выплат (упрощенная)
         multipliers = {
             1: {1: 3.5},
             2: {2: 15},
@@ -795,7 +791,6 @@ def keno_play():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============ НОВАЯ ИГРА: КОЛЕСО ФОРТУНЫ ============
 @app.route('/api/wheel/spin', methods=['POST'])
 def wheel_spin():
     try:
@@ -812,11 +807,7 @@ def wheel_spin():
             conn.close()
             return jsonify({'error': 'Недостаточно средств'}), 400
         
-        # 10 секторов, индексы 0-9
-        # Множители: 1.5, 0, 2, 0, 1.5, 5, 0, 2, 0, 10
         segments = [1.5, 0, 2, 0, 1.5, 5, 0, 2, 0, 10]
-        
-        # Выбор случайного сектора
         result_idx = random.randint(0, 9)
         mult = segments[result_idx]
         
@@ -845,6 +836,7 @@ def index():
 @app.errorhandler(404)
 def not_found(e): return jsonify({'error': 'not_found'}), 404
 
+# ============ СТАРТ И ОЧИСТКА ВЕБХУКОВ ============
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup()
@@ -853,7 +845,20 @@ def start(message):
 
 if __name__ == "__main__":
     import threading
-    try: bot.remove_webhook()
-    except: pass
-    threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
+    
+    # ЖЕСТКАЯ ОЧИСТКА ВЕБХУКОВ ПЕРЕД СТАРТОМ
+    try:
+        bot.remove_webhook()
+        print("Webhook removed.")
+    except Exception as e:
+        print("Webhook remove error:", e)
+
+    # Запуск бота в фоне
+    try:
+        threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
+        print("Bot polling started.")
+    except Exception as e:
+        print("Bot polling error:", e)
+
+    # Запуск сервера
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), threaded=True)
