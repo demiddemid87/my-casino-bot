@@ -23,19 +23,6 @@ ADMIN_PENDING = {}
 VIP_LEVELS = [(1, 2000, 200), (2, 7000, 700), (3, 20000, 2000), (4, 50000, 5000)]
 VIP_NAMES = {0: '—', 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Platinum'}
 
-SPORTS_MATCHES = {
-    'bayern_arsenal_2026_10_21': {
-        'name': 'Бавария — Арсенал',
-        'stage': 'Лига Чемпионов · Общий этап, 3 тур',
-        'start_iso': '2026-10-21T22:00:00+03:00',
-        'odds': {
-            'p1': 2.05, 'x': 3.82, 'p2': 3.26,
-            'total_under_2_5': 2.34, 'total_over_2_5': 1.60,
-            '1x': 1.36, '12': 1.29, '2x': 1.79
-        }
-    }
-}
-
 def init_db():
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
@@ -45,8 +32,6 @@ def init_db():
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type TEXT, method TEXT, amount REAL, status TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     c.execute('''CREATE TABLE IF NOT EXISTS bets_history 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, game TEXT, bet REAL, win REAL, currency TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS sports_bets 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, match_id TEXT, selection TEXT, amount REAL, odds REAL, potential_win REAL, status TEXT, currency TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     
     for col, typ in [
         ('phone', 'TEXT'), ('reg_name', 'TEXT'), ('registered', 'INTEGER DEFAULT 0'), 
@@ -137,7 +122,6 @@ def _track_vip(c, user_id, usd_bet):
             if new_turnover >= thr and current_level < lvl:
                 new_level = lvl
                 total_reward += reward
-        
         if total_reward > 0:
             c.execute("UPDATE users SET vip_turnover=?, vip_level=?, balance=balance+? WHERE id=?",
                       (new_turnover, new_level, total_reward, user_id))
@@ -282,110 +266,6 @@ def handle_kyc_action(call):
         except Exception as e: print("edit_message error (KYC):", e)
     except Exception as e: print("Callback error (KYC):", e)
 
-# ============ СПОРТ ============
-@bot.message_handler(commands=['sports'])
-def sports_panel(message):
-    if message.from_user.id != ADMIN_ID: return
-    conn = sqlite3.connect('casino.db', timeout=15)
-    c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM sports_bets WHERE status='Pending'")
-    total = c.fetchone()[0]
-    text = f"🎯 <b>Спортивные ставки</b>\n\n"
-    text += f"Ожидают расчёта: <b>{total}</b>\n\n"
-    text += f"<b>Матчи:</b>\n"
-    for mid, m in SPORTS_MATCHES.items():
-        c.execute("SELECT COUNT(*), SUM(amount) FROM sports_bets WHERE match_id=? AND status='Pending'", (mid,))
-        cnt, sum_amt = c.fetchone()
-        text += f"  • {m['name']}\n"
-        text += f"    Стадия: {m['stage']}\n"
-        text += f"    ID: <code>{mid}</code>\n"
-        text += f"    Ставок: {cnt or 0}, сумма: ${sum_amt or 0:.2f}\n\n"
-    conn.close()
-    text += f"<b>Расчёт:</b>\n"
-    text += f"<code>/settle MATCH_ID WINNER TOTAL</code>\n"
-    text += f"WINNER: p1 | x | p2 (П1 / Ничья / П2)\n"
-    text += f"TOTAL: over | under (ТБ / ТМ 2.5)\n\n"
-    text += f"Пример: <code>/settle bayern_arsenal_2026_10_21 p1 over</code>"
-    bot.send_message(message.chat.id, text, parse_mode='HTML')
-
-@bot.message_handler(commands=['settle'])
-def settle_match(message):
-    if message.from_user.id != ADMIN_ID: return
-    try:
-        parts = message.text.split()
-        if len(parts) < 4:
-            bot.reply_to(message, "❌ Формат: /settle MATCH_ID WINNER TOTAL\nWINNER: p1/x/p2\nTOTAL: over/under")
-            return
-        match_id = parts[1]
-        winner = parts[2].lower()
-        total = parts[3].lower()
-        if match_id not in SPORTS_MATCHES:
-            bot.reply_to(message, f"❌ Матч {match_id} не найден")
-            return
-        if winner not in ('p1', 'x', 'p2'):
-            bot.reply_to(message, "❌ WINNER должен быть p1, x или p2"); return
-        if total not in ('over', 'under'):
-            bot.reply_to(message, "❌ TOTAL должен быть over или under"); return
-        
-        winners = set()
-        if winner == 'p1': winners.update(['p1', '1x', '12'])
-        elif winner == 'x': winners.update(['x', '1x', '2x'])
-        elif winner == 'p2': winners.update(['p2', '12', '2x'])
-        if total == 'over': winners.add('total_over_2_5')
-        else: winners.add('total_under_2_5')
-        
-        conn = sqlite3.connect('casino.db', timeout=15)
-        c = conn.cursor()
-        c.execute("SELECT id, user_id, selection, amount, odds, potential_win, currency FROM sports_bets WHERE match_id=? AND status='Pending'", (match_id,))
-        bets = c.fetchall()
-        
-        won_count = 0; lost_count = 0; paid_total = 0
-        match_name = SPORTS_MATCHES[match_id]['name']
-        for b in bets:
-            bet_id, user_id, selection, amount, odds, potential_win, curr = b
-            sym = '₴' if curr == 'UAH' else '$'
-            if selection in winners:
-                if curr == 'UAH':
-                    c.execute("UPDATE users SET balance_uah = balance_uah + ? WHERE id=?", (potential_win, user_id))
-                else:
-                    c.execute("UPDATE users SET balance = balance + ? WHERE id=?", (potential_win, user_id))
-                c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (potential_win, user_id))
-                c.execute("UPDATE sports_bets SET status='Won' WHERE id=?", (bet_id,))
-                c.execute("INSERT INTO bets_history (user_id, game, bet, win, currency) VALUES (?, ?, ?, ?, ?)",
-                          (user_id, f'Sport: {match_name}', amount, potential_win, curr))
-                won_count += 1
-                paid_total += potential_win
-                try:
-                    bot.send_message(user_id,
-                        f"🎉 <b>Ваша ставка выиграла!</b>\n\n"
-                        f"Матч: {match_name}\n"
-                        f"Исход: {selection} @ {odds}\n"
-                        f"Выигрыш: {potential_win:.2f}{sym} зачислен на баланс.",
-                        parse_mode='HTML')
-                except: pass
-            else:
-                c.execute("UPDATE sports_bets SET status='Lost' WHERE id=?", (bet_id,))
-                c.execute("INSERT INTO bets_history (user_id, game, bet, win, currency) VALUES (?, ?, ?, ?, ?)",
-                          (user_id, f'Sport: {match_name}', amount, 0, curr))
-                lost_count += 1
-                try:
-                    bot.send_message(user_id,
-                        f"😔 <b>Ваша ставка проиграла</b>\n\nМатч: {match_name}",
-                        parse_mode='HTML')
-                except: pass
-        conn.commit(); conn.close()
-        bot.reply_to(message,
-            f"✅ <b>Результаты рассчитаны</b>\n\n"
-            f"Матч: {match_name}\n"
-            f"Победитель: {winner.upper()}\n"
-            f"Тотал: {total.upper()}\n\n"
-            f"✅ Выиграло: {won_count}\n"
-            f"❌ Проиграло: {lost_count}\n"
-            f"💸 Выплачено: ${paid_total:.2f}",
-            parse_mode='HTML')
-    except Exception as e:
-        bot.reply_to(message, f"❌ Ошибка: {e}")
-
 # ============ СТАТИСТИКА ============
 @bot.message_handler(commands=['stats'])
 def send_stats(message):
@@ -416,26 +296,22 @@ def send_stats(message):
     c.execute("SELECT COUNT(*) FROM users WHERE vip_level >= 2"); vip_silver = c.fetchone()[0]
     c.execute("SELECT COUNT(*) FROM users WHERE vip_level >= 3"); vip_gold = c.fetchone()[0]
     c.execute("SELECT COUNT(*) FROM users WHERE vip_level >= 4"); vip_plat = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM sports_bets WHERE status='Pending'"); sports_pending = c.fetchone()[0]
     conn.close()
     text = f"📊 <b>СТАТИСТИКА КАЗИНО</b>\n\n"
-    text += f"👥 Всего пользователей: <b>{total_users}</b>\n"
-    text += f"✅ Успешных регистраций: <b>{reg_users}</b>\n\n"
-    text += f"💰 <b>Балансы игроков:</b>\n  USD: ${sum_usd:.2f}\n  UAH: ₴{sum_uah:.2f}\n\n"
-    text += f"📥 <b>Депозиты:</b>\n  USD: ${dep_usd:.2f}\n  UAH: ₴{dep_uah:.2f}\n\n"
-    text += f"📤 <b>Выплаты:</b>\n  USD: ${wd_usd:.2f}\n  UAH: ₴{wd_uah:.2f}\n\n"
-    text += f"⏳ <b>Ожидают:</b>\n  Депозиты: {pend_dep}\n  Выводы: {pend_wd}\n  Спорт-ставки: {sports_pending}\n\n"
-    text += f"🏆 <b>VIP:</b>\n  Bronze: {vip_bronze} | Silver: {vip_silver} | Gold: {vip_gold} | Platinum: {vip_plat}\n\n"
+    text += f"👥 Всего: <b>{total_users}</b> | Зарегистрировано: <b>{reg_users}</b>\n\n"
+    text += f"💰 <b>Балансы:</b> USD ${sum_usd:.2f} | UAH ₴{sum_uah:.2f}\n\n"
+    text += f"📥 <b>Депозиты:</b> USD ${dep_usd:.2f} | UAH ₴{dep_uah:.2f}\n"
+    text += f"📤 <b>Выплаты:</b> USD ${wd_usd:.2f} | UAH ₴{wd_uah:.2f}\n\n"
+    text += f"⏳ <b>Ожидают:</b> Депозиты {pend_dep} | Выводы {pend_wd}\n\n"
+    text += f"🏆 <b>VIP:</b> B{vip_bronze} S{vip_silver} G{vip_gold} P{vip_plat}\n\n"
     text += f"🎮 <b>ТОП-5 игр:</b>\n"
     if top_games:
-        for g in top_games: text += f"  {g[0]}: {g[1]} ставок на ${g[2]:.0f}\n"
+        for g in top_games: text += f"  {g[0]}: {g[1]} ст., ${g[2]:.0f}\n"
     else: text += f"  Пока нет ставок\n"
-    text += f"\n💵 <b>Оборот:</b> ${total_bet:.2f}\n"
-    text += f"🏆 <b>Выплачено:</b> ${total_win:.2f}\n"
-    text += f"🏦 <b>Профит:</b> ${casino_profit:.2f}\n"
+    text += f"\n💵 Оборот: ${total_bet:.2f}\n🏆 Выплачено: ${total_win:.2f}\n🏦 Профит: ${casino_profit:.2f}"
     bot.send_message(STATS_CHAT_ID, text, parse_mode='HTML')
     if message.chat.id != STATS_CHAT_ID:
-        bot.reply_to(message, "✅ Статистика отправлена!")
+        bot.reply_to(message, "✅ Отправлено!")
 
 # ============ ADMIN PANEL ============
 def show_admin_users(chat_id, page=0):
@@ -446,30 +322,29 @@ def show_admin_users(chat_id, page=0):
                  FROM users WHERE registered=1 ORDER BY id DESC LIMIT 8 OFFSET ?""", (page*8,))
     users = c.fetchall(); conn.close()
     total_pages = max(1, (total + 7) // 8)
-    text = f"👥 <b>Админ-панель аккаунтов</b>\nВсего: <b>{total}</b>\nСтраница {page+1}/{total_pages}\n\n"
+    text = f"👥 <b>Админ-панель</b>\nВсего: <b>{total}</b> | Стр. {page+1}/{total_pages}\n\n"
     if not users:
         text += "Пусто."; bot.send_message(chat_id, text, parse_mode='HTML'); return
     markup = types.InlineKeyboardMarkup()
     for u in users:
         uid, uname, rname, phone, email, bal, bal_uah, blk, bst, vlvl, vturn = u
-        status = "🚫 ЗАБЛОКИРОВАН" if blk else "✅ Активен"
+        status = "🚫 BLK" if blk else "✅"
         bonus_icon = ""
         if bst == 'active': bonus_icon = " 🎁"
         elif bst == 'completed': bonus_icon = " 🏆"
         elif bst == 'pending': bonus_icon = " ⏳"
-        vip_icon = f" | VIP: {VIP_NAMES[vlvl or 0]} (${(vturn or 0):.0f})" if vlvl else ""
-        text += f"{status} | <b>ID {uid}</b>{bonus_icon}{vip_icon}\n"
-        text += f"  👤 {rname or uname or '—'}\n"
-        text += f"  📱 {phone or '—'} | ✉️ {email or '—'}\n"
+        vip_icon = f" | VIP:{VIP_NAMES[vlvl or 0]}(${(vturn or 0):.0f})" if vlvl else ""
+        text += f"{status} <b>ID {uid}</b>{bonus_icon}{vip_icon}\n"
+        text += f"  👤 {rname or uname or '—'}\n  📱 {phone or '—'}\n"
         text += f"  💰 ${(bal or 0):.2f} / ₴{(bal_uah or 0):.2f}\n\n"
-        blk_label = f"✅ Разблок {uid}" if blk else f"🚫 Блок {uid}"
+        blk_label = f"✅ {uid}" if blk else f"🚫 {uid}"
         markup.add(types.InlineKeyboardButton(blk_label, callback_data=f"togblk_{uid}"),
-                   types.InlineKeyboardButton(f"💰 Начислить {uid}", callback_data=f"addbal_{uid}"))
+                   types.InlineKeyboardButton(f"💰 {uid}", callback_data=f"addbal_{uid}"))
     nav = []
-    if page > 0: nav.append(types.InlineKeyboardButton("⬅️ Назад", callback_data=f"adminpage_{page-1}"))
-    if page < total_pages - 1: nav.append(types.InlineKeyboardButton("Вперёд ➡️", callback_data=f"adminpage_{page+1}"))
+    if page > 0: nav.append(types.InlineKeyboardButton("⬅️", callback_data=f"adminpage_{page-1}"))
+    if page < total_pages - 1: nav.append(types.InlineKeyboardButton("➡️", callback_data=f"adminpage_{page+1}"))
     if nav: markup.add(*nav)
-    markup.add(types.InlineKeyboardButton("🔄 Обновить", callback_data=f"adminpage_{page}"))
+    markup.add(types.InlineKeyboardButton("🔄", callback_data=f"adminpage_{page}"))
     bot.send_message(chat_id, text, reply_markup=markup, parse_mode='HTML')
 
 @bot.message_handler(commands=['admin'])
@@ -499,7 +374,7 @@ def toggle_block_cb(call):
     c.execute("SELECT blocked FROM users WHERE id=?", (uid,))
     r = c.fetchone()
     if not r:
-        conn.close(); bot.answer_callback_query(call.id, "❌ Не найден"); return
+        conn.close(); bot.answer_callback_query(call.id, "❌"); return
     new_state = 0 if r[0] else 1
     c.execute("UPDATE users SET blocked=? WHERE id=?", (new_state, uid))
     conn.commit(); conn.close()
@@ -508,9 +383,6 @@ def toggle_block_cb(call):
     except: pass
     try: bot.send_message(call.message.chat.id, f"{msg} ID: {uid}")
     except: pass
-    try:
-        if new_state: bot.send_message(uid, "🚫 Ваш аккаунт заблокирован.")
-    except: pass
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('addbal_'))
 def add_balance_start_cb(call):
@@ -518,9 +390,9 @@ def add_balance_start_cb(call):
     try: uid = int(call.data.split('_')[1])
     except: return
     ADMIN_PENDING[call.from_user.id] = {'action': 'add_balance', 'user_id': uid}
-    try: bot.answer_callback_query(call.id, "💰 Ожидание суммы")
+    try: bot.answer_callback_query(call.id, "💰 Сумма?")
     except: pass
-    bot.send_message(call.message.chat.id, f"💰 Введите сумму USD для ID <b>{uid}</b>.\nМинус = списание. /cancel — отмена.", parse_mode='HTML')
+    bot.send_message(call.message.chat.id, f"💰 Сумма USD для ID <b>{uid}</b>.\nМинус = списание. /cancel — отмена.", parse_mode='HTML')
 
 @bot.message_handler(commands=['cancel'])
 def cancel_pending(message):
@@ -534,7 +406,7 @@ def handle_pending_admin_action(message):
     if not pending: return
     if pending.get('action') == 'add_balance':
         try: amt = float((message.text or '').replace(',', '.').strip())
-        except: bot.send_message(message.chat.id, "❌ Введите число или /cancel"); return
+        except: bot.send_message(message.chat.id, "❌ Число или /cancel"); return
         uid = pending['user_id']
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
@@ -548,9 +420,9 @@ def handle_pending_admin_action(message):
         new_bal = c.fetchone()[0]
         conn.commit(); conn.close()
         ADMIN_PENDING.pop(message.from_user.id, None)
-        bot.send_message(message.chat.id, f"✅ Начислено ${amt:.2f} → {uid}\nНовый баланс: ${new_bal:.2f}")
+        bot.send_message(message.chat.id, f"✅ ${amt:.2f} → {uid}\nБаланс: ${new_bal:.2f}")
         try:
-            if amt > 0: bot.send_message(uid, f"💰 Вам начислено ${amt:.2f}.")
+            if amt > 0: bot.send_message(uid, f"💰 Начислено ${amt:.2f}.")
             else: bot.send_message(uid, f"⚠️ Списано ${abs(amt):.2f}.")
         except: pass
 
@@ -595,7 +467,7 @@ def register():
             conn.close(); return jsonify({'error': 'Этот номер уже зарегистрирован'}), 400
         c.execute("UPDATE users SET phone=?, reg_name=?, email=?, registered=1 WHERE id=?", (phone, name, email, user_id))
         conn.commit(); conn.close()
-        try: bot.send_message(STATS_CHAT_ID, f"👤 <b>Новая регистрация</b>\nID: {user_id}\nИмя: {name}\nТел: {phone}\nEmail: {email}", parse_mode='HTML')
+        try: bot.send_message(STATS_CHAT_ID, f"👤 <b>Регистрация</b>\nID: {user_id}\nИмя: {name}\nТел: {phone}\nEmail: {email}", parse_mode='HTML')
         except: pass
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
@@ -613,9 +485,9 @@ def submit_kyc():
         c.execute("UPDATE users SET kyc_name=?, kyc_country=?, kyc_status='Pending' WHERE id=?", (kyc_name, kyc_country, user_id))
         conn.commit(); conn.close()
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_kyc_{user_id}"),
-                   types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_kyc_{user_id}"))
-        try: bot.send_message(STATS_CHAT_ID, f"🛡️ <b>Новая заявка KYC</b>\nID: {user_id}\nФИО: {kyc_name}\nСтрана: {kyc_country}", reply_markup=markup, parse_mode='HTML')
+        markup.add(types.InlineKeyboardButton("✅", callback_data=f"app_kyc_{user_id}"),
+                   types.InlineKeyboardButton("❌", callback_data=f"rej_kyc_{user_id}"))
+        try: bot.send_message(STATS_CHAT_ID, f"🛡️ <b>KYC</b>\nID: {user_id}\nФИО: {kyc_name}\nСтрана: {kyc_country}", reply_markup=markup, parse_mode='HTML')
         except: pass
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
@@ -665,7 +537,7 @@ def deposit():
         currency = data.get('currency', 'USD')
         min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0, 'UAH': 500.0}
         if amount < min_limits.get(method, 15.0):
-            return jsonify({'error': f'Минимальная сумма для {method} - {min_limits.get(method, 15.0)}'}), 400
+            return jsonify({'error': f'Минимум для {method}: {min_limits.get(method, 15.0)}'}), 400
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         c.execute("SELECT registered FROM users WHERE id=?", (user_id,))
         reg = c.fetchone()
@@ -678,7 +550,7 @@ def deposit():
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_dep_{tx_id}"),
                    types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_dep_{tx_id}"))
-        bot.send_message(STATS_CHAT_ID, f"💰 <b>Пополнение #{tx_id}</b>\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}", reply_markup=markup, parse_mode='HTML')
+        bot.send_message(STATS_CHAT_ID, f"💰 <b>Депозит #{tx_id}</b>\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}", reply_markup=markup, parse_mode='HTML')
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
@@ -690,24 +562,24 @@ def withdraw():
         currency = data.get('currency', 'USD')
         wallet = (data.get('wallet') or '').strip()
         if len(wallet) < 5:
-            return jsonify({'error': 'Укажите корректные реквизиты'}), 400
+            return jsonify({'error': 'Укажите реквизиты'}), 400
         min_limits = {'USDT': 15.0, 'BTC': 50.0, 'ETH': 20.0, 'UAH': 500.0}
         if amount < min_limits.get(method, 15.0):
-            return jsonify({'error': f'Минимальная сумма для {method} - {min_limits.get(method, 15.0)}'}), 400
+            return jsonify({'error': f'Минимум для {method}: {min_limits.get(method, 15.0)}'}), 400
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         c.execute("SELECT balance, balance_uah, registered FROM users WHERE id=?", (user_id,))
         row = c.fetchone()
-        if not row: return jsonify({'error': 'Пользователь не найден'}), 404
+        if not row: return jsonify({'error': 'Не найден'}), 404
         if not row[2]: return jsonify({'error': 'Сначала зарегистрируйтесь'}), 400
         c.execute("SELECT bonus_status, bonus_amount FROM users WHERE id=?", (user_id,))
         br = c.fetchone()
         if br and br[0] == 'active':
-            conn.close(); return jsonify({'error': 'Сначала отыграйте бонус (вейджер x15)'}), 400
+            conn.close(); return jsonify({'error': 'Сначала отыграйте бонус (x15)'}), 400
         if br and br[0] == 'completed':
             max_wd = (br[1] or 0) * 2
             if amount > max_wd:
-                conn.close(); cap_sym = '₴' if currency == 'UAH' else '$'
-                return jsonify({'error': f'Макс. сумма вывода после бонуса: {cap_sym}{max_wd:.2f}'}), 400
+                conn.close(); cap = '₴' if currency == 'UAH' else '$'
+                return jsonify({'error': f'Макс. вывод после бонуса: {cap}{max_wd:.2f}'}), 400
         bal = row[1] if currency == 'UAH' else row[0]
         if bal >= amount:
             if currency == 'UAH': c.execute("UPDATE users SET balance_uah = balance_uah - ? WHERE id=?", (amount, user_id))
@@ -722,7 +594,7 @@ def withdraw():
             bot.send_message(STATS_CHAT_ID, f"💸 <b>Вывод #{tx_id}</b>\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}\nРеквизиты: <code>{wallet}</code>", reply_markup=markup, parse_mode='HTML')
             return jsonify({'status': 'ok'})
         else:
-            conn.close(); return jsonify({'error': f'Недостаточно средств. Баланс: {bal}'}), 400
+            conn.close(); return jsonify({'error': f'Недостаточно. Баланс: {bal}'}), 400
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/api/support', methods=['POST'])
@@ -734,7 +606,6 @@ def support():
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
-# ============ BONUS API ============
 @app.route('/api/bonus/status', methods=['GET'])
 def bonus_status():
     try:
@@ -759,99 +630,74 @@ def bonus_activate():
         c.execute("SELECT username, reg_name, phone, bonus_status, first_deposit_done FROM users WHERE id=?", (user_id,))
         r = c.fetchone()
         if not r:
-            conn.close(); return jsonify({'error': 'Пользователь не найден'}), 404
+            conn.close(); return jsonify({'error': 'Не найден'}), 404
         username, reg_name, phone, bstatus, fdd = r
         if fdd:
-            conn.close(); return jsonify({'error': 'Бонус доступен только до первого депозита'}), 400
+            conn.close(); return jsonify({'error': 'Только до первого депозита'}), 400
         if bstatus and bstatus not in ('none', ''):
-            conn.close(); return jsonify({'error': 'Бонус уже активирован'}), 400
+            conn.close(); return jsonify({'error': 'Уже активирован'}), 400
         c.execute("UPDATE users SET bonus_status='pending' WHERE id=?", (user_id,))
         conn.commit(); conn.close()
         try:
-            bot.send_message(STATS_CHAT_ID, f"🎁 <b>Заявка на бонус</b>\nID: {user_id}\nИмя: {reg_name or username or '—'}\nТел: {phone or '—'}", parse_mode='HTML')
+            bot.send_message(STATS_CHAT_ID, f"🎁 <b>Бонус</b>\nID: {user_id}\nИмя: {reg_name or username or '—'}\nТел: {phone or '—'}", parse_mode='HTML')
         except: pass
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
-# ============ SPORTS API ============
-@app.route('/api/sports/my_bets', methods=['GET'])
-def sports_my_bets():
-    user_id = request.args.get('id')
-    conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
-    c.execute("SELECT match_id, selection, amount, odds, potential_win, status, currency, date FROM sports_bets WHERE user_id=? ORDER BY date DESC LIMIT 30", (user_id,))
-    rows = c.fetchall(); conn.close()
-    return jsonify([{'match_id': r[0], 'selection': r[1], 'amount': r[2], 'odds': r[3], 'potential_win': r[4], 'status': r[5], 'currency': r[6], 'date': r[7]} for r in rows])
-
-@app.route('/api/sports/bet', methods=['POST'])
-def sports_bet():
+# ============ LIVE ROULETTE ============
+@app.route('/api/live/roulette/spin', methods=['POST'])
+def live_roulette_spin():
     try:
-        data = request.json
+        data = request.get_json(silent=True) or {}
         user_id = int(data['id'])
-        match_id = data['match_id']
-        selection = data['selection']
-        amount = float(data['amount'])
+        bet = float(data['bet'])
+        bet_type = data.get('bet_type')
+        bet_value = data.get('bet_value')
         currency = data.get('currency', 'USD')
-        
-        if match_id not in SPORTS_MATCHES:
-            return jsonify({'error': 'Матч не найден'}), 404
-        match = SPORTS_MATCHES[match_id]
-        if selection not in match['odds']:
-            return jsonify({'error': 'Неверный исход'}), 400
-        
-        match_dt = datetime.datetime.fromisoformat(match['start_iso'])
-        now_dt = datetime.datetime.now(datetime.timezone.utc)
-        if now_dt >= match_dt:
-            return jsonify({'error': 'Матч уже начался, ставки закрыты'}), 400
-        
-        min_bet = 1.0 if currency == 'USD' else 40.0
-        if amount < min_bet:
-            sym = '$' if currency == 'USD' else '₴'
-            return jsonify({'error': f'Мин. ставка: {sym}{min_bet:.0f}'}), 400
-        
-        odds = match['odds'][selection]
         
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
-        if bal < amount:
+        if bal < bet: 
             conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
         
-        if currency == 'UAH':
-            c.execute("UPDATE users SET balance_uah = balance_uah - ? WHERE id=?", (amount, user_id))
-        else:
-            c.execute("UPDATE users SET balance = balance - ? WHERE id=?", (amount, user_id))
+        result = random.randint(0, 36)
+        color = 'green' if result == 0 else ('red' if result in RED_ROULETTE_NUMBERS else 'black')
+        profit = -bet
+        
+        if bet_type == 'number' and result == bet_value: profit = bet * 35
+        elif bet_type == 'red' and color == 'red': profit = bet
+        elif bet_type == 'black' and color == 'black': profit = bet
+        elif bet_type == 'odd' and result != 0 and result % 2 == 1: profit = bet
+        elif bet_type == 'even' and result != 0 and result % 2 == 0: profit = bet
+        elif bet_type == 'low' and 1 <= result <= 18: profit = bet
+        elif bet_type == 'high' and 19 <= result <= 36: profit = bet
+        elif bet_type == 'dozen1' and 1 <= result <= 12: profit = bet * 2
+        elif bet_type == 'dozen2' and 13 <= result <= 24: profit = bet * 2
+        elif bet_type == 'dozen3' and 25 <= result <= 36: profit = bet * 2
+        elif bet_type == 'column1' and result != 0 and result % 3 == 1: profit = bet * 2
+        elif bet_type == 'column2' and result != 0 and result % 3 == 2: profit = bet * 2
+        elif bet_type == 'column3' and result != 0 and result % 3 == 0: profit = bet * 2
+        
+        new_bal = round(bal + profit, 2)
+        set_user_bal(c, user_id, currency, new_bal, profit)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
-        
-        potential_win = round(amount * odds, 2)
-        c.execute("INSERT INTO sports_bets (user_id, match_id, selection, amount, odds, potential_win, status, currency) VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?)",
-                  (user_id, match_id, selection, amount, odds, potential_win, currency))
-        bet_id = c.lastrowid
-        
-        # VIP turnover + bonus wager (no bets_history yet - logged on settle)
-        _track_bonus_wager(c, user_id, amount, currency)
-        usd_bet = amount if currency == 'USD' else round(amount / 40.0, 2)
-        _track_vip(c, user_id, usd_bet)
-        
+        log_bet(c, user_id, 'Live Roulette', bet, max(0, profit+bet), currency)
         c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
         final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
         
-        sym = '₴' if currency == 'UAH' else '$'
-        try:
-            bot.send_message(STATS_CHAT_ID,
-                f"🎯 <b>Новая ставка на спорт #{bet_id}</b>\n"
-                f"ID: {user_id}\n"
-                f"Матч: {match['name']}\n"
-                f"Исход: <b>{selection}</b> @ {odds}\n"
-                f"Ставка: {amount}{sym}\n"
-                f"Потенциал: {potential_win:.2f}{sym}",
-                parse_mode='HTML')
-        except Exception as e: print("sport notify error:", e)
-        
-        return jsonify({'status': 'ok', 'balance': final_bal, 'potential_win': potential_win, 'bet_id': bet_id})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'number': result, 
+            'color': color, 
+            'profit': profit, 
+            'balance': final_bal,
+            'bet_type': bet_type,
+            'bet_value': bet_value,
+            'win': profit > 0
+        })
+    except Exception as e: return jsonify({'error': str(e)}), 500
 
-# ============ ИГРЫ ============
+# ============ ОБЫЧНЫЕ ИГРЫ ============
 @app.route('/api/slots/classic', methods=['POST'])
 def slots_classic():
     try:
@@ -1095,7 +941,7 @@ def keno_play():
         data = request.get_json(silent=True) or {}
         user_id = int(data['id']); bet = float(data['bet']); selected_numbers = data['numbers']; currency = data.get('currency', 'USD')
         if not selected_numbers or len(selected_numbers) > 10:
-            return jsonify({'error': 'Выберите от 1 до 10 чисел'}), 400
+            return jsonify({'error': 'От 1 до 10 чисел'}), 400
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
         if bal < bet: conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
