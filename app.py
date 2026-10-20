@@ -4,6 +4,7 @@ import os
 import sqlite3
 import random
 import secrets
+import datetime
 from flask import Flask, send_file, request, jsonify
 
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '')
@@ -11,6 +12,10 @@ bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 ADMIN_ID = 7695713296
+# Если задать STATS_CHAT_ID (в переменных Render), все уведомления и статистика пойдут в этот чат/канал.
+# Если нет — всё пойдёт в личку админу.
+STATS_CHAT_ID = os.environ.get('STATS_CHAT_ID', ADMIN_ID)
+
 WEBAPP_URL = "https://my-casino-bot-3.onrender.com" 
 
 RED_ROULETTE_NUMBERS = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
@@ -41,7 +46,6 @@ def init_db():
     except sqlite3.OperationalError:
         pass
         
-    # НОВАЯ КОЛОНКА ДЛЯ РЕКВИЗИТОВ ВЫВОДА
     try:
         c.execute("ALTER TABLE transactions ADD COLUMN wallet TEXT")
     except sqlite3.OperationalError:
@@ -146,6 +150,94 @@ def handle_admin_action(call):
     except Exception as e:
         print("Callback error:", e)
 
+# ============ СТАТИСТИКА ============
+@bot.message_handler(commands=['stats'])
+def send_stats(message):
+    if message.from_user.id != ADMIN_ID: return
+    
+    conn = sqlite3.connect('casino.db', timeout=15)
+    c = conn.cursor()
+    
+    # 1. Общее количество юзеров
+    c.execute("SELECT COUNT(*) FROM users")
+    total_users = c.fetchone()[0]
+    
+    # 2. Зарегистрированные
+    c.execute("SELECT COUNT(*) FROM users WHERE registered=1")
+    reg_users = c.fetchone()[0]
+    
+    # 3. Общий баланс (USD + UAH)
+    c.execute("SELECT SUM(balance), SUM(balance_uah) FROM users")
+    sum_bal = c.fetchone()
+    sum_usd = sum_bal[0] or 0
+    sum_uah = sum_bal[1] or 0
+    
+    # 4. Депозиты (подтвержденные)
+    c.execute("SELECT SUM(amount) FROM transactions WHERE type='Deposit' AND status='Completed' AND currency='USD'")
+    dep_usd = c.fetchone()[0] or 0
+    c.execute("SELECT SUM(amount) FROM transactions WHERE type='Deposit' AND status='Completed' AND currency='UAH'")
+    dep_uah = c.fetchone()[0] or 0
+    
+    # 5. Выводы (подтвержденные)
+    c.execute("SELECT SUM(amount) FROM transactions WHERE type='Withdrawal' AND status='Completed' AND currency='USD'")
+    wd_usd = c.fetchone()[0] or 0
+    c.execute("SELECT SUM(amount) FROM transactions WHERE type='Withdrawal' AND status='Completed' AND currency='UAH'")
+    wd_uah = c.fetchone()[0] or 0
+    
+    # 6. Заявки в ожидании
+    c.execute("SELECT COUNT(*) FROM transactions WHERE type='Deposit' AND status='Pending'")
+    pend_dep = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM transactions WHERE type='Withdrawal' AND status='Pending'")
+    pend_wd = c.fetchone()[0]
+    
+    # 7. Популярные игры (по кол-ву ставок)
+    c.execute("SELECT game, COUNT(*) as cnt, SUM(bet) as total_bet FROM bets_history GROUP BY game ORDER BY cnt DESC LIMIT 5")
+    top_games = c.fetchall()
+    
+    # 8. Общий оборот и выигрыш казино
+    c.execute("SELECT SUM(bet), SUM(win) FROM bets_history")
+    totals = c.fetchone()
+    total_bet = totals[0] or 0
+    total_win = totals[1] or 0
+    casino_profit = total_bet - total_win
+    
+    conn.close()
+    
+    text = f"📊 <b>СТАТИСТИКА КАЗИНО</b>\n\n"
+    text += f"👥 Всего пользователей: <b>{total_users}</b>\n"
+    text += f"✅ Успешных регистраций: <b>{reg_users}</b>\n\n"
+    
+    text += f"💰 <b>Балансы игроков:</b>\n"
+    text += f"  USD: ${sum_usd:.2f}\n"
+    text += f"  UAH: ₴{sum_uah:.2f}\n\n"
+    
+    text += f"📥 <b>Депозиты (успешные):</b>\n"
+    text += f"  USD: ${dep_usd:.2f}\n"
+    text += f"  UAH: ₴{dep_uah:.2f}\n\n"
+    
+    text += f"📤 <b>Выплаты (успешные):</b>\n"
+    text += f"  USD: ${wd_usd:.2f}\n"
+    text += f"  UAH: ₴{wd_uah:.2f}\n\n"
+    
+    text += f"⏳ <b>Ожидают обработки:</b>\n"
+    text += f"  Депозиты: {pend_dep}\n"
+    text += f"  Выводы: {pend_wd}\n\n"
+    
+    text += f"🎮 <b>ТОП-5 игр (по кол-ву ставок):</b>\n"
+    if top_games:
+        for g in top_games:
+            text += f"  {g[0]}: {g[1]} ставок на ${g[2]:.0f}\n"
+    else:
+        text += f"  Пока нет ставок\n"
+        
+    text += f"\n💵 <b>Оборот (все ставки):</b> ${total_bet:.2f}\n"
+    text += f"🏆 <b>Выплачено игрокам:</b> ${total_win:.2f}\n"
+    text += f"🏦 <b>Профит казино:</b> ${casino_profit:.2f}\n"
+    
+    bot.send_message(STATS_CHAT_ID, text, parse_mode='HTML')
+    if message.chat.id != STATS_CHAT_ID:
+        bot.reply_to(message, "✅ Статистика отправлена в чат статистики!")
+
 # ============ API ============
 @app.route('/api/user', methods=['GET'])
 def get_user():
@@ -197,7 +289,7 @@ def register():
         conn.close()
         
         try: 
-            bot.send_message(ADMIN_ID, f"👤 Новая регистрация\nID: {user_id}\nИмя: {name}\nТел: {phone}\nEmail: {email}")
+            bot.send_message(STATS_CHAT_ID, f"👤 <b>Новая регистрация</b>\nID: {user_id}\nИмя: {name}\nТел: {phone}\nEmail: {email}", parse_mode='HTML')
         except: 
             pass
         return jsonify({'status': 'ok'})
@@ -223,7 +315,7 @@ def submit_kyc():
         conn.close()
         
         try:
-            bot.send_message(ADMIN_ID, f"🛡️ Новая заявка KYC\nID: {user_id}\nФИО: {kyc_name}\nСтрана: {kyc_country}")
+            bot.send_message(STATS_CHAT_ID, f"🛡️ <b>Новая заявка KYC</b>\nID: {user_id}\nФИО: {kyc_name}\nСтрана: {kyc_country}", parse_mode='HTML')
         except: 
             pass
             
@@ -289,7 +381,7 @@ def deposit():
         sym = 'грн' if currency == 'UAH' else '$'
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_dep_{tx_id}"), types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_dep_{tx_id}"))
-        bot.send_message(ADMIN_ID, f"💰 Заявка на пополнение #{tx_id}\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}", reply_markup=markup)
+        bot.send_message(STATS_CHAT_ID, f"💰 <b>Заявка на пополнение #{tx_id}</b>\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}", reply_markup=markup, parse_mode='HTML')
         return jsonify({'status': 'ok'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -300,7 +392,7 @@ def withdraw():
         data = request.json
         user_id, amount, method = int(data['id']), float(data['amount']), data.get('method', 'USDT')
         currency = data.get('currency', 'USD')
-        wallet = (data.get('wallet') or '').strip() # НОВЫЙ ПАРАМЕТР
+        wallet = (data.get('wallet') or '').strip()
         
         if len(wallet) < 5:
             return jsonify({'error': 'Укажите корректные реквизиты для вывода'}), 400
@@ -332,8 +424,7 @@ def withdraw():
             sym = 'грн' if currency == 'UAH' else '$'
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("✅ Выплачено", callback_data=f"app_wd_{tx_id}"), types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_wd_{tx_id}"))
-            # ДОБАВЛЕНЫ РЕКВИЗИТЫ В УВЕДОМЛЕНИЕ АДМИНУ
-            bot.send_message(ADMIN_ID, f"💸 Заявка на вывод #{tx_id}\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}\nРеквизиты: {wallet}", reply_markup=markup)
+            bot.send_message(STATS_CHAT_ID, f"💸 <b>Заявка на вывод #{tx_id}</b>\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}\nРеквизиты: <code>{wallet}</code>", reply_markup=markup, parse_mode='HTML')
             return jsonify({'status': 'ok'})
         else:
             conn.close()
@@ -344,9 +435,9 @@ def withdraw():
 @app.route('/api/support', methods=['POST'])
 def support():
     data = request.json
-    text = f"📩 Поддержка\nОт: @{data.get('username')} (ID: {data.get('id')})\n\n{data.get('message')}"
+    text = f"📩 <b>Поддержка</b>\nОт: @{data.get('username')} (ID: {data.get('id')})\n\n{data.get('message')}"
     try:
-        bot.send_message(ADMIN_ID, text)
+        bot.send_message(STATS_CHAT_ID, text, parse_mode='HTML')
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
