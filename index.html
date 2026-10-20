@@ -46,9 +46,10 @@
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-primary { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
         .btn-secondary { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid var(--gold); }
-        input, textarea { width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; transition: 0.3s; }
-        input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+        input, textarea, select { width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); border-radius: 12px; margin-bottom: 15px; font-family: inherit; font-size: 16px; outline: none; transition: 0.3s; }
+        input:focus, textarea:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
         textarea { height: 100px; resize: none; }
+        select { appearance: none; -webkit-appearance: none; cursor: pointer; }
         .tx-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
         .tx-item:last-child { border-bottom: none; }
         .tx-status { font-size: 11px; color: var(--muted); }
@@ -188,6 +189,12 @@
         .sports-placeholder .icon { font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(255,215,0,0.4)); animation: pulse 2s infinite; }
         .sports-placeholder h2 { color: var(--gold); font-size: 24px; font-weight: 800; margin-bottom: 10px; }
         .sports-placeholder p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+        /* KYC BADGES */
+        .kyc-badge { display: inline-block; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 800; margin-left: 10px; }
+        .kyc-badge.not-passed { background: rgba(229,57,53,0.2); color: var(--red); border: 1px solid var(--red); }
+        .kyc-badge.pending { background: rgba(255,165,0,0.2); color: orange; border: 1px solid orange; }
+        .kyc-badge.approved { background: rgba(76,175,80,0.2); color: var(--green); border: 1px solid var(--green); }
     </style>
 </head>
 <body>
@@ -223,7 +230,6 @@
         <div class="games-grid" id="gamesGrid"></div>
     </div>
 
-    <!-- НОВЫЙ РАЗДЕЛ: СПОРТ -->
     <div id="view-sports" class="hidden">
         <div class="tabs-container">
             <button class="tab-btn active" id="sports-tab-line" onclick="switchSportsTab('line')">📋 <span data-i18n="line">Линия</span></button>
@@ -281,9 +287,22 @@
                 <div style="font-size: 13px; color: var(--gold); font-weight: 600; margin-top: 4px;">VIP: <span id="profVip">Bronze</span></div>
                 <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">ID: <span id="profId">0</span></div>
                 <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">📱 <span id="profPhone">—</span></div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">✉️ <span id="profEmail">—</span></div>
             </div>
         </div>
+        
         <button class="btn btn-secondary" onclick="openRegisterEdit()" id="editRegBtn" style="display:none; margin-bottom:15px;" data-i18n="editRegBtn">✏️ Изменить данные</button>
+        
+        <!-- БЛОК KYC -->
+        <div class="card" style="border-color: var(--gold);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="font-size: 16px; font-weight: 800; color: var(--gold);">🛡️ KYC Верификация</div>
+                <span class="kyc-badge not-passed" id="kycStatusBadge" data-i18n="notPassed">Не пройдена</span>
+            </div>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px; line-height: 1.4;" data-i18n="kycDesc">Пройдите верификацию для вывода крупных сумм.</p>
+            <button class="btn btn-secondary" id="kycBtn" onclick="openKyc()" data-i18n="goKyc">Пройти KYC</button>
+        </div>
+
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <div class="card" style="flex: 1; text-align: center; padding: 15px;">
                 <div style="font-size: 11px; color: var(--muted); text-transform: uppercase;" data-i18n="roundsLbl">Раундов</div>
@@ -325,8 +344,27 @@
             <div style="width:100%; max-width:340px;">
                 <input type="text" id="regName" data-i18n-ph="regNamePh" placeholder="Ваше имя" maxlength="50" autocomplete="name">
                 <input type="tel" id="regPhone" data-i18n-ph="regPhonePh" placeholder="+7 999 123-45-67" maxlength="20" autocomplete="tel">
+                <input type="email" id="regEmail" data-i18n-ph="regEmailPh" placeholder="Email" maxlength="50" autocomplete="email">
                 <button class="btn btn-primary" id="regSubmitBtn" onclick="doRegister()" data-i18n="regSubmit">Зарегистрироваться</button>
                 <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:8px;" data-i18n="regNote">Данные используются для выплат</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА KYC -->
+    <div class="modal-overlay" id="kycModal">
+        <div class="modal-header">
+            <h2 data-i18n="kycTitle">🛡️ KYC Верификация</h2>
+            <button class="close-btn" onclick="document.getElementById('kycModal').classList.remove('open')">×</button>
+        </div>
+        <div class="modal-content">
+            <div style="text-align:center; margin-bottom:20px;">
+                <p style="color:var(--muted); font-size:13px; max-width:280px; line-height:1.5;" data-i18n="kycDesc">Пройдите верификацию для вывода крупных сумм.</p>
+            </div>
+            <div style="width:100%; max-width:340px;">
+                <input type="text" id="kycNameEn" data-i18n-ph="kycNamePh" placeholder="Full Name in English" maxlength="50">
+                <input type="text" id="kycCountry" data-i18n-ph="kycCountryPh" placeholder="Country" maxlength="30">
+                <button class="btn btn-primary" id="kycSubmitBtn" onclick="doKyc()" data-i18n="kycSubmit">Отправить на проверку</button>
             </div>
         </div>
     </div>
@@ -344,7 +382,7 @@
     </audio>
 
     <script>
-    // ============ i18n (ДОБАВЛЕНЫ СЛОВА ДЛЯ СПОРТА) ============
+    // ============ i18n (ДОБАВЛЕНЫ СЛОВА ДЛЯ KYC И EMAIL) ============
     const i18n = {
         ru: {
             games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль', sports:'Спорт',
@@ -419,11 +457,13 @@
             regSubtitle:'Зарегистрируйтесь, чтобы получить доступ к играм и кассе',
             regNamePh:'Ваше имя',
             regPhonePh:'+7 999 123-45-67',
+            regEmailPh:'Email',
             regSubmit:'Зарегистрироваться',
             regNote:'Данные используются для выплат',
             regSuccess:'✅ Регистрация успешна!',
             regNameErr:'Имя должно быть не короче 2 символов',
             regPhoneErr:'Укажите корректный номер телефона',
+            emailErr:'Укажите корректный Email',
             regRequired:'Сначала зарегистрируйтесь',
             editRegBtn:'✏️ Изменить данные',
             plinkoDrop:'🎯 Бросить шарик', plinkoDropping:'🎯 Летит...',
@@ -432,7 +472,11 @@
             towerWin:'🎉 Забрано {2}{0} (x{1})!', towerLose:'💥 Ловушка! Ставка потеряна',
             towerSelectLane:'Выберите клетку',
             diceRoll:'🎲 Бросить', diceRolling:'🎲 Крутим...', diceOver:'БОЛЬШЕ', diceUnder:'МЕНЬШЕ',
-            diceMultiplier:'Множитель', diceWinChance:'Шанс выигрыша'
+            diceMultiplier:'Множитель', diceWinChance:'Шанс выигрыша',
+            kycTitle:'🛡️ KYC Верификация', kycDesc:'Пройдите верификацию для вывода крупных сумм.', goKyc:'Пройти KYC',
+            kycNamePh:'ФИО на английском', kycCountryPh:'Страна проживания', kycSubmit:'Отправить',
+            notPassed:'Не пройдена', pendingKyc:'На проверке', approvedKyc:'Пройдена',
+            kycSuccess:'✅ Отправлено на проверку!', kycErr:'Заполните данные на английском'
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
@@ -507,11 +551,13 @@
             regSubtitle:'Register to access games and cashier',
             regNamePh:'Your name',
             regPhonePh:'+1 555 123-45-67',
+            regEmailPh:'Email',
             regSubmit:'Register',
             regNote:'Data is used for payouts',
             regSuccess:'✅ Registration successful!',
             regNameErr:'Name must be at least 2 characters',
             regPhoneErr:'Please enter a valid phone number',
+            emailErr:'Please enter a valid email',
             regRequired:'Please register first',
             editRegBtn:'✏️ Edit data',
             plinkoDrop:'🎯 Drop ball', plinkoDropping:'🎯 Dropping...',
@@ -520,7 +566,11 @@
             towerWin:'🎉 Cashed {2}{0} (x{1})!', towerLose:'💥 Trap! Bet lost',
             towerSelectLane:'Pick a cell',
             diceRoll:'🎲 Roll', diceRolling:'🎲 Rolling...', diceOver:'OVER', diceUnder:'UNDER',
-            diceMultiplier:'Multiplier', diceWinChance:'Win chance'
+            diceMultiplier:'Multiplier', diceWinChance:'Win chance',
+            kycTitle:'🛡️ KYC Verification', kycDesc:'Complete verification to withdraw large amounts.', goKyc:'Go to KYC',
+            kycNamePh:'Full Name in English', kycCountryPh:'Country of Residence', kycSubmit:'Submit',
+            notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved',
+            kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English'
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
@@ -595,11 +645,13 @@
             regSubtitle:'Zarejestruj się, aby uzyskać dostęp do gier i kasy',
             regNamePh:'Twoje imię',
             regPhonePh:'+48 500 123 456',
+            regEmailPh:'Email',
             regSubmit:'Zarejestruj się',
             regNote:'Dane wykorzystywane do wypłat',
             regSuccess:'✅ Rejestracja zakończona sukcesem!',
             regNameErr:'Imię musi mieć co najmniej 2 znaki',
             regPhoneErr:'Podaj prawidłowy numer telefonu',
+            emailErr:'Podaj prawidłowy email',
             regRequired:'Najpierw się zarejestruj',
             editRegBtn:'✏️ Edytuj dane',
             plinkoDrop:'🎯 Rzuć kulkę', plinkoDropping:'🎯 Spada...',
@@ -608,7 +660,11 @@
             towerWin:'🎉 Odebrano {2}{0} (x{1})!', towerLose:'💥 Pułapka! Zakład przepadł',
             towerSelectLane:'Wybierz komórkę',
             diceRoll:'🎲 Rzuć', diceRolling:'🎲 Toczy się...', diceOver:'WIĘCEJ', diceUnder:'MNIEJ',
-            diceMultiplier:'Mnożnik', diceWinChance:'Szansa'
+            diceMultiplier:'Mnożnik', diceWinChance:'Szansa',
+            kycTitle:'🛡️ Weryfikacja KYC', kycDesc:'Przejdź weryfikację, aby wypłacać duże kwoty.', goKyc:'Przejdź KYC',
+            kycNamePh:'Imię i nazwisko po angielsku', kycCountryPh:'Kraj zamieszkania', kycSubmit:'Wyślij',
+            notPassed:'Nieprzepuszczony', pendingKyc:'W trakcie', approvedKyc:'Zatwierdzony',
+            kycSuccess:'✅ Wysłano do sprawdzenia!', kycErr:'Wypełnij po angielsku'
         }
     };
 
@@ -663,7 +719,7 @@
     let tg = window.Telegram.WebApp;
     if (tg) tg.expand();
     let user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок', username: 'guest' };
-    let state = { balance: 0, balance_uah: 0, total_rounds: 0, best_result: 0, registered: false, phone: null, regName: null, loaded: false };
+    let state = { balance: 0, balance_uah: 0, total_rounds: 0, best_result: 0, registered: false, phone: null, regName: null, email: null, kyc_name: null, kyc_country: null, kyc_status: 'Not passed', loaded: false };
     let isPlaying = false;
     let currentBet = 100;
     let currentTab = 'pop';
@@ -815,6 +871,10 @@
             state.registered = !!data.registered;
             state.phone = data.phone;
             state.regName = data.reg_name;
+            state.email = data.email;
+            state.kyc_name = data.kyc_name;
+            state.kyc_country = data.kyc_country;
+            state.kyc_status = data.kyc_status || 'Not passed';
             state.loaded = true;
             localStorage.setItem('reg_state', state.registered ? 'yes' : 'no');
             updateUI();
@@ -835,6 +895,9 @@
             if (!document.getElementById('regName').value && state.regName) {
                 document.getElementById('regName').value = state.regName;
             }
+            if (!document.getElementById('regEmail').value && state.email) {
+                document.getElementById('regEmail').value = state.email;
+            }
         } else if (!window._regEditMode) {
             modal.classList.remove('open');
             if (closeBtn) closeBtn.style.display = 'none';
@@ -846,6 +909,7 @@
         window._regEditMode = true;
         document.getElementById('regName').value = state.regName || '';
         document.getElementById('regPhone').value = state.phone || '';
+        document.getElementById('regEmail').value = state.email || '';
         document.getElementById('regCloseBtn').style.display = 'block';
         document.getElementById('registerModal').classList.add('open');
     }
@@ -860,24 +924,61 @@
     async function doRegister() {
         const nameEl = document.getElementById('regName');
         const phoneEl = document.getElementById('regPhone');
+        const emailEl = document.getElementById('regEmail');
         const btn = document.getElementById('regSubmitBtn');
-        if (!nameEl || !phoneEl) return;
+        if (!nameEl || !phoneEl || !emailEl) return;
         const name = nameEl.value.trim();
         const phone = phoneEl.value.trim();
+        const email = emailEl.value.trim();
+        
         if (name.length < 2) return tg.showAlert(t('regNameErr'));
         if (phone.replace(/\D/g, '').length < 7) return tg.showAlert(t('regPhoneErr'));
+        if (!/^\S+@\S+\.\S+$/.test(email)) return tg.showAlert(t('emailErr'));
+        
         if (btn) { btn.disabled = true; btn.textContent = t('loading'); }
-        const data = await postApi('/api/register', { name, phone });
+        const data = await postApi('/api/register', { name, phone, email });
         if (btn) { btn.disabled = false; btn.textContent = t('regSubmit'); }
         if (data.error) return tg.showAlert(translateErr(data.error));
+        
         state.registered = true;
         state.regName = name;
         state.phone = phone;
+        state.email = email;
         window._regEditMode = false;
         localStorage.setItem('reg_state', 'yes');
         checkRegistration();
         updateUI();
         tg.showAlert(t('regSuccess'));
+    }
+
+    function openKyc() {
+        if (!state.registered) { tg.showAlert(t('regRequired')); return; }
+        document.getElementById('kycModal').classList.add('open');
+        if (state.kyc_name) document.getElementById('kycNameEn').value = state.kyc_name;
+        if (state.kyc_country) document.getElementById('kycCountry').value = state.kyc_country;
+    }
+
+    async function doKyc() {
+        const kycName = document.getElementById('kycNameEn').value.trim();
+        const kycCountry = document.getElementById('kycCountry').value.trim();
+        if (kycName.length < 3 || kycCountry.length < 2) return tg.showAlert(t('kycErr'));
+        if (!/^[A-Za-z\s]+$/.test(kycName)) return tg.showAlert(t('kycErr'));
+
+        const btn = document.getElementById('kycSubmitBtn');
+        btn.disabled = true; btn.textContent = t('loading');
+        
+        const data = await postApi('/api/kyc', { kyc_name: kycName, kyc_country: kycCountry });
+        
+        btn.disabled = false; btn.textContent = t('kycSubmit');
+        
+        if (data.error) return tg.showAlert(translateErr(data.error));
+        
+        state.kyc_status = 'Pending';
+        state.kyc_name = kycName;
+        state.kyc_country = kycCountry;
+        updateUI();
+        document.getElementById('kycModal').classList.remove('open');
+        tg.showAlert(t('kycSuccess'));
     }
 
     function updateUI() {
@@ -890,9 +991,33 @@
         document.getElementById('profId').innerText = user.id;
         document.getElementById('avatarLetter').innerText = (user.first_name || 'U').charAt(0).toUpperCase();
         document.getElementById('profRounds').innerText = state.total_rounds;
-        document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2); // Best always USD
+        document.getElementById('profBest').innerText = '$' + state.best_result.toFixed(2);
+        
         const profPhone = document.getElementById('profPhone');
         if (profPhone) profPhone.innerText = state.phone || '—';
+        const profEmail = document.getElementById('profEmail');
+        if (profEmail) profEmail.innerText = state.email || '—';
+
+        // KYC UI Update
+        const kycBadge = document.getElementById('kycStatusBadge');
+        const kycBtn = document.getElementById('kycBtn');
+        if (kycBadge && kycBtn) {
+            kycBadge.className = 'kyc-badge';
+            if (state.kyc_status === 'Not passed' || state.kyc_status === 'None' || !state.kyc_status) {
+                kycBadge.classList.add('not-passed');
+                kycBadge.innerText = t('notPassed');
+                kycBtn.style.display = 'block';
+            } else if (state.kyc_status === 'Pending') {
+                kycBadge.classList.add('pending');
+                kycBadge.innerText = t('pendingKyc');
+                kycBtn.style.display = 'none';
+            } else if (state.kyc_status === 'Approved') {
+                kycBadge.classList.add('approved');
+                kycBadge.innerText = t('approvedKyc');
+                kycBtn.style.display = 'none';
+            }
+        }
+
         const editBtn = document.getElementById('editRegBtn');
         if (editBtn) editBtn.style.display = state.registered ? 'block' : 'none';
     }
@@ -909,7 +1034,6 @@
         if (view === 'cash') loadHistory();
     }
 
-    // ФУНКЦИЯ ДЛЯ ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК СПОРТА
     function switchSportsTab(tab) {
         document.getElementById('sports-tab-line').classList.remove('active');
         document.getElementById('sports-tab-live').classList.remove('active');
@@ -971,6 +1095,7 @@
         if (!msg) return t('netErr');
         if (msg.includes('Недостаточно средств')) return t('insufficient');
         if (msg.includes('Ставка должна')) return t('betPositive');
+        if (msg.includes('Ошибка KYC')) return t('kycErr');
         return msg;
     }
 
