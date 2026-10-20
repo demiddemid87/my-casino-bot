@@ -205,6 +205,11 @@
         .kyc-badge.not-passed { background: rgba(229,57,53,0.2); color: var(--red); border: 1px solid var(--red); }
         .kyc-badge.pending { background: rgba(255,165,0,0.2); color: orange; border: 1px solid orange; }
         .kyc-badge.approved { background: rgba(76,175,80,0.2); color: var(--green); border: 1px solid var(--green); }
+
+        /* CRYPTO WALLET BLOCK */
+        .crypto-wallet-block { background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 13px; }
+        .crypto-address { font-family: monospace; color: var(--gold); word-break: break-all; cursor: pointer; padding: 4px; background: rgba(0,0,0,0.3); border-radius: 4px; margin-top: 3px; display: inline-block; }
+        .crypto-address:active { background: rgba(255,215,0,0.2); }
     </style>
 </head>
 <body>
@@ -257,8 +262,32 @@
             <div style="font-size: 14px; color: var(--muted); text-transform: uppercase;" data-i18n="balanceLbl">Баланс</div>
             <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.3);" id="cashBalance">$0.00</div>
         </div>
+        
+        <!-- ПОПОЛНЕНИЕ -->
         <div class="card">
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="topupLbl">Пополнение (Заявка)</div>
+            
+            <div class="crypto-wallet-block">
+                <div style="font-weight: 800; color: var(--gold); margin-bottom: 10px;" data-i18n="depRulesTitle">Реквизиты для перевода:</div>
+                
+                <div style="margin-bottom: 8px;">
+                    <b>USDT (TRC20):</b><br>
+                    <span class="crypto-address" onclick="copyAddress('TAiuh8nwph7eA8Auzt4BjWq27ZS2SwHrJK')">TAiuh8nwph7eA8Auzt4BjWq27ZS2SwHrJK 📋</span>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <b>Bitcoin:</b><br>
+                    <span class="crypto-address" onclick="copyAddress('bc1qq5zr486mrrflhqhas4cszmr0xlmha8wwjc6alv')">bc1qq5zr486mrrflhqhas4cszmr0xlmha8wwjc6alv 📋</span>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <b>Ethereum:</b><br>
+                    <span class="crypto-address" onclick="copyAddress('0xea325165e4f5e9cfa9dd5b3f2c3201544d89380f')">0xea325165e4f5e9cfa9dd5b3f2c3201544d89380f 📋</span>
+                </div>
+                
+                <div style="color: var(--muted); font-size: 11.5px; margin-top: 12px; line-height: 1.4; border-top: 1px solid rgba(255,215,0,0.2); padding-top: 8px;">
+                    ⚠️ <span data-i18n="depRulesText">После перевода средств нажмите «Создать заявку». Деньги будут зачислены на баланс после подтверждения транзакции администратором.</span>
+                </div>
+            </div>
+
             <div class="wallet-selector" id="depMethods">
                 <div class="wallet-btn active" onclick="selectMethod('dep', 'USDT', this)">USDT</div>
                 <div class="wallet-btn" onclick="selectMethod('dep', 'BTC', this)">Bitcoin</div>
@@ -271,6 +300,8 @@
             </div>
             <button class="btn btn-primary" onclick="doDeposit()" data-i18n="createReq">Создать заявку</button>
         </div>
+
+        <!-- ВЫВОД -->
         <div class="card">
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="withdrawLbl">Вывод средств</div>
             <div class="wallet-selector" id="wdMethods">
@@ -279,12 +310,17 @@
                 <div class="wallet-btn" onclick="selectMethod('wd', 'ETH', this)">Ethereum</div>
                 <div class="wallet-btn" onclick="selectMethod('wd', 'UAH', this)">💳 Карта (Гривна)</div>
             </div>
+            
+            <!-- НОВОЕ ПОЛЕ ДЛЯ РЕКВИЗИТОВ -->
+            <input type="text" id="wdWallet" placeholder="Введите адрес кошелька/карты" style="margin-bottom: 15px; background: rgba(0,0,0,0.8); border-color: #444;" data-i18n-ph="wdWalletPh">
+
             <div class="input-group">
                 <input type="number" id="wdAmount" value="20" placeholder="">
                 <div class="min-label" id="wdMinLabel">Мин. сумма: $15</div>
             </div>
             <button class="btn btn-secondary" onclick="doWithdraw()" data-i18n="createReq">Создать заявку</button>
         </div>
+        
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="historyLbl">История</div>
         <div class="card" id="txList"></div>
     </div>
@@ -303,7 +339,7 @@
         
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <button class="btn btn-secondary" onclick="openRegisterEdit()" id="editRegBtn" style="display:none; margin-bottom:0;" data-i18n="editRegBtn">✏️ Изменить данные</button>
-            <button class="btn btn-secondary" onclick="openBetHistory()" style="margin-bottom:0;">📊 История ставок</button>
+            <button class="btn btn-secondary" onclick="openBetHistory()" style="margin-bottom:0;" data-i18n="betsBtn">📊 История ставок</button>
         </div>
         
         <!-- БЛОК KYC -->
@@ -385,7 +421,7 @@
     <!-- МОДАЛКА ИСТОРИИ СТАВОК -->
     <div class="modal-overlay" id="betsModal">
         <div class="modal-header">
-            <h2>📊 История ставок</h2>
+            <h2 data-i18n="betsBtn">📊 История ставок</h2>
             <button class="close-btn" onclick="document.getElementById('betsModal').classList.remove('open')">×</button>
         </div>
         <div class="modal-content" style="align-items: stretch; padding: 10px 20px;">
@@ -503,7 +539,9 @@
             kycNamePh:'ФИО на английском', kycCountryPh:'Страна проживания', kycSubmit:'Отправить',
             notPassed:'Не пройдена', pendingKyc:'На проверке', approvedKyc:'Пройдена',
             kycSuccess:'✅ Отправлено на проверку!', kycErr:'Заполните данные на английском',
-            betsHistoryTitle:'📊 История ставок', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Ставок пока нет'
+            betsBtn:'📊 История ставок', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Ставок пока нет',
+            depRulesTitle:'Реквизиты для перевода:', depRulesText:'После перевода средств нажмите «Создать заявку». Деньги будут зачислены на баланс после подтверждения транзакции администратором.',
+            wdWalletPh:'Введите адрес кошелька/карты', copied:'✅ Адрес скопирован!', copyErr:'❌ Ошибка копирования'
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
@@ -600,7 +638,9 @@
             kycNamePh:'Full Name in English', kycCountryPh:'Country of Residence', kycSubmit:'Submit',
             notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved',
             kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English',
-            betsHistoryTitle:'📊 Bet History', betLbl:'Bet', winLbl:'Win', emptyBets:'No bets yet'
+            betsBtn:'📊 Bet History', betLbl:'Bet', winLbl:'Win', emptyBets:'No bets yet',
+            depRulesTitle:'Payment Details:', depRulesText:'After the transfer, click "Create Request". Funds will be credited after admin confirmation.',
+            wdWalletPh:'Enter wallet/card address', copied:'✅ Address copied!', copyErr:'❌ Copy error'
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
@@ -697,7 +737,9 @@
             kycNamePh:'Imię i nazwisko po angielsku', kycCountryPh:'Kraj zamieszkania', kycSubmit:'Wyślij',
             notPassed:'Nieprzepuszczony', pendingKyc:'W trakcie', approvedKyc:'Zatwierdzony',
             kycSuccess:'✅ Wysłano do sprawdzenia!', kycErr:'Wypełnij po angielsku',
-            betsHistoryTitle:'📊 Historia zakładów', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Brak zakładów'
+            betsBtn:'📊 Historia zakładów', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Brak zakładów',
+            depRulesTitle:'Dane do płatności:', depRulesText:'Po przelewie kliknij „Utwórz wniosek”. Środki zostaną zaksięgowane po potwierdzeniu przez administratora.',
+            wdWalletPh:'Wpisz adres portfela/karty', copied:'✅ Adres skopiowany!', copyErr:'❌ Błąd kopiowania'
         }
     };
 
@@ -733,6 +775,14 @@
         localStorage.setItem('lang', code);
         document.documentElement.lang = code;
         applyLang();
+    }
+
+    function copyAddress(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            tg.showAlert(t('copied'));
+        }).catch(() => {
+            tg.showAlert(t('copyErr'));
+        });
     }
 
     // ============ ВАЛЮТЫ ============
@@ -1190,12 +1240,16 @@
     async function doWithdraw() {
         if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
         const amt = parseFloat(document.getElementById('wdAmount').value);
+        const wallet = document.getElementById('wdWallet').value.trim(); // ПОЛУЧАЕМ РЕКВИЗИТЫ
         const sym = wdMethod === 'UAH' ? '₴' : '$';
         const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
+        
         if (isNaN(amt) || amt <= 0) return tg.showAlert(t('enterMsg'));
+        if (!wallet) return tg.showAlert('Введите реквизиты для вывода!'); // ПРОВЕРКА РЕКВИЗИТОВ
         if (amt < minLimits[wdMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[wdMethod] + sym);
         if (bal < amt) return tg.showAlert(t('insufficientBal', bal.toFixed(2), sym));
-        const data = await postApi('/api/withdraw', { amount: amt, method: wdMethod });
+        
+        const data = await postApi('/api/withdraw', { amount: amt, method: wdMethod, wallet: wallet });
         if (data.error) return tg.showAlert(translateErr(data.error));
         if (currentCurrency === 'UAH') state.balance_uah -= amt; else state.balance -= amt;
         updateUI();
@@ -1434,8 +1488,8 @@
                 ${rulesHTML('rulesRoulette')}
                 ${chipsHTML}
                 <div class="roulette-reel-container" id="rouletteReelContainer">
-                    <div class="roulette-pointer">▼</div>
-                    <div class="roulette-reel" id="rouletteReel"></div>
+rou                    <div class="roulette-pointer">▼</div>
+                    <div class="roulette-reel" id="letteReel"></div>
                 </div>
                 <div class="roulette-result-display" id="rouletteResult" style="background: transparent; color: var(--muted);">—</div>
                 <div class="roulette-bet-info" id="rouletteBetInfo">—</div>
