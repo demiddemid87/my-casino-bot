@@ -353,7 +353,6 @@
                 <div class="wallet-btn" onclick="selectMethod('wd', 'UAH', this)">💳 Карта (Гривна)</div>
             </div>
             
-            <!-- НОВОЕ ПОЛЕ ДЛЯ РЕКВИЗИТОВ -->
             <input type="text" id="wdWallet" placeholder="Введите адрес кошелька/карты" style="margin-bottom: 15px; background: rgba(0,0,0,0.8); border-color: #444;" data-i18n-ph="wdWalletPh">
 
             <div class="input-group">
@@ -365,6 +364,41 @@
         
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="historyLbl">История</div>
         <div class="card" id="txList"></div>
+    </div>
+
+    <!-- ========== БОНУСЫ (НОВЫЙ РАЗДЕЛ) ========== -->
+    <div id="view-bonus" class="hidden">
+        <div class="card" style="border-color: var(--gold); background: rgba(255,215,0,0.08);">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div style="font-size: 56px; filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));">🎁</div>
+                <h2 style="color: var(--gold); font-size: 22px; margin-top: 10px; font-weight: 900;" data-i18n="welcomeBonusTitle">ПРИВЕТСТВЕННЫЙ БОНУС</h2>
+                <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.5);">100%</div>
+                <div style="color: var(--muted); font-size: 13px;" data-i18n="welcomeBonusSub">К первому депозиту</div>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.4); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.15);">
+                    <span style="color: var(--muted); font-size: 13px;" data-i18n="bonusWagerLbl">Вейджер (отыгрыш):</span>
+                    <span style="color: var(--gold); font-weight: 800; font-size: 13px;">x15</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.15);">
+                    <span style="color: var(--muted); font-size: 13px;" data-i18n="bonusMaxLbl">Макс. сумма бонуса:</span>
+                    <span style="color: var(--gold); font-weight: 800; font-size: 13px;">$100</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                    <span style="color: var(--muted); font-size: 13px;" data-i18n="bonusMaxWithdrawLbl">Макс. сумма к выводу:</span>
+                    <span style="color: var(--gold); font-weight: 800; font-size: 13px;">x2</span>
+                </div>
+            </div>
+            
+            <div id="bonusStatusBadge" style="text-align: center; padding: 12px; border-radius: 10px; margin-bottom: 12px; background: rgba(76,175,80,0.15); color: var(--green); font-weight: 800; font-size: 13px;">🎁 Готов к подключению</div>
+            
+            <button class="btn btn-primary" id="bonusActivateBtn" onclick="activateBonus()" data-i18n="bonusActivateBtn">🎁 Подключить бонус</button>
+            
+            <div style="font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.5;">
+                ⚠️ Пока бонус активен — вывод средств заблокирован до отыгрыша вейджера x15. После отыгрыша макс. сумма вывода — x2 от суммы бонуса.
+            </div>
+        </div>
     </div>
 
     <div id="view-profile" class="hidden">
@@ -443,6 +477,7 @@
 
     <div class="nav-bar">
         <button class="nav-btn active" id="nav-games" onclick="switchView('games')"><span class="icon">🎮</span><span data-i18n="games">Игры</span></button>
+        <button class="nav-btn" id="nav-bonus" onclick="switchView('bonus')"><span class="icon">🎁</span><span data-i18n="bonus">Бонусы</span></button>
         <button class="nav-btn" id="nav-sports" onclick="switchView('sports')"><span class="icon">⚽</span><span data-i18n="sports">Спорт</span></button>
         <button class="nav-btn" id="nav-cash" onclick="switchView('cash')"><span class="icon">💰</span><span data-i18n="cash">Касса</span></button>
         <button class="nav-btn" id="nav-support" onclick="switchView('support')"><span class="icon">💬</span><span data-i18n="support">Помощь</span></button>
@@ -632,7 +667,10 @@
             betsBtn:'📊 История ставок', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Ставок пока нет',
             depRulesTitle:'Реквизиты для перевода:', depRulesText:'После перевода средств нажмите «Создать заявку». Деньги будут зачислены на баланс после подтверждения транзакции администратором.',
             wdWalletPh:'Введите адрес кошелька/карты', copied:'✅ Адрес скопирован!', copyErr:'❌ Ошибка копирования',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO работает по лицензии Кюрасао #365/JAZ. Только для лиц старше 18 лет. Играйте ответственно.'
+            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO работает по лицензии Кюрасао #365/JAZ. Только для лиц старше 18 лет. Играйте ответственно.',
+            bonus:'Бонусы', welcomeBonusTitle:'ПРИВЕТСТВЕННЫЙ БОНУС', welcomeBonusSub:'К первому депозиту',
+            bonusWagerLbl:'Вейджер (отыгрыш):', bonusMaxLbl:'Макс. сумма бонуса:', bonusMaxWithdrawLbl:'Макс. сумма к выводу:',
+            bonusActivateBtn:'🎁 Подключить бонус'
         },
         en: {
             games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
@@ -738,7 +776,10 @@
             betsBtn:'📊 Bet History', betLbl:'Bet', winLbl:'Win', emptyBets:'No bets yet',
             depRulesTitle:'Payment Details:', depRulesText:'After the transfer, click "Create Request". Funds will be credited after admin confirmation.',
             wdWalletPh:'Enter wallet/card address', copied:'✅ Address copied!', copyErr:'❌ Copy error',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO operates under Curacao license #365/JAZ. 18+ only. Play responsibly.'
+            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO operates under Curacao license #365/JAZ. 18+ only. Play responsibly.',
+            bonus:'Bonuses', welcomeBonusTitle:'WELCOME BONUS', welcomeBonusSub:'On first deposit',
+            bonusWagerLbl:'Wager:', bonusMaxLbl:'Max bonus amount:', bonusMaxWithdrawLbl:'Max withdrawal:',
+            bonusActivateBtn:'🎁 Activate Bonus'
         },
         pl: {
             games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
@@ -844,7 +885,10 @@
             betsBtn:'📊 Historia zakładów', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Brak zakładów',
             depRulesTitle:'Dane do płatności:', depRulesText:'Po przelewie kliknij „Utwórz wniosek”. Środki zostaną zaksięgowane po potwierdzeniu przez administratora.',
             wdWalletPh:'Wpisz adres portfela/karty', copied:'✅ Adres skopiowany!', copyErr:'❌ Błąd kopiowania',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO działa na licencji Curacao #365/JAZ. Tylko 18+. Graj odpowiedzialnie.'
+            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO działa na licencji Curacao #365/JAZ. Tylko 18+. Graj odpowiedzialnie.',
+            bonus:'Bonusy', welcomeBonusTitle:'BONUS POWITALNY', welcomeBonusSub:'Na pierwszy depozyt',
+            bonusWagerLbl:'Wager (obrót):', bonusMaxLbl:'Maks. kwota bonusu:', bonusMaxWithdrawLbl:'Maks. wypłata:',
+            bonusActivateBtn:'🎁 Aktywuj bonus'
         }
     };
 
@@ -1262,12 +1306,64 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-' + view).classList.add('active');
         if (view === 'cash') loadHistory();
+        if (view === 'bonus') loadBonusStatus();
     }
 
     function switchSportsTab(tab) {
         document.getElementById('sports-tab-line').classList.remove('active');
         document.getElementById('sports-tab-live').classList.remove('active');
         document.getElementById('sports-tab-' + tab).classList.add('active');
+    }
+
+    // ============ BONUS ============
+    async function loadBonusStatus() {
+        try {
+            const res = await fetch(`/api/bonus/status?id=${user.id}`);
+            const data = await res.json();
+            const badge = document.getElementById('bonusStatusBadge');
+            const btn = document.getElementById('bonusActivateBtn');
+            if (!badge || !btn) return;
+            const sym = data.currency === 'UAH' ? '₴' : '$';
+            
+            if (data.status === 'unavailable') {
+                badge.innerText = '❌ Бонус недоступен (первый депозит уже был)';
+                badge.style.background = 'rgba(229,57,53,0.15)';
+                badge.style.color = 'var(--red)';
+                btn.style.display = 'none';
+            } else if (data.status === 'pending') {
+                badge.innerText = '⏳ Активирован. Сделайте первый депозит для зачисления';
+                badge.style.background = 'rgba(255,165,0,0.15)';
+                badge.style.color = 'orange';
+                btn.style.display = 'none';
+            } else if (data.status === 'active') {
+                badge.innerText = `✅ Бонус: ${sym}${(data.bonus_amount||0).toFixed(2)} | Отыграно: ${sym}${(data.wager_progress||0).toFixed(2)} / ${sym}${(data.wager_required||0).toFixed(2)}`;
+                badge.style.background = 'rgba(76,175,80,0.15)';
+                badge.style.color = 'var(--green)';
+                btn.style.display = 'none';
+            } else if (data.status === 'completed') {
+                badge.innerText = '🏆 Бонус отыгран!';
+                badge.style.background = 'rgba(255,215,0,0.15)';
+                badge.style.color = 'var(--gold)';
+                btn.style.display = 'none';
+            } else {
+                badge.innerText = '🎁 Готов к подключению';
+                badge.style.background = 'rgba(76,175,80,0.15)';
+                badge.style.color = 'var(--green)';
+                btn.style.display = 'block';
+            }
+        } catch (e) {
+            console.log('bonus status error', e);
+        }
+    }
+
+    async function activateBonus() {
+        const btn = document.getElementById('bonusActivateBtn');
+        if (btn) { btn.disabled = true; btn.innerText = '⏳ Отправка...'; }
+        const data = await postApi('/api/bonus/activate', {});
+        if (btn) { btn.disabled = false; btn.innerText = t('bonusActivateBtn'); }
+        if (data.error) return tg.showAlert(translateErr(data.error));
+        tg.showAlert('✅ Заявка на бонус отправлена администратору!');
+        loadBonusStatus();
     }
 
     const gamesData = {
@@ -1328,6 +1424,7 @@
         if (msg.includes('Недостаточно средств')) return t('insufficient');
         if (msg.includes('Ставка должна')) return t('betPositive');
         if (msg.includes('Ошибка KYC')) return t('kycErr');
+        if (msg.includes('заблокирован')) return '🚫 Аккаунт заблокирован. Свяжитесь с поддержкой.';
         return msg;
     }
 
@@ -1716,7 +1813,6 @@
         const btn = document.querySelector('#kenoControls button');
         btn.disabled = true; btn.innerText = t('spinning');
         
-        // Сброс старых цветов
         for (let i = 1; i <= 80; i++) {
             document.getElementById(`kenoCell_${i}`).className = 'keno-cell';
         }
@@ -1728,18 +1824,15 @@
             return tg.showAlert(translateErr(d.error));
         }
         
-        // Анимация вытягивания шаров
         let count = 0;
         let anim = setInterval(() => {
             if (count >= 20) {
                 clearInterval(anim);
-                // Подсветка совпадений
                 d.drawn.forEach(n => {
                     const el = document.getElementById(`kenoCell_${n}`);
                     if (kenoSelected.includes(n)) el.className = 'keno-cell drawn-match';
                     else el.className = 'keno-cell drawn';
                 });
-                // Результат
                 if (d.win > 0) {
                     bigWin(d.win, d.multiplier);
                 } else {
@@ -1799,16 +1892,10 @@
         const canvas = document.getElementById('wheelCanvas');
         const resultText = document.getElementById('wheelResultText');
         
-        // Сектора идут по часовой стрелке. 
-        // Угол выигрышного сектора: idx * 36 градусов (центр сектора)
-        // Указатель сверху (0 градусов). Значит, чтобы выигрышный сектор стал на 0, нужно повернуть на -(idx*36).
-        // Добавим 5 полных оборотов для красоты.
-        
         const targetAngle = 360 * 5 - (d.index * 36);
         
         canvas.style.transform = `rotate(${targetAngle}deg)`;
         
-        // Очищаем текст на время вращения
         resultText.innerText = '?';
         
         setTimeout(() => {
@@ -1823,14 +1910,13 @@
             
             btn.disabled = false; btn.innerText = t('wheelSpinBtn');
             
-            // Сброс вращения для следующего спина
             setTimeout(() => {
                 canvas.style.transition = 'none';
                 canvas.style.transform = `rotate(0deg)`;
                 setTimeout(() => canvas.style.transition = 'transform 4s cubic-bezier(0.2, 0.8, 0.1, 1)', 50);
             }, 1000);
             
-        }, 4100); // Ждем окончания CSS анимации
+        }, 4100);
     }
 
     // ============ BOOK OF RA LOGIC ============
@@ -2533,7 +2619,6 @@
 
         ctx.clearRect(0, 0, w, h);
 
-        // Slots bar
         for (let i = 0; i < PLINKO_SLOTS; i++) {
             const m = PLINKO_MULTS[i];
             let color;
@@ -2550,7 +2635,6 @@
             ctx.fillText(m + 'x', i * slotW + slotW / 2, h - 10);
         }
 
-        // Pegs
         for (let r = 0; r < PLINKO_ROWS; r++) {
             const count = r + 2;
             const y = pegStartY + r * rowH;
@@ -2570,7 +2654,6 @@
             }
         }
 
-        // Ball
         if (ballPos) {
             const grad = ctx.createRadialGradient(ballPos.x - 2, ballPos.y - 2, 1, ballPos.x, ballPos.y, 7);
             grad.addColorStop(0, '#ffffff');
@@ -2599,14 +2682,12 @@
         updateUI();
         await saveUserBalance();
 
-        // Generate fair path
         const choices = [];
         for (let i = 0; i < PLINKO_ROWS; i++) choices.push(Math.random() < 0.5);
         const slot = choices.filter(c => c).length;
         const multiplier = PLINKO_MULTS[slot];
         const winAmount = currentBet * multiplier;
 
-        // Compute waypoints
         const canvas = document.getElementById('plinkoCanvas');
         const w = canvas.width, h = canvas.height;
         const slotW = w / PLINKO_SLOTS;
@@ -2623,7 +2704,6 @@
         const finalX = slotW * slot + slotW / 2;
         waypoints.push({ x: finalX, y: h - 28 });
 
-        // Animate
         await new Promise(resolve => {
             let wpIdx = 0;
             let t = 0;
@@ -2654,13 +2734,11 @@
             step();
         });
 
-        // Award
         if (currentCurrency === 'UAH') state.balance_uah += winAmount; else state.balance += winAmount;
         if (winAmount > state.best_result) state.best_result = winAmount;
         updateUI();
         await saveUserBalance();
 
-        // History
         plinkoHistory.unshift({ m: multiplier });
         if (plinkoHistory.length > 8) plinkoHistory.pop();
         renderPlinkoHistory();
