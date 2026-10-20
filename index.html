@@ -74,8 +74,7 @@
         .bj-zone { text-align: center; margin-bottom: 15px; min-height: 120px; }
         .bj-score { display: inline-block; background: #000; color: var(--gold); padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 14px; border: 1px solid var(--border); margin-bottom: 10px; }
         .hand-cards { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
-        .playing-card { width: 60px; height: 85px; background: #fff; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; padding: 5px; font-size: 20px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.6); position: relative; animation: dealCard 0.3s ease-out; }
-        @keyframes dealCard { from { transform: translateY(-50px) rotate(10deg); opacity: 0; } to { transform: translateY(0) rotate(0); opacity: 1; } }
+        .playing-card { width: 60px; height: 85px; background: #fff; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; padding: 5px; font-size: 20px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.6); position: relative; }
         .playing-card.red { color: var(--red); }
         .playing-card.black { color: #111; }
         .playing-card.back { background: repeating-linear-gradient(45deg, #111, #111 5px, #333 5px, #333 10px); border: 2px solid #fff; }
@@ -84,8 +83,6 @@
         .crash-multiplier { font-size: 64px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; text-shadow: 0 0 20px rgba(255,215,0,0.5); z-index: 2; }
         .crash-status { font-size: 14px; color: var(--muted); margin-top: 10px; z-index: 2; text-align: center; padding: 0 10px; }
         .crash-rocket { font-size: 40px; position: absolute; bottom: 10%; left: 10%; transition: all 0.1s linear; z-index: 1; }
-        .crash-boom { color: var(--red); font-size: 48px; animation: explode 0.5s forwards; }
-        @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
         .wallet-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .wallet-btn { flex: 1; min-width: 45%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
         .wallet-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
@@ -102,25 +99,17 @@
         .mines-cell.mine { background: rgba(229, 57, 53, 0.3); border-color: var(--red); cursor: default; }
         .mines-cell.mine-hit { background: var(--red); cursor: default; }
         .mines-info { width: 100%; max-width: 340px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.4); padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 12px; font-weight: 700; }
-        .roulette-reel-container { width: 100%; max-width: 340px; height: 70px; background: #000; border: 2px solid var(--gold); border-radius: 12px; position: relative; overflow: hidden; margin-bottom: 10px; }
-        .roulette-reel { display: flex; position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
-        .roulette-cell-strip { width: 60px; flex-shrink: 0; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #fff; border-right: 1px solid rgba(0,0,0,0.3); }
-        .roulette-cell-strip.red { background: #8B0000; }
-        .roulette-cell-strip.black { background: #1a1a1a; }
-        .roulette-cell-strip.green { background: #0a4a0a; }
-        .roulette-pointer { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); color: var(--gold); font-size: 20px; z-index: 10; text-shadow: 0 0 8px var(--gold); }
-        .roulette-result-display { width: 100%; max-width: 340px; font-size: 26px; font-weight: 900; font-family: 'Cinzel', serif; padding: 8px 20px; border-radius: 12px; margin-bottom: 10px; min-height: 46px; display: flex; align-items: center; justify-content: center; }
-        .roulette-bet-info { font-size: 12px; color: var(--muted); margin-bottom: 10px; padding: 6px 12px; background: rgba(0,0,0,0.4); border-radius: 8px; text-align: center; width: 100%; max-width: 340px; }
-        .roul-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 100%; max-width: 340px; margin-bottom: 8px; }
-        .roul-btn { padding: 10px 4px; font-size: 11px; font-weight: 700; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: inherit; }
-        .roul-btn.selected { background: var(--gold); color: #000; border-color: var(--gold); }
-        .roul-numbers { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; width: 100%; max-width: 340px; margin-bottom: 12px; margin-top: 4px; }
-        .roul-num { padding: 9px 2px; font-size: 13px; font-weight: 800; border-radius: 6px; cursor: pointer; font-family: inherit; border: 1px solid rgba(0,0,0,0.3); color: #fff; }
-        .roul-num.red { background: #8B0000; }
-        .roul-num.black { background: #1a1a1a; }
-        .roul-num.selected { outline: 3px solid var(--gold); outline-offset: -1px; }
-        .roul-zero { width: 100%; max-width: 340px; padding: 10px; margin-bottom: 6px; font-size: 15px; font-weight: 900; border-radius: 8px; cursor: pointer; font-family: inherit; color: #fff; background: #0a4a0a; }
-        .roul-zero.selected { outline: 3px solid var(--gold); outline-offset: -1px; }
+        .keno-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; width: 100%; max-width: 380px; margin-bottom: 15px; }
+        .keno-cell { aspect-ratio: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--text); }
+        .keno-cell.selected { background: var(--gold); color: #000; border-color: var(--gold); }
+        .keno-cell.drawn { background: rgba(229,57,53,0.3); border-color: var(--red); color: #fff; }
+        .keno-cell.drawn-match { background: var(--green); border-color: var(--green); color: #fff; }
+        .wheel-container { width: 100%; max-width: 340px; height: 340px; position: relative; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; }
+        .wheel-bg { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#E53935 0deg 36deg, #222 36deg 72deg, #4CAF50 72deg 108deg, #222 108deg 144deg, #E53935 144deg 180deg, #9C27B0 180deg 216deg, #222 216deg 252deg, #4CAF50 252deg 288deg, #222 288deg 324deg, #FFD700 324deg 360deg); border: 6px solid var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.5); }
+        .wheel-pointer { position: absolute; top: -10px; font-size: 30px; color: var(--gold); z-index: 10; }
+        .wheel-inner { position: absolute; width: 80%; height: 80%; border-radius: 50%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); z-index: 5; }
+        .wheel-result-text { font-size: 32px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; }
+        #wheelCanvas { position: absolute; width: 100%; height: 100%; z-index: 1; transition: transform 4s cubic-bezier(0.2, 0.8, 0.1, 1); }
         .plinko-wrap { width: 100%; max-width: 360px; background: linear-gradient(180deg, #0a0a1a 0%, #150520 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 8px; margin-bottom: 12px; }
         #plinkoCanvas { display: block; width: 100%; height: auto; border-radius: 10px; }
         .plinko-history { display: flex; gap: 4px; width: 100%; max-width: 340px; margin-bottom: 10px; justify-content: center; flex-wrap: wrap; min-height: 22px; }
@@ -129,11 +118,11 @@
         .tower-header > div > div:first-child { font-size: 10px; color: var(--muted); text-transform: uppercase; }
         .tower-header > div > div:last-child { font-size: 15px; font-weight: 800; color: var(--gold); margin-top: 3px; }
         .tower-grid { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-        .tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; opacity: 0.35; transition: 0.3s; }
+        .tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; opacity: 0.35; }
         .tower-row.active { opacity: 1; }
         .tower-row.passed { opacity: 0.9; }
         .tower-cell { height: 42px; border-radius: 10px; background: rgba(20,20,25,0.95); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; font-weight: 800; color: var(--muted); }
-        .tower-row.active .tower-cell { border-color: var(--gold); box-shadow: 0 0 8px rgba(255,215,0,0.3); }
+        .tower-row.active .tower-cell { border-color: var(--gold); }
         .tower-cell.safe { background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(56,142,60,0.7)); border-color: var(--green); color: #fff; cursor: default; }
         .tower-cell.trap { background: linear-gradient(135deg, rgba(229,57,53,0.7), rgba(183,28,28,0.9)); border-color: var(--red); color: #fff; cursor: default; }
         .tower-cell.trap-revealed { background: rgba(229,57,53,0.25); border-color: var(--red); color: rgba(255,255,255,0.6); cursor: default; }
@@ -155,17 +144,6 @@
         .bookofra-reels { display: flex; justify-content: center; gap: 4px; margin-bottom: 15px; }
         .bookofra-cell { width: 60px; height: 80px; background: linear-gradient(135deg, #2a1508, #1a0a00); border: 2px solid #DAA520; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 36px; }
         .bookofra-cell.book { box-shadow: 0 0 30px rgba(255,215,0,1); border-color: #FFF8DC; }
-        .keno-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; width: 100%; max-width: 380px; margin-bottom: 15px; }
-        .keno-cell { aspect-ratio: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--text); }
-        .keno-cell.selected { background: var(--gold); color: #000; border-color: var(--gold); }
-        .keno-cell.drawn { background: rgba(229,57,53,0.3); border-color: var(--red); color: #fff; }
-        .keno-cell.drawn-match { background: var(--green); border-color: var(--green); color: #fff; }
-        .wheel-container { width: 100%; max-width: 340px; height: 340px; position: relative; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; }
-        .wheel-bg { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#E53935 0deg 36deg, #222 36deg 72deg, #4CAF50 72deg 108deg, #222 108deg 144deg, #E53935 144deg 180deg, #9C27B0 180deg 216deg, #222 216deg 252deg, #4CAF50 252deg 288deg, #222 288deg 324deg, #FFD700 324deg 360deg); border: 6px solid var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.5); }
-        .wheel-pointer { position: absolute; top: -10px; font-size: 30px; color: var(--gold); z-index: 10; }
-        .wheel-inner { position: absolute; width: 80%; height: 80%; border-radius: 50%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); z-index: 5; }
-        .wheel-result-text { font-size: 32px; font-weight: 900; color: var(--gold); font-family: 'Cinzel', serif; }
-        #wheelCanvas { position: absolute; width: 100%; height: 100%; z-index: 1; transition: transform 4s cubic-bezier(0.2, 0.8, 0.1, 1); }
         #effectsLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
         .confetti { position: absolute; width: 10px; height: 10px; top: -20px; }
         @keyframes confettiFall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(105vh) rotate(900deg); opacity: 0; } }
@@ -177,17 +155,12 @@
         @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         #audioPrompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate; pointer-events: none; }
         @keyframes bounce { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
-        .sports-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; text-align: center; }
-        .sports-placeholder .icon { font-size: 80px; margin-bottom: 20px; }
-        .sports-placeholder h2 { color: var(--gold); font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-        .sports-placeholder p { color: var(--muted); font-size: 14px; }
         .kyc-badge { display: inline-block; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 800; margin-left: 10px; }
         .kyc-badge.not-passed { background: rgba(229,57,53,0.2); color: var(--red); border: 1px solid var(--red); }
         .kyc-badge.pending { background: rgba(255,165,0,0.2); color: orange; border: 1px solid orange; }
         .kyc-badge.approved { background: rgba(76,175,80,0.2); color: var(--green); border: 1px solid var(--green); }
         .crypto-wallet-block { background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 13px; }
         .crypto-address { font-family: monospace; color: var(--gold); word-break: break-all; cursor: pointer; padding: 4px; background: rgba(0,0,0,0.3); border-radius: 4px; margin-top: 3px; display: inline-block; }
-        .crypto-address:active { background: rgba(255,215,0,0.2); }
         .license-footer { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 25px; padding: 15px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); border-radius: 10px; opacity: 0.8; }
         .license-badge { display: flex; align-items: center; gap: 6px; color: var(--gold); font-size: 11px; font-weight: 800; }
         .license-text { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.4; }
@@ -195,36 +168,73 @@
         .vip-level-card { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px; text-align: center; font-weight: 700; color: var(--gold); font-size: 11px; transition: 0.3s; border: 1px solid transparent; }
         .vip-level-card.achieved { background: rgba(76,175,80,0.25); box-shadow: 0 0 10px rgba(76,175,80,0.4); border-color: var(--green); }
 
-        /* ============ SPORTS MATCH ============ */
-        .sports-match-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px); }
-        .match-league { font-size: 12px; color: var(--gold); font-weight: 800; text-align: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); letter-spacing: 0.3px; }
-        .match-teams { display: flex; justify-content: space-around; align-items: center; margin-bottom: 12px; }
-        .team-block { text-align: center; flex: 1; }
-        .team-logo { font-size: 42px; margin-bottom: 5px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); }
-        .team-name { font-size: 15px; font-weight: 800; color: var(--text); }
-        .vs { font-size: 14px; color: var(--muted); font-weight: 800; margin: 0 10px; }
-        .match-info { text-align: center; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 10px; }
-        .match-date { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
-        .match-countdown { font-size: 15px; font-weight: 900; color: var(--gold); }
-        .odds-section { margin-bottom: 12px; }
-        .odds-title { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .odds-row { display: flex; gap: 6px; }
-        .odd-btn { flex: 1; background: rgba(0,0,0,0.5); border: 2px solid var(--border); border-radius: 10px; padding: 10px 6px; cursor: pointer; font-family: inherit; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text); }
-        .odd-btn:hover { border-color: var(--gold); }
-        .odd-btn:active { transform: scale(0.97); }
-        .odd-btn.selected { background: rgba(255,215,0,0.2); border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
-        .odd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .odd-name { font-size: 11px; color: var(--muted); font-weight: 700; text-align: center; }
-        .odd-btn.selected .odd-name { color: var(--gold); }
-        .odd-val { font-size: 17px; font-weight: 900; color: var(--gold); }
-        .sport-bet-panel { margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 12px; border: 1px solid var(--border); }
-        .sport-bet-info { font-size: 13px; color: var(--muted); margin-bottom: 10px; text-align: center; }
-        .sport-bet-info b { color: var(--gold); }
-        .sport-bet-input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-        .sport-bet-input-row input { margin-bottom: 0; flex: 1; padding: 12px; }
-        .sport-bet-potential { font-size: 13px; font-weight: 800; color: var(--green); white-space: nowrap; }
-        .sport-my-bets { margin-top: 15px; }
-        .sport-my-bet-row { background: rgba(0,0,0,0.3); border-left: 3px solid; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 12px; display: flex; flex-direction: column; gap: 3px; }
+        /* ============ LIVE CASINO ============ */
+        .live-dealer-block { display: flex; gap: 10px; align-items: flex-start; background: linear-gradient(135deg, rgba(50,20,10,0.9), rgba(20,10,5,0.95)); border: 1px solid var(--gold); border-radius: 16px; padding: 12px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+        .dealer-avatar { font-size: 42px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #b8860b, #ffd700); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255,215,0,0.5); position: relative; flex-shrink: 0; }
+        .dealer-avatar::after { content: ''; position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; border-radius: 50%; background: #4CAF50; border: 2px solid #000; }
+        .dealer-speech { flex: 1; }
+        .dealer-name { font-size: 12px; color: var(--gold); font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .dealer-text { font-size: 13px; color: var(--text); line-height: 1.4; transition: opacity 0.3s; min-height: 36px; }
+
+        .live-history { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0; margin-bottom: 12px; min-height: 44px; }
+        .live-history::-webkit-scrollbar { display: none; }
+        .live-hist-ball { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: #fff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.5); animation: histBallIn 0.3s ease-out; }
+        @keyframes histBallIn { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0); } }
+        .live-hist-ball.red { background: radial-gradient(circle at 30% 30%, #E53935, #8B0000); }
+        .live-hist-ball.black { background: radial-gradient(circle at 30% 30%, #333, #000); }
+        .live-hist-ball.green { background: radial-gradient(circle at 30% 30%, #4CAF50, #0a4a0a); }
+
+        .live-wheel-wrap { position: relative; width: 100%; max-width: 320px; margin: 0 auto 15px; aspect-ratio: 1; }
+        #liveWheelCanvas { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
+
+        .live-result-badge { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; pointer-events: none; }
+        .live-result-badge.show { display: flex; animation: resultPop 0.5s ease-out; }
+        @keyframes resultPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .live-result-num { font-size: 64px; font-weight: 900; font-family: 'Cinzel', serif; padding: 15px 30px; border-radius: 20px; text-shadow: 0 0 20px currentColor, 0 4px 8px rgba(0,0,0,0.8); }
+        .live-result-num.red { color: #ff3333; background: rgba(139,0,0,0.6); }
+        .live-result-num.black { color: #fff; background: rgba(0,0,0,0.7); }
+        .live-result-num.green { color: #4CAF50; background: rgba(10,74,10,0.7); }
+
+        .live-bet-info { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; padding: 8px; background: rgba(0,0,0,0.4); border-radius: 10px; min-height: 38px; display: flex; align-items: center; justify-content: center; }
+        .live-bet-info b { color: var(--gold); }
+
+        /* Рулеточный стол */
+        .roulette-table { background: linear-gradient(180deg, #0a4a0a, #052a05); border: 3px solid #DAA520; border-radius: 16px; padding: 10px; margin-bottom: 15px; box-shadow: inset 0 0 30px rgba(0,0,0,0.6); }
+
+        .roul-zero-row { display: flex; gap: 4px; margin-bottom: 6px; }
+        .roul-zero-btn { flex: 0 0 44px; height: 40px; background: linear-gradient(180deg, #0a6a0a, #0a4a0a); border: 2px solid #FFD700; border-radius: 6px; color: #fff; font-weight: 900; font-size: 16px; cursor: pointer; font-family: inherit; transition: 0.15s; }
+        .roul-zero-btn.selected { background: #FFD700; color: #000; }
+        .roul-zero-btn:active { transform: scale(0.95); }
+
+        .roul-numbers-rows { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-bottom: 8px; }
+        .roul-cell { height: 40px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.4); color: #fff; font-weight: 900; font-size: 14px; cursor: pointer; font-family: inherit; transition: 0.15s; display: flex; align-items: center; justify-content: center; }
+        .roul-cell.red { background: linear-gradient(180deg, #C41E3A, #8B0000); }
+        .roul-cell.black { background: linear-gradient(180deg, #2a2a2a, #111); }
+        .roul-cell.selected { outline: 3px solid #FFD700; outline-offset: -3px; box-shadow: 0 0 15px rgba(255,215,0,0.8); transform: scale(1.05); }
+        .roul-cell:active { transform: scale(0.95); }
+
+        .roul-outside-rows { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; }
+        .roul-outside-btn { height: 38px; background: rgba(0,0,0,0.5); border: 1.5px solid rgba(255,215,0,0.4); border-radius: 6px; color: #fff; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit; transition: 0.15s; }
+        .roul-outside-btn.selected { background: rgba(255,215,0,0.85); color: #000; border-color: #FFD700; box-shadow: 0 0 12px rgba(255,215,0,0.7); }
+        .roul-outside-btn:active { transform: scale(0.97); }
+        .roul-outside-btn.red-bg { background: linear-gradient(180deg, #C41E3A, #8B0000); border-color: rgba(255,255,255,0.3); }
+        .roul-outside-btn.black-bg { background: linear-gradient(180deg, #2a2a2a, #111); border-color: rgba(255,255,255,0.3); }
+        .roul-outside-btn.selected.red-bg { background: #FFD700; color: #000; }
+        .roul-outside-btn.selected.black-bg { background: #FFD700; color: #000; }
+
+        .live-bet-panel { background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+        .live-chips-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
+        .live-chip { background: linear-gradient(135deg, #b8860b, #ffd700); color: #000; border: 2px solid #fff; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; cursor: pointer; font-family: inherit; transition: 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.4); }
+        .live-chip.active { transform: scale(1.15); box-shadow: 0 0 15px rgba(255,215,0,0.8), 0 3px 6px rgba(0,0,0,0.4); border-color: #FFD700; }
+        .live-chip:active { transform: scale(0.95); }
+
+        .live-amount-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .live-amount-row input { margin-bottom: 0; flex: 1; padding: 12px; font-size: 16px; }
+        .live-potential { font-size: 12px; font-weight: 800; color: var(--green); white-space: nowrap; }
+
+        .live-spin-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; font-weight: 900; font-size: 16px; letter-spacing: 1.5px; cursor: pointer; font-family: inherit; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,215,0,0.4); text-transform: uppercase; }
+        .live-spin-btn:active { transform: scale(0.97); }
+        .live-spin-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
     </style>
 </head>
 <body>
@@ -259,100 +269,67 @@
         <div class="games-grid" id="gamesGrid"></div>
     </div>
 
-    <!-- ============ SPORTS ============ -->
-    <div id="view-sports" class="hidden">
-        <div class="tabs-container">
-            <button class="tab-btn active" id="sports-tab-line" onclick="switchSportsTab('line')">📋 <span data-i18n="line">Линия</span></button>
-            <button class="tab-btn" id="sports-tab-live" onclick="switchSportsTab('live')">🔴 <span data-i18n="live">Лайв</span></button>
-        </div>
-        <div id="sports-line-content">
-            <div class="sports-match-card">
-                <div class="match-league">🏆 ЛИГА ЧЕМПИОНОВ · Общий этап, 3 тур</div>
-                <div class="match-teams">
-                    <div class="team-block">
-                        <div class="team-logo">🔴</div>
-                        <div class="team-name">Бавария</div>
-                    </div>
-                    <div class="vs">VS</div>
-                    <div class="team-block">
-                        <div class="team-logo">⚪</div>
-                        <div class="team-name">Арсенал</div>
-                    </div>
-                </div>
-                <div class="match-info">
-                    <div class="match-date">📅 21.10.2026 в 22:00</div>
-                    <div class="match-countdown" id="matchCountdown" data-start="2026-10-21T22:00:00+03:00">--:--:--</div>
-                </div>
-
-                <div class="odds-section">
-                    <div class="odds-title">Исход матча</div>
-                    <div class="odds-row">
-                        <button class="odd-btn" onclick="selectSportOdd(this, 'p1', 2.05, 'П1 (Бавария)')">
-                            <span class="odd-name">П1</span>
-                            <span class="odd-val">2.05</span>
-                        </button>
-                        <button class="odd-btn" onclick="selectSportOdd(this, 'x', 3.82, 'Ничья')">
-                            <span class="odd-name">X</span>
-                            <span class="odd-val">3.82</span>
-                        </button>
-                        <button class="odd-btn" onclick="selectSportOdd(this, 'p2', 3.26, 'П2 (Арсенал)')">
-                            <span class="odd-name">П2</span>
-                            <span class="odd-val">3.26</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="odds-section">
-                    <div class="odds-title">Тотал (2.5)</div>
-                    <div class="odds-row">
-                        <button class="odd-btn" onclick="selectSportOdd(this, 'total_under_2_5', 2.34, 'ТМ 2.5')">
-                            <span class="odd-name">ТМ 2.5</span>
-                            <span class="odd-val">2.34</span>
-                        </button>
-                        <button class="odd-btn" onclick="selectSportOdd(this, 'total_over_2_5', 1.60, 'ТБ 2.5')">
-                            <span class="odd-name">ТБ 2.5</span>
-                            <span class="odd-val">1.60</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="odds-section">
-                    <div class="odds-title">Двойной шанс</div>
-                    <div class="odds-row">
-                        <button class="odd-btn" onclick="selectSportOdd(this, '1x', 1.36, '1X (Бавария / Ничья)')">
-                            <span class="odd-name">1X</span>
-                            <span class="odd-val">1.36</span>
-                        </button>
-                        <button class="odd-btn" onclick="selectSportOdd(this, '12', 1.29, '12 (без ничьей)')">
-                            <span class="odd-name">12</span>
-                            <span class="odd-val">1.29</span>
-                        </button>
-                        <button class="odd-btn" onclick="selectSportOdd(this, '2x', 1.79, '2X (Ничья / Арсенал)')">
-                            <span class="odd-name">2X</span>
-                            <span class="odd-val">1.79</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="sport-bet-panel">
-                    <div class="sport-bet-info" id="sportBetInfo">Выберите исход</div>
-                    <div class="sport-bet-input-row">
-                        <input type="number" id="sportBetAmount" value="1" min="1" step="1" placeholder="Сумма" oninput="updateSportPotential()">
-                        <div class="sport-bet-potential" id="sportPotential">Потенциал: $0.00</div>
-                    </div>
-                    <button class="btn btn-primary" id="sportBetBtn" onclick="placeSportsBet()" disabled style="margin-bottom:0;">Сделать ставку</button>
-                    <div style="font-size:10px; color:var(--muted); text-align:center; margin-top:8px;">Мин. ставка: $1 · Ставки принимаются до старта матча</div>
-                </div>
-
-                <div class="sport-my-bets" id="sportMyBets"></div>
+    <!-- ============ LIVE CASINO ============ -->
+    <div id="view-live" class="hidden">
+        <!-- Дилер -->
+        <div class="live-dealer-block">
+            <div class="dealer-avatar">👩‍💼</div>
+            <div class="dealer-speech">
+                <div class="dealer-name">🎤 АННА · LIVE DEALER</div>
+                <div class="dealer-text" id="dealerText">Добро пожаловать за стол! Выберите ставку и нажмите «Крутить».</div>
             </div>
         </div>
-        <div id="sports-live-content" class="hidden">
-            <div class="card sports-placeholder">
-                <div class="icon">⚽</div>
-                <h2 data-i18n="sportsTitle">Ставки на спорт</h2>
-                <p data-i18n="comingSoon">Откроется в скором времени...</p>
+
+        <!-- История -->
+        <div class="live-history" id="liveHistory"></div>
+
+        <!-- Колесо -->
+        <div class="live-wheel-wrap">
+            <canvas id="liveWheelCanvas" width="340" height="340"></canvas>
+            <div class="live-result-badge" id="liveResultBadge">
+                <div class="live-result-num" id="liveResultNum">?</div>
             </div>
+        </div>
+
+        <!-- Инфо о ставке -->
+        <div class="live-bet-info" id="liveBetInfo">Выберите ставку на столе</div>
+
+        <!-- Стол рулетки -->
+        <div class="roulette-table">
+            <div class="roul-zero-row">
+                <button class="roul-zero-btn" data-bet="number" data-val="0" onclick="selectLiveBet('number', 0)">0</button>
+            </div>
+            <div class="roul-numbers-rows" id="liveNumbersGrid"></div>
+            <div class="roul-outside-rows">
+                <button class="roul-outside-btn" data-bet="dozen1" onclick="selectLiveBet('dozen1')">1-я 12</button>
+                <button class="roul-outside-btn" data-bet="dozen2" onclick="selectLiveBet('dozen2')">2-я 12</button>
+                <button class="roul-outside-btn" data-bet="dozen3" onclick="selectLiveBet('dozen3')">3-я 12</button>
+            </div>
+            <div class="roul-outside-rows">
+                <button class="roul-outside-btn" data-bet="low" onclick="selectLiveBet('low')">1-18</button>
+                <button class="roul-outside-btn" data-bet="even" onclick="selectLiveBet('even')">ЧЁТ</button>
+                <button class="roul-outside-btn red-bg" data-bet="red" onclick="selectLiveBet('red')">КРАСНОЕ</button>
+            </div>
+            <div class="roul-outside-rows">
+                <button class="roul-outside-btn" data-bet="high" onclick="selectLiveBet('high')">19-36</button>
+                <button class="roul-outside-btn" data-bet="odd" onclick="selectLiveBet('odd')">НЕЧЁТ</button>
+                <button class="roul-outside-btn black-bg" data-bet="black" onclick="selectLiveBet('black')">ЧЁРНОЕ</button>
+            </div>
+            <div class="roul-outside-rows">
+                <button class="roul-outside-btn" data-bet="column1" onclick="selectLiveBet('column1')">Кол. 1</button>
+                <button class="roul-outside-btn" data-bet="column2" onclick="selectLiveBet('column2')">Кол. 2</button>
+                <button class="roul-outside-btn" data-bet="column3" onclick="selectLiveBet('column3')">Кол. 3</button>
+            </div>
+        </div>
+
+        <!-- Панель ставки -->
+        <div class="live-bet-panel">
+            <div class="live-chips-row" id="liveChipsRow"></div>
+            <div class="live-amount-row">
+                <input type="number" id="liveBetAmount" value="10" min="1" step="1" oninput="updateLivePotential()">
+                <div class="live-potential" id="livePotential">Потенциал: $0</div>
+            </div>
+            <button class="live-spin-btn" id="liveSpinBtn" onclick="spinLiveRoulette()" disabled>🎡 Сделать ставку и крутить</button>
         </div>
     </div>
 
@@ -362,40 +339,37 @@
             <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.3);" id="cashBalance">$0.00</div>
         </div>
         <div class="card">
-            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="topupLbl">Пополнение (Заявка)</div>
+            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="topupLbl">Пополнение</div>
             <div class="crypto-wallet-block">
-                <div style="font-weight: 800; color: var(--gold); margin-bottom: 10px;" data-i18n="depRulesTitle">Реквизиты для перевода:</div>
+                <div style="font-weight: 800; color: var(--gold); margin-bottom: 10px;" data-i18n="depRulesTitle">Реквизиты:</div>
                 <div style="margin-bottom: 8px;"><b>USDT (TRC20):</b><br><span class="crypto-address" onclick="copyAddress('TAiuh8nwph7eA8Auzt4BjWq27ZS2SwHrJK')">TAiuh8nwph7eA8Auzt4BjWq27ZS2SwHrJK 📋</span></div>
                 <div style="margin-bottom: 8px;"><b>Bitcoin:</b><br><span class="crypto-address" onclick="copyAddress('bc1qq5zr486mrrflhqhas4cszmr0xlmha8wwjc6alv')">bc1qq5zr486mrrflhqhas4cszmr0xlmha8wwjc6alv 📋</span></div>
                 <div style="margin-bottom: 8px;"><b>Ethereum:</b><br><span class="crypto-address" onclick="copyAddress('0xea325165e4f5e9cfa9dd5b3f2c3201544d89380f')">0xea325165e4f5e9cfa9dd5b3f2c3201544d89380f 📋</span></div>
-                <div style="color: var(--muted); font-size: 11.5px; margin-top: 12px; line-height: 1.4; border-top: 1px solid rgba(255,215,0,0.2); padding-top: 8px;">
-                    ⚠️ <span data-i18n="depRulesText">После перевода средств нажмите «Создать заявку». Деньги будут зачислены на баланс после подтверждения транзакции администратором.</span>
-                </div>
             </div>
             <div class="wallet-selector" id="depMethods">
                 <div class="wallet-btn active" onclick="selectMethod('dep', 'USDT', this)">USDT</div>
                 <div class="wallet-btn" onclick="selectMethod('dep', 'BTC', this)">Bitcoin</div>
                 <div class="wallet-btn" onclick="selectMethod('dep', 'ETH', this)">Ethereum</div>
-                <div class="wallet-btn" onclick="selectMethod('dep', 'UAH', this)">💳 Карта (Гривна)</div>
+                <div class="wallet-btn" onclick="selectMethod('dep', 'UAH', this)">💳 UAH</div>
             </div>
             <div class="input-group">
-                <input type="number" id="depAmount" value="20" placeholder="">
-                <div class="min-label" id="depMinLabel">Мин. сумма: $15</div>
+                <input type="number" id="depAmount" value="20">
+                <div class="min-label" id="depMinLabel">Мин: $15</div>
             </div>
             <button class="btn btn-primary" onclick="doDeposit()" data-i18n="createReq">Создать заявку</button>
         </div>
         <div class="card">
-            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="withdrawLbl">Вывод средств</div>
+            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: var(--gold);" data-i18n="withdrawLbl">Вывод</div>
             <div class="wallet-selector" id="wdMethods">
                 <div class="wallet-btn active" onclick="selectMethod('wd', 'USDT', this)">USDT</div>
                 <div class="wallet-btn" onclick="selectMethod('wd', 'BTC', this)">Bitcoin</div>
                 <div class="wallet-btn" onclick="selectMethod('wd', 'ETH', this)">Ethereum</div>
-                <div class="wallet-btn" onclick="selectMethod('wd', 'UAH', this)">💳 Карта (Гривна)</div>
+                <div class="wallet-btn" onclick="selectMethod('wd', 'UAH', this)">💳 UAH</div>
             </div>
-            <input type="text" id="wdWallet" placeholder="Введите адрес кошелька/карты" style="margin-bottom: 15px; background: rgba(0,0,0,0.8); border-color: #444;" data-i18n-ph="wdWalletPh">
+            <input type="text" id="wdWallet" placeholder="Адрес кошелька/карты" style="margin-bottom: 15px; background: rgba(0,0,0,0.8); border-color: #444;" data-i18n-ph="wdWalletPh">
             <div class="input-group">
-                <input type="number" id="wdAmount" value="20" placeholder="">
-                <div class="min-label" id="wdMinLabel">Мин. сумма: $15</div>
+                <input type="number" id="wdAmount" value="20">
+                <div class="min-label" id="wdMinLabel">Мин: $15</div>
             </div>
             <button class="btn btn-secondary" onclick="doWithdraw()" data-i18n="createReq">Создать заявку</button>
         </div>
@@ -406,30 +380,27 @@
     <div id="view-bonus" class="hidden">
         <div class="card" style="border-color: var(--gold); background: rgba(255,215,0,0.08);">
             <div style="text-align: center; margin-bottom: 15px;">
-                <div style="font-size: 56px; filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));">🎁</div>
+                <div style="font-size: 56px;">🎁</div>
                 <h2 style="color: var(--gold); font-size: 22px; margin-top: 10px; font-weight: 900;" data-i18n="welcomeBonusTitle">ПРИВЕТСТВЕННЫЙ БОНУС</h2>
-                <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.5);">100%</div>
-                <div style="color: var(--muted); font-size: 13px;" data-i18n="welcomeBonusSub">К первому депозиту</div>
+                <div style="font-size: 42px; font-weight: 900; color: var(--gold); margin: 10px 0;">100%</div>
+                <div style="color: var(--muted); font-size: 13px;">К первому депозиту</div>
             </div>
             <div style="background: rgba(0,0,0,0.4); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
                 <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.15);">
-                    <span style="color: var(--muted); font-size: 13px;" data-i18n="bonusWagerLbl">Вейджер:</span>
+                    <span style="color: var(--muted); font-size: 13px;">Вейджер:</span>
                     <span style="color: var(--gold); font-weight: 800; font-size: 13px;">x15</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.15);">
-                    <span style="color: var(--muted); font-size: 13px;" data-i18n="bonusMaxLbl">Макс. бонус:</span>
+                    <span style="color: var(--muted); font-size: 13px;">Макс. бонус:</span>
                     <span style="color: var(--gold); font-weight: 800; font-size: 13px;">$100</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                    <span style="color: var(--muted); font-size: 13px;" data-i18n="bonusMaxWithdrawLbl">Макс. вывод:</span>
+                    <span style="color: var(--muted); font-size: 13px;">Макс. вывод:</span>
                     <span style="color: var(--gold); font-weight: 800; font-size: 13px;">x2</span>
                 </div>
             </div>
-            <div id="bonusStatusBadge" style="text-align: center; padding: 12px; border-radius: 10px; margin-bottom: 12px; background: rgba(76,175,80,0.15); color: var(--green); font-weight: 800; font-size: 13px;">🎁 Готов к подключению</div>
-            <button class="btn btn-primary" id="bonusActivateBtn" onclick="activateBonus()" data-i18n="bonusActivateBtn">🎁 Подключить бонус</button>
-            <div style="font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.5;">
-                ⚠️ Пока бонус активен — вывод заблокирован до отыгрыша вейджера x15.
-            </div>
+            <div id="bonusStatusBadge" style="text-align: center; padding: 12px; border-radius: 10px; margin-bottom: 12px; background: rgba(76,175,80,0.15); color: var(--green); font-weight: 800; font-size: 13px;">🎁 Готов</div>
+            <button class="btn btn-primary" id="bonusActivateBtn" onclick="activateBonus()">🎁 Подключить</button>
         </div>
     </div>
 
@@ -445,8 +416,8 @@
             </div>
         </div>
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button class="btn btn-secondary" onclick="openRegisterEdit()" id="editRegBtn" style="display:none; margin-bottom:0;" data-i18n="editRegBtn">✏️ Изменить данные</button>
-            <button class="btn btn-secondary" onclick="openBetHistory()" style="margin-bottom:0;" data-i18n="betsBtn">📊 История ставок</button>
+            <button class="btn btn-secondary" onclick="openRegisterEdit()" id="editRegBtn" style="display:none; margin-bottom:0;" data-i18n="editRegBtn">✏️ Изменить</button>
+            <button class="btn btn-secondary" onclick="openBetHistory()" style="margin-bottom:0;" data-i18n="betsBtn">📊 Ставки</button>
         </div>
         <div class="card" style="border-color: var(--gold); background: rgba(255,215,0,0.04);">
             <div style="font-size: 16px; font-weight: 800; color: var(--gold); margin-bottom: 15px;">🏆 VIP Статус</div>
@@ -475,19 +446,19 @@
         </div>
         <div class="card" style="border-color: var(--gold);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <div style="font-size: 16px; font-weight: 800; color: var(--gold);">🛡️ KYC Верификация</div>
+                <div style="font-size: 16px; font-weight: 800; color: var(--gold);">🛡️ KYC</div>
                 <span class="kyc-badge not-passed" id="kycStatusBadge">Не пройдена</span>
             </div>
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px; line-height: 1.4;" data-i18n="kycDesc">Пройдите верификацию для вывода крупных сумм.</p>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px; line-height: 1.4;">Пройдите верификацию для вывода крупных сумм.</p>
             <button class="btn btn-secondary" id="kycBtn" onclick="openKyc()" data-i18n="goKyc">Пройти KYC</button>
         </div>
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <div class="card" style="flex: 1; text-align: center; padding: 15px;">
-                <div style="font-size: 11px; color: var(--muted); text-transform: uppercase;" data-i18n="roundsLbl">Раундов</div>
+                <div style="font-size: 11px; color: var(--muted); text-transform: uppercase;">Раундов</div>
                 <div style="font-size: 20px; font-weight: bold; margin-top: 5px;" id="profRounds">0</div>
             </div>
             <div class="card" style="flex: 1; text-align: center; padding: 15px;">
-                <div style="font-size: 11px; color: var(--muted); text-transform: uppercase;" data-i18n="bestWinLbl">Лучший выигрыш</div>
+                <div style="font-size: 11px; color: var(--muted); text-transform: uppercase;">Лучший выигрыш</div>
                 <div style="font-size: 20px; font-weight: bold; margin-top: 5px;" id="profBest">$0.00</div>
             </div>
         </div>
@@ -503,9 +474,7 @@
                     <div style="color: var(--muted); font-size: 11px;">License #365/JAZ</div>
                 </div>
             </div>
-            <p style="font-size: 11.5px; color: var(--muted); line-height: 1.5;">
-                MADGEK CASINO работает под международной лицензией Кюрасао. Мы гарантируем честность игр и конфиденциальность данных.
-            </p>
+            <p style="font-size: 11.5px; color: var(--muted); line-height: 1.5;">MADGEK CASINO работает под международной лицензией Кюрасао.</p>
         </div>
         <div class="card">
             <textarea id="supMessage" placeholder="Ваше сообщение..." data-i18n-ph="msgPlaceholder"></textarea>
@@ -513,20 +482,20 @@
         </div>
     </div>
 
-    <div class="license-footer" id="licenseFooter">
+    <div class="license-footer">
         <div class="license-badge">
             <span class="license-flag">🇨🇼</span>
             <span data-i18n="licenseText">Licensed by Curacao eGaming</span>
         </div>
         <div class="license-text">
-            <span data-i18n="licenseDesc">MADGEK CASINO is operated under Curacao license #365/JAZ. 18+ only. Play responsibly.</span>
+            <span data-i18n="licenseDesc">MADGEK CASINO · Curacao #365/JAZ · 18+ · Play responsibly</span>
         </div>
     </div>
 
     <div class="nav-bar">
         <button class="nav-btn active" id="nav-games" onclick="switchView('games')"><span class="icon">🎮</span><span data-i18n="games">Игры</span></button>
+        <button class="nav-btn" id="nav-live" onclick="switchView('live')"><span class="icon">🎰</span><span data-i18n="liveTab">Лайв</span></button>
         <button class="nav-btn" id="nav-bonus" onclick="switchView('bonus')"><span class="icon">🎁</span><span data-i18n="bonus">Бонусы</span></button>
-        <button class="nav-btn" id="nav-sports" onclick="switchView('sports')"><span class="icon">⚽</span><span data-i18n="sports">Спорт</span></button>
         <button class="nav-btn" id="nav-cash" onclick="switchView('cash')"><span class="icon">💰</span><span data-i18n="cash">Касса</span></button>
         <button class="nav-btn" id="nav-support" onclick="switchView('support')"><span class="icon">💬</span><span data-i18n="support">Помощь</span></button>
         <button class="nav-btn" id="nav-profile" onclick="switchView('profile')"><span class="icon">👤</span><span data-i18n="profile">Профиль</span></button>
@@ -540,38 +509,35 @@
         <div class="modal-content">
             <div style="text-align:center; margin-bottom:20px;">
                 <div style="font-size:56px; margin-bottom:10px;">🎰</div>
-                <p style="color:var(--muted); font-size:13px; max-width:280px; line-height:1.5;" data-i18n="regSubtitle">Зарегистрируйтесь, чтобы получить доступ к играм и кассе</p>
+                <p style="color:var(--muted); font-size:13px; max-width:280px; line-height:1.5;">Зарегистрируйтесь, чтобы играть</p>
             </div>
             <div style="width:100%; max-width:340px;">
-                <input type="text" id="regName" data-i18n-ph="regNamePh" placeholder="Ваше имя" maxlength="50">
-                <input type="tel" id="regPhone" data-i18n-ph="regPhonePh" placeholder="+7 999 123-45-67" maxlength="20">
-                <input type="email" id="regEmail" data-i18n-ph="regEmailPh" placeholder="Email" maxlength="50">
+                <input type="text" id="regName" placeholder="Ваше имя" maxlength="50">
+                <input type="tel" id="regPhone" placeholder="+7 999 123-45-67" maxlength="20">
+                <input type="email" id="regEmail" placeholder="Email" maxlength="50">
                 <button class="btn btn-primary" id="regSubmitBtn" onclick="doRegister()" data-i18n="regSubmit">Зарегистрироваться</button>
-                <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:8px;" data-i18n="regNote">Данные используются для выплат</div>
+                <div style="font-size:11px; color:var(--muted); text-align:center; margin-top:8px;">Данные для выплат</div>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="kycModal">
         <div class="modal-header">
-            <h2 data-i18n="kycTitle">🛡️ KYC Верификация</h2>
+            <h2>🛡️ KYC</h2>
             <button class="close-btn" onclick="document.getElementById('kycModal').classList.remove('open')">×</button>
         </div>
         <div class="modal-content">
-            <div style="text-align:center; margin-bottom:20px;">
-                <p style="color:var(--muted); font-size:13px; max-width:280px; line-height:1.5;" data-i18n="kycDesc">Пройдите верификацию для вывода крупных сумм.</p>
-            </div>
-            <div style="width:100%; max-width:340px;">
-                <input type="text" id="kycNameEn" data-i18n-ph="kycNamePh" placeholder="Full Name in English" maxlength="50">
-                <input type="text" id="kycCountry" data-i18n-ph="kycCountryPh" placeholder="Country" maxlength="30">
-                <button class="btn btn-primary" id="kycSubmitBtn" onclick="doKyc()" data-i18n="kycSubmit">Отправить</button>
+            <div style="width:100%; max-width:340px; margin-top: 20px;">
+                <input type="text" id="kycNameEn" placeholder="Full Name in English" maxlength="50">
+                <input type="text" id="kycCountry" placeholder="Country" maxlength="30">
+                <button class="btn btn-primary" id="kycSubmitBtn" onclick="doKyc()">Отправить</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="betsModal">
         <div class="modal-header">
-            <h2 data-i18n="betsBtn">📊 История ставок</h2>
+            <h2 data-i18n="betsBtn">📊 История</h2>
             <button class="close-btn" onclick="document.getElementById('betsModal').classList.remove('open')">×</button>
         </div>
         <div class="modal-content" style="align-items: stretch; padding: 10px 20px;">
@@ -592,273 +558,10 @@
     </audio>
 
     <script>
-    // ============ I18N ============
     const i18n = {
-        ru: {
-            games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль', sports:'Спорт',
-            line:'Линия', live:'Лайв', sportsTitle:'Ставки на спорт', comingSoon:'Откроется в скором времени...',
-            popular:'Популярные', table:'Настольные', slotsTab:'Слоты',
-            crash:'Ракетка', crashDesc:'Успей забрать', bj:'Blackjack', bjDesc:'21 очко',
-            bacc:'Baccarat', baccDesc:'Игрок vs Банкир', slotsClassic:'Classic Slots', slotsClassicDesc:'3 барабана',
-            slotsLucky:'Lucky 7', slotsLuckyDesc:'Лови семёрки', slotsBook:'Book of Ra', slotsBookDesc:'Книга Фараона',
-            keno:'Кено', kenoDesc:'Лотерея на 80 чисел', wheel:'Колесо', wheelDesc:'Крути и выигрывай',
-            mines:'Мины', minesDesc:'5×5, открой безопасные', roulette:'Рулетка', rouletteDesc:'Европейская',
-            plinko:'Plinko', plinkoDesc:'Шарик вниз', tower:'Башня', towerDesc:'Поднимайся выше',
-            dice:'Кости', diceDesc:'Угадай число',
-            balanceLbl:'Баланс', topupLbl:'Пополнение (Заявка)', withdrawLbl:'Вывод средств',
-            historyLbl:'История', createReq:'Создать заявку', sendBtn:'Отправить',
-            msgPlaceholder:'Ваше сообщение...', supportTitle:'Поддержка',
-            roundsLbl:'Раундов', bestWinLbl:'Лучший выигрыш',
-            minAmountPrefix:'Мин. сумма: ', depositLbl:'Пополнение', withdrawLblTx:'Вывод',
-            pendingLbl:'В обработке', completedLbl:'Выполнено', rejectedLbl:'Отклонено',
-            loading:'Загрузка...', historyEmpty:'История пуста',
-            dealer:'Дилер', you:'Вы', banker:'Банкир', playerGame:'Игрок',
-            take:'Взять', stand:'Хватит', playAgain:'Играть снова',
-            start:'Запустить', cashoutNow:'Забрать (x{0})',
-            spin:'Крутить', spinAgain:'Крутить снова', spinning:'Крутим...',
-            playBet:'Сделать ставку и играть',
-            crashReady:'Готов к запуску', flying:'Взлетаем...', crashed:'КРАШ!',
-            won:'Забрано!', missed:'😔 Мимо',
-            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
-            rulesBtn:'📖 Правила', hideRules:'✖ Скрыть',
-            rulesCrash:'Множитель растёт с момента старта. Нажмите «Забрать», чтобы зафиксировать выигрыш. Если ракета взорвётся раньше — ставка сгорает. Максимум x100.',
-            rulesBj:'Цель — набрать 21 очко или ближе к 21, чем у дилера. 2-10 по номиналу, J/Q/K = 10, туз = 1 или 11. Блэкджек платит x2.5. Дилер берёт до 17.',
-            rulesBacc:'Ставки: Player (1:1), Banker (0.95:1), Tie (8:1). По 2 карты. Ближе к 9 — победа. A=1, 2-9 номинал, 10/J/Q/K=0.',
-            rulesClassic:'3 барабана. Три одинаковых: 🍒/🍋/🍊 = x5, 🍇 = x10, 💎 = x20, 7️⃣ = x50. Два одинаковых: x1.5 (x2 с 💎 или 7️⃣).',
-            rulesLucky:'3 барабана. Три 7️⃣ = x30, две 7️⃣ = x5, одна 7️⃣ = x1.5. Три одинаковых (не 7) = x3.',
-            rulesBook:'5 барабанов. Книга (📖) — самый ценный символ: 5 книг = x100, 4 книги = x20, 3 книги = x5.',
-            rulesKeno:'Выберите от 1 до 10 чисел. Система вытянет 20 шаров. Чем больше совпадений, тем выше множитель.',
-            rulesWheel:'Колесо разделено на 10 секторов: x0, x1.5, x2, x5, x10. Нажмите «Крутить» и ждите, где остановится указатель.',
-            rulesMines:'Поле 5×5. Выберите количество мин и откройте безопасные клетки. Нажмите «Забрать», чтобы забрать текущий выигрыш.',
-            rulesRoulette:'Европейская рулетка (37 чисел, 0-36). Ставки: число (35:1), красное/чёрное (1:1) и др.',
-            rulesPlinko:'Шарик падает вниз по полю с колышками и попадает в один из 9 слотов. Множители: от x0.3 до x28.',
-            rulesTower:'8 уровней, на каждом 3 клетки — одна из них ловушка. Множитель растёт: x1.42 → x24.35. Забери выигрыш в любой момент.',
-            rulesDice:'Выберите число от 2 до 98. Если выпавшее число будет больше (или меньше) вашего — вы выигрываете.',
-            insufficient:'Недостаточно средств!', balanceUpdated:'Баланс обновлен!',
-            serverSleep:'Сервер спит, подождите 50 секунд.', netErr:'Ошибка сети', errPrefix:'Ошибка: ',
-            enterMsg:'Введите сообщение', sent:'✅ Отправлено!',
-            welcomeVoice:'Добро пожаловать в онлайн казино Мэджик!',
-            audioPrompt:'👆 Нажмите в любом месте для звука 🔊',
-            tiedLbl:'Ничья',
-            crashedMsg:'💥 Ракета взорвалась на {0}x. Вы проиграли.',
-            cashoutMsg:'🎉 Вы забрали ${0} на множителе x{1}!',
-            winAmountTpl:'🎉 +{2}{0} (x{1})',
-            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Ничья. Возврат ставки',
-            bjBlackjack:'🎉 Блэкджек! +{1}{0}', bjWin:'🎉 Выигрыш {1}{0}!',
-            bjTieMsg:'🤝 Ничья. Возврат {1}{0}', bjDealerWin:'😢 Дилер выиграл.',
-            bjBust:'😢 Перебор!', bjDealerBust:'🎉 Дилер перебрал! Вы выиграли!',
-            depCreated:'✅ Заявка на пополнение создана!', wdCreated:'✅ Заявка на вывод создана!',
-            insufficientBal:'Недостаточно. Баланс: {1}{0}', betPositive:'Ставка должна быть больше 0',
-            minesCountLbl:'Мин', minesPicks:'Открыто', minesMultiplier:'Множитель', minesPotential:'Потенциал',
-            minesCashout:'Забрать', minesBoom:'💥 Бум! Вы попали на мину. Ставка потеряна.',
-            minesCashed:'🎉 Забрано {2}{0} (x{1})!',
-            rouletteSpin:'Крутить', rouletteSpinning:'Крутим...', rouletteSelectBet:'Выберите ставку',
-            rouletteWin:'🎉 Выигрыш {1}{0}!', rouletteLose:'😔 Проигрыш {1}{0}',
-            rouletteRed:'Красное', rouletteBlack:'Чёрное', rouletteOdd:'Нечёт', rouletteEven:'Чёт',
-            rouletteDozen1:'1-я 12', rouletteDozen2:'2-я 12', rouletteDozen3:'3-я 12',
-            rouletteCol1:'Кол. 1', rouletteCol2:'Кол. 2', rouletteCol3:'Кол. 3',
-            rouletteNumber:'Число', rouletteSelected:'Выбрано',
-            regTitle:'📝 Регистрация', regSubtitle:'Зарегистрируйтесь, чтобы получить доступ к играм и кассе',
-            regNamePh:'Ваше имя', regPhonePh:'+7 999 123-45-67', regEmailPh:'Email',
-            regSubmit:'Зарегистрироваться', regNote:'Данные используются для выплат',
-            regSuccess:'✅ Регистрация успешна!', regNameErr:'Имя должно быть не короче 2 символов',
-            regPhoneErr:'Укажите корректный номер телефона', emailErr:'Укажите корректный Email',
-            regRequired:'Сначала зарегистрируйтесь', editRegBtn:'✏️ Изменить данные',
-            plinkoDrop:'🎯 Бросить шарик', plinkoDropping:'🎯 Летит...',
-            towerLevel:'Уровень', towerMult:'Множитель', towerPotential:'Потенциал',
-            towerStart:'🚀 Начать', towerCashout:'💰 Забрать',
-            towerWin:'🎉 Забрано {2}{0} (x{1})!', towerLose:'💥 Ловушка! Ставка потеряна',
-            towerSelectLane:'Выберите клетку',
-            diceRoll:'🎲 Бросить', diceRolling:'🎲 Крутим...', diceOver:'БОЛЬШЕ', diceUnder:'МЕНЬШЕ',
-            diceMultiplier:'Множитель', diceWinChance:'Шанс выигрыша',
-            kenoPlay:'Играть', kenoDrawn:'Выпало', kenoMatches:'Совпадений', kenoPickNum:'Выберите числа', kenoMax:'Максимум 10 чисел',
-            wheelSpinBtn:'Крутить колесо', wheelResult:'Результат',
-            kycTitle:'🛡️ KYC Верификация', kycDesc:'Пройдите верификацию для вывода крупных сумм.', goKyc:'Пройти KYC',
-            kycNamePh:'ФИО на английском', kycCountryPh:'Страна проживания', kycSubmit:'Отправить',
-            notPassed:'Не пройдена', pendingKyc:'На проверке', approvedKyc:'Пройдена',
-            kycSuccess:'✅ Отправлено на проверку!', kycErr:'Заполните данные на английском',
-            betsBtn:'📊 История ставок', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Ставок пока нет',
-            depRulesTitle:'Реквизиты для перевода:', depRulesText:'После перевода средств нажмите «Создать заявку». Деньги будут зачислены на баланс после подтверждения транзакции администратором.',
-            wdWalletPh:'Введите адрес кошелька/карты', copied:'✅ Адрес скопирован!', copyErr:'❌ Ошибка копирования',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO работает по лицензии Кюрасао #365/JAZ. Только для лиц старше 18 лет. Играйте ответственно.',
-            bonus:'Бонусы', welcomeBonusTitle:'ПРИВЕТСТВЕННЫЙ БОНУС', welcomeBonusSub:'К первому депозиту',
-            bonusWagerLbl:'Вейджер (отыгрыш):', bonusMaxLbl:'Макс. сумма бонуса:', bonusMaxWithdrawLbl:'Макс. сумма к выводу:',
-            bonusActivateBtn:'🎁 Подключить бонус'
-        },
-        en: {
-            games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
-            line:'Line', live:'Live', sportsTitle:'Sports Betting', comingSoon:'Will open soon...',
-            popular:'Popular', table:'Table', slotsTab:'Slots',
-            crash:'Rocket', crashDesc:'Cash out in time', bj:'Blackjack', bjDesc:'21 points',
-            bacc:'Baccarat', baccDesc:'Player vs Banker', slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels',
-            slotsLucky:'Lucky 7', slotsLuckyDesc:'Catch the sevens', slotsBook:'Book of Ra', slotsBookDesc:'Book of Pharaoh',
-            keno:'Keno', kenoDesc:'80 numbers lottery', wheel:'Wheel', wheelDesc:'Spin and win',
-            mines:'Mines', minesDesc:'5×5, reveal safe', roulette:'Roulette', rouletteDesc:'European',
-            plinko:'Plinko', plinkoDesc:'Drop the ball', tower:'Tower', towerDesc:'Climb higher',
-            dice:'Dice', diceDesc:'Guess the number',
-            balanceLbl:'Balance', topupLbl:'Deposit (Request)', withdrawLbl:'Withdraw funds',
-            historyLbl:'History', createReq:'Create request', sendBtn:'Send',
-            msgPlaceholder:'Your message...', supportTitle:'Support',
-            roundsLbl:'Rounds', bestWinLbl:'Best win',
-            minAmountPrefix:'Min amount: ', depositLbl:'Deposit', withdrawLblTx:'Withdrawal',
-            pendingLbl:'Pending', completedLbl:'Completed', rejectedLbl:'Rejected',
-            loading:'Loading...', historyEmpty:'No history yet',
-            dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player',
-            take:'Hit', stand:'Stand', playAgain:'Play again',
-            start:'Start', cashoutNow:'Cash out (x{0})',
-            spin:'Spin', spinAgain:'Spin again', spinning:'Spinning...',
-            playBet:'Place bet and play',
-            crashReady:'Ready to launch', flying:'Taking off...', crashed:'CRASH!',
-            won:'Cashed out!', missed:'😔 Missed',
-            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
-            rulesBtn:'📖 Rules', hideRules:'✖ Hide',
-            rulesCrash:'The multiplier grows from start. Press "Cash out" to lock in your winnings.',
-            rulesBj:'Goal — reach 21 or get closer to 21 than the dealer.',
-            rulesBacc:'Bets: Player (1:1), Banker (0.95:1), Tie (8:1).',
-            rulesClassic:'3 reels. Three of a kind payouts vary by symbol.',
-            rulesLucky:'3 reels. Three 7️⃣ = x30, two 7️⃣ = x5, one 7️⃣ = x1.5.',
-            rulesBook:'5 reels. Book (📖) is the most valuable symbol.',
-            rulesKeno:'Pick 1 to 10 numbers. The system draws 20 balls.',
-            rulesWheel:'The wheel has 10 segments.',
-            rulesMines:'5×5 grid. Choose mine count and reveal safe cells.',
-            rulesRoulette:'European roulette (37 numbers, 0-36).',
-            rulesPlinko:'Ball drops through a peg field.',
-            rulesTower:'8 levels, 3 cells each — one is a trap.',
-            rulesDice:'Choose a number from 2 to 98.',
-            insufficient:'Insufficient funds!', balanceUpdated:'Balance updated!',
-            serverSleep:'Server is sleeping.', netErr:'Network error', errPrefix:'Error: ',
-            enterMsg:'Enter a message', sent:'✅ Sent!',
-            welcomeVoice:'Welcome to Magic online casino!',
-            audioPrompt:'👆 Tap anywhere for sound 🔊',
-            tiedLbl:'Tie',
-            crashedMsg:'💥 Rocket exploded at {0}x.',
-            cashoutMsg:'🎉 You cashed out ${0} at x{1}!',
-            winAmountTpl:'🎉 +{2}{0} (x{1})',
-            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Tie.',
-            bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 Win {1}{0}!',
-            bjTieMsg:'🤝 Tie. Return {1}{0}', bjDealerWin:'😢 Dealer wins.',
-            bjBust:'😢 Bust!', bjDealerBust:'🎉 Dealer bust! You win!',
-            depCreated:'✅ Deposit request created!', wdCreated:'✅ Withdrawal request created!',
-            insufficientBal:'Insufficient. Balance: {1}{0}', betPositive:'Bet must be greater than 0',
-            minesCountLbl:'Mines', minesPicks:'Picks', minesMultiplier:'Multiplier', minesPotential:'Potential',
-            minesCashout:'Cash out', minesBoom:'💥 Boom! You hit a mine.',
-            minesCashed:'🎉 Cashed {2}{0} (x{1})!',
-            rouletteSpin:'Spin', rouletteSpinning:'Spinning...', rouletteSelectBet:'Select a bet',
-            rouletteWin:'🎉 Win {1}{0}!', rouletteLose:'😔 Loss {1}{0}',
-            rouletteRed:'Red', rouletteBlack:'Black', rouletteOdd:'Odd', rouletteEven:'Even',
-            rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12',
-            rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3',
-            rouletteNumber:'Number', rouletteSelected:'Selected',
-            regTitle:'📝 Registration', regSubtitle:'Register to access games and cashier',
-            regNamePh:'Your name', regPhonePh:'+1 555 123-45-67', regEmailPh:'Email',
-            regSubmit:'Register', regNote:'Data is used for payouts',
-            regSuccess:'✅ Registration successful!', regNameErr:'Name must be at least 2 characters',
-            regPhoneErr:'Please enter a valid phone number', emailErr:'Please enter a valid email',
-            regRequired:'Please register first', editRegBtn:'✏️ Edit data',
-            plinkoDrop:'🎯 Drop ball', plinkoDropping:'🎯 Dropping...',
-            towerLevel:'Level', towerMult:'Multiplier', towerPotential:'Potential',
-            towerStart:'🚀 Start', towerCashout:'💰 Cash out',
-            towerWin:'🎉 Cashed {2}{0} (x{1})!', towerLose:'💥 Trap! Bet lost',
-            towerSelectLane:'Pick a cell',
-            diceRoll:'🎲 Roll', diceRolling:'🎲 Rolling...', diceOver:'OVER', diceUnder:'UNDER',
-            diceMultiplier:'Multiplier', diceWinChance:'Win chance',
-            kenoPlay:'Play', kenoDrawn:'Drawn', kenoMatches:'Matches', kenoPickNum:'Pick numbers', kenoMax:'Max 10 numbers',
-            wheelSpinBtn:'Spin Wheel', wheelResult:'Result',
-            kycTitle:'🛡️ KYC Verification', kycDesc:'Complete verification to withdraw large amounts.', goKyc:'Go to KYC',
-            kycNamePh:'Full Name in English', kycCountryPh:'Country of Residence', kycSubmit:'Submit',
-            notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved',
-            kycSuccess:'✅ Submitted for review!', kycErr:'Please fill in English',
-            betsBtn:'📊 Bet History', betLbl:'Bet', winLbl:'Win', emptyBets:'No bets yet',
-            depRulesTitle:'Payment Details:', depRulesText:'After the transfer, click "Create Request".',
-            wdWalletPh:'Enter wallet/card address', copied:'✅ Address copied!', copyErr:'❌ Copy error',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO operates under Curacao license #365/JAZ. 18+ only.',
-            bonus:'Bonuses', welcomeBonusTitle:'WELCOME BONUS', welcomeBonusSub:'On first deposit',
-            bonusWagerLbl:'Wager:', bonusMaxLbl:'Max bonus amount:', bonusMaxWithdrawLbl:'Max withdrawal:',
-            bonusActivateBtn:'🎁 Activate Bonus'
-        },
-        pl: {
-            games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
-            line:'Linia', live:'Na żywo', sportsTitle:'Zakłady sportowe', comingSoon:'Otworzy się wkrótce...',
-            popular:'Popularne', table:'Stołowe', slotsTab:'Sloty',
-            crash:'Rakieta', crashDesc:'Odbierz na czas', bj:'Blackjack', bjDesc:'21 punktów',
-            bacc:'Baccarat', baccDesc:'Gracz vs Bankier', slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny',
-            slotsLucky:'Lucky 7', slotsLuckyDesc:'Łap siódemki', slotsBook:'Book of Ra', slotsBookDesc:'Księga Faraona',
-            keno:'Keno', kenoDesc:'Loteria na 80 liczb', wheel:'Koło', wheelDesc:'Kręcić i wygrywać',
-            mines:'Miny', minesDesc:'5×5, odkryj bezpieczne', roulette:'Ruletka', rouletteDesc:'Europejska',
-            plinko:'Plinko', plinkoDesc:'Upuść kulkę', tower:'Wieża', towerDesc:'Wspinaj się wyżej',
-            dice:'Kości', diceDesc:'Zgadnij liczbę',
-            balanceLbl:'Saldo', topupLbl:'Wpłata', withdrawLbl:'Wypłata',
-            historyLbl:'Historia', createReq:'Utwórz wniosek', sendBtn:'Wyślij',
-            msgPlaceholder:'Twoja wiadomość...', supportTitle:'Pomoc',
-            roundsLbl:'Rund', bestWinLbl:'Najlepsza wygrana',
-            minAmountPrefix:'Min. kwota: ', depositLbl:'Wpłata', withdrawLblTx:'Wypłata',
-            pendingLbl:'W trakcie', completedLbl:'Zrealizowano', rejectedLbl:'Odrzucono',
-            loading:'Ładowanie...', historyEmpty:'Historia jest pusta',
-            dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz',
-            take:'Dobierz', stand:'Stop', playAgain:'Zagraj ponownie',
-            start:'Start', cashoutNow:'Odbierz (x{0})',
-            spin:'Kręcić', spinAgain:'Kręcić ponownie', spinning:'Kręcimy...',
-            playBet:'Postaw i zagraj',
-            crashReady:'Gotowy do startu', flying:'Startujemy...', crashed:'KRAKS!',
-            won:'Odebrano!', missed:'😔 Pudło',
-            betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)',
-            rulesBtn:'📖 Zasady', hideRules:'✖ Ukryj',
-            rulesCrash:'Mnożnik rośnie od startu.', rulesBj:'Cel — osiągnąć 21.', rulesBacc:'Zakłady: Player, Banker, Tie.',
-            rulesClassic:'3 bębny.', rulesLucky:'3 bębny z siódemkami.', rulesBook:'5 bębnów. Księga najcenniejsza.',
-            rulesKeno:'Wybierz od 1 do 10 liczb.', rulesWheel:'Koło podzielone na 10 sektorów.',
-            rulesMines:'Pole 5×5.', rulesRoulette:'Ruletka europejska.', rulesPlinko:'Kulka spada przez pole.',
-            rulesTower:'8 poziomów.', rulesDice:'Wybierz liczbę od 2 do 98.',
-            insufficient:'Niewystarczające środki!', balanceUpdated:'Saldo zaktualizowane!',
-            serverSleep:'Serwer śpi.', netErr:'Błąd sieci', errPrefix:'Błąd: ',
-            enterMsg:'Wpisz wiadomość', sent:'✅ Wysłano!',
-            welcomeVoice:'Witamy w kasynie online Magic!',
-            audioPrompt:'👆 Dotknij gdziekolwiek 🔊',
-            tiedLbl:'Remis',
-            crashedMsg:'💥 Rakieta eksplodowała na {0}x.',
-            cashoutMsg:'🎉 Odebrałeś ${0} na mnożniku x{1}!',
-            winAmountTpl:'🎉 +{2}{0} (x{1})',
-            baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Remis.',
-            bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 Wygrana {1}{0}!',
-            bjTieMsg:'🤝 Remis. Zwrot {1}{0}', bjDealerWin:'😢 Krupier wygrał.',
-            bjBust:'😢 Przekroczenie!', bjDealerBust:'🎉 Krupier przekroczył!',
-            depCreated:'✅ Wniosek o wpłatę utworzony!', wdCreated:'✅ Wniosek o wypłatę utworzony!',
-            insufficientBal:'Za mało. Saldo: {1}{0}', betPositive:'Zakład musi być większy niż 0',
-            minesCountLbl:'Miny', minesPicks:'Odkryto', minesMultiplier:'Mnożnik', minesPotential:'Potencjał',
-            minesCashout:'Odbierz', minesBoom:'💥 Bum! Trafiłeś na minę.',
-            minesCashed:'🎉 Odebrano {2}{0} (x{1})!',
-            rouletteSpin:'Kręcić', rouletteSpinning:'Kręcimy...', rouletteSelectBet:'Wybierz zakład',
-            rouletteWin:'🎉 Wygrana {1}{0}!', rouletteLose:'😔 Przegrana {1}{0}',
-            rouletteRed:'Czerwone', rouletteBlack:'Czarne', rouletteOdd:'Nieparzyste', rouletteEven:'Parzyste',
-            rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12',
-            rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3',
-            rouletteNumber:'Liczba', rouletteSelected:'Wybrano',
-            regTitle:'📝 Rejestracja', regSubtitle:'Zarejestruj się, aby uzyskać dostęp',
-            regNamePh:'Twoje imię', regPhonePh:'+48 500 123 456', regEmailPh:'Email',
-            regSubmit:'Zarejestruj się', regNote:'Dane do wypłat',
-            regSuccess:'✅ Rejestracja zakończona!', regNameErr:'Imię musi mieć co najmniej 2 znaki',
-            regPhoneErr:'Podaj prawidłowy numer', emailErr:'Podaj prawidłowy email',
-            regRequired:'Najpierw się zarejestruj', editRegBtn:'✏️ Edytuj dane',
-            plinkoDrop:'🎯 Rzuć kulkę', plinkoDropping:'🎯 Spada...',
-            towerLevel:'Poziom', towerMult:'Mnożnik', towerPotential:'Potencjał',
-            towerStart:'🚀 Start', towerCashout:'💰 Odbierz',
-            towerWin:'🎉 Odebrano {2}{0} (x{1})!', towerLose:'💥 Pułapka!',
-            towerSelectLane:'Wybierz komórkę',
-            diceRoll:'🎲 Rzuć', diceRolling:'🎲 Toczy się...', diceOver:'WIĘCEJ', diceUnder:'MNIEJ',
-            diceMultiplier:'Mnożnik', diceWinChance:'Szansa',
-            kenoPlay:'Zagraj', kenoDrawn:'Wylosowano', kenoMatches:'Trafienia', kenoPickNum:'Wybierz liczby', kenoMax:'Maksymalnie 10 liczb',
-            wheelSpinBtn:'Kręcić kołem', wheelResult:'Wynik',
-            kycTitle:'🛡️ Weryfikacja KYC', kycDesc:'Przejdź weryfikację.', goKyc:'Przejdź KYC',
-            kycNamePh:'Imię po angielsku', kycCountryPh:'Kraj', kycSubmit:'Wyślij',
-            notPassed:'Nieprzepuszczony', pendingKyc:'W trakcie', approvedKyc:'Zatwierdzony',
-            kycSuccess:'✅ Wysłano!', kycErr:'Wypełnij po angielsku',
-            betsBtn:'📊 Historia zakładów', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Brak zakładów',
-            depRulesTitle:'Dane do płatności:', depRulesText:'Po przelewie kliknij „Utwórz wniosek”.',
-            wdWalletPh:'Wpisz adres portfela', copied:'✅ Skopiowano!', copyErr:'❌ Błąd',
-            licenseText:'Licensed by Curacao eGaming', licenseDesc:'MADGEK CASINO działa na licencji Curacao.',
-            bonus:'Bonusy', welcomeBonusTitle:'BONUS POWITALNY', welcomeBonusSub:'Na pierwszy depozyt',
-            bonusWagerLbl:'Wager:', bonusMaxLbl:'Maks. bonus:', bonusMaxWithdrawLbl:'Maks. wypłata:',
-            bonusActivateBtn:'🎁 Aktywuj bonus'
-        }
+        ru: {games:'Игры', liveTab:'Лайв', cash:'Касса', support:'Помощь', profile:'Профиль', bonus:'Бонусы', popular:'Популярные', table:'Настольные', slotsTab:'Слоты', crash:'Ракетка', crashDesc:'Успей забрать', bj:'Blackjack', bjDesc:'21 очко', bacc:'Baccarat', baccDesc:'Игрок vs Банкир', slotsClassic:'Classic Slots', slotsClassicDesc:'3 барабана', slotsLucky:'Lucky 7', slotsLuckyDesc:'Лови семёрки', slotsBook:'Book of Ra', slotsBookDesc:'Книга Фараона', keno:'Кено', kenoDesc:'Лотерея на 80 чисел', wheel:'Колесо', wheelDesc:'Крути и выигрывай', mines:'Мины', minesDesc:'5×5', roulette:'Рулетка', rouletteDesc:'Европейская', plinko:'Plinko', plinkoDesc:'Шарик вниз', tower:'Башня', towerDesc:'Выше', dice:'Кости', diceDesc:'Угадай', balanceLbl:'Баланс', topupLbl:'Пополнение', withdrawLbl:'Вывод', historyLbl:'История', createReq:'Создать заявку', sendBtn:'Отправить', msgPlaceholder:'Сообщение...', supportTitle:'Поддержка', roundsLbl:'Раундов', bestWinLbl:'Лучший выигрыш', minAmountPrefix:'Мин: ', depositLbl:'Пополнение', withdrawLblTx:'Вывод', pendingLbl:'Обработка', completedLbl:'Готово', rejectedLbl:'Отклонено', loading:'Загрузка...', historyEmpty:'Пусто', dealer:'Дилер', you:'Вы', banker:'Банкир', playerGame:'Игрок', take:'Взять', stand:'Хватит', playAgain:'Играть снова', start:'Запустить', cashoutNow:'Забрать (x{0})', spin:'Крутить', spinAgain:'Крутить снова', spinning:'Крутим...', playBet:'Сделать ставку и играть', crashReady:'Готов', flying:'Взлетаем...', crashed:'КРАШ!', won:'Забрано!', missed:'😔 Мимо', betOnPlayer:'Player (1:1)', betOnBanker:'Banker (0.95:1)', betOnTie:'Tie (8:1)', rulesBtn:'📖 Правила', hideRules:'✖ Скрыть', insufficient:'Недостаточно средств!', balanceUpdated:'Баланс обновлён!', serverSleep:'Сервер спит', netErr:'Ошибка сети', errPrefix:'Ошибка: ', enterMsg:'Введите сообщение', sent:'✅ Отправлено!', welcomeVoice:'Добро пожаловать в казино Мэджик!', audioPrompt:'👆 Нажмите для звука 🔊', tiedLbl:'Ничья', crashedMsg:'💥 Ракета взорвалась на {0}x.', cashoutMsg:'🎉 Забрали ${0} на x{1}!', winAmountTpl:'🎉 +{2}{0} (x{1})', baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Ничья', bjBlackjack:'🎉 Блэкджек! +{1}{0}', bjWin:'🎉 Выигрыш {1}{0}!', bjTieMsg:'🤝 Ничья. Возврат {1}{0}', bjDealerWin:'😢 Дилер выиграл.', bjBust:'😢 Перебор!', bjDealerBust:'🎉 Дилер перебрал!', depCreated:'✅ Заявка создана!', wdCreated:'✅ Заявка создана!', insufficientBal:'Недостаточно. Баланс: {1}{0}', betPositive:'Ставка > 0', minesCountLbl:'Мин', minesPicks:'Открыто', minesMultiplier:'Множитель', minesPotential:'Потенциал', minesCashout:'Забрать', minesBoom:'💥 Бум!', minesCashed:'🎉 Забрано {2}{0} (x{1})!', rouletteSpin:'Крутить', rouletteSpinning:'Крутим...', rouletteSelectBet:'Выберите ставку', rouletteWin:'🎉 Выигрыш {1}{0}!', rouletteLose:'😔 Проигрыш {1}{0}', rouletteRed:'Красное', rouletteBlack:'Чёрное', rouletteOdd:'Нечёт', rouletteEven:'Чёт', rouletteDozen1:'1-я 12', rouletteDozen2:'2-я 12', rouletteDozen3:'3-я 12', rouletteCol1:'Кол. 1', rouletteCol2:'Кол. 2', rouletteCol3:'Кол. 3', rouletteNumber:'Число', rouletteSelected:'Выбрано', regTitle:'📝 Регистрация', regSubtitle:'Зарегистрируйтесь', regNamePh:'Имя', regPhonePh:'+7 999 123-45-67', regEmailPh:'Email', regSubmit:'Зарегистрироваться', regNote:'Данные для выплат', regSuccess:'✅ Успешно!', regNameErr:'Имя короче 2 символов', regPhoneErr:'Неверный телефон', emailErr:'Неверный Email', regRequired:'Сначала регистрация', editRegBtn:'✏️ Изменить', plinkoDrop:'🎯 Бросить', plinkoDropping:'🎯 Летит...', towerLevel:'Уровень', towerMult:'Множитель', towerPotential:'Потенциал', towerStart:'🚀 Начать', towerCashout:'💰 Забрать', towerWin:'🎉 Забрано {2}{0} (x{1})!', towerLose:'💥 Ловушка!', towerSelectLane:'Выберите', diceRoll:'🎲 Бросить', diceRolling:'🎲 Крутим...', diceOver:'БОЛЬШЕ', diceUnder:'МЕНЬШЕ', diceMultiplier:'Множитель', diceWinChance:'Шанс', kenoPlay:'Играть', kenoDrawn:'Выпало', kenoMatches:'Совпадений', kenoPickNum:'Выберите', kenoMax:'Максимум 10', wheelSpinBtn:'Крутить', wheelResult:'Результат', kycTitle:'🛡️ KYC', kycDesc:'Пройдите KYC', goKyc:'Пройти KYC', kycNamePh:'ФИО на англ.', kycCountryPh:'Страна', kycSubmit:'Отправить', notPassed:'Не пройдена', pendingKyc:'На проверке', approvedKyc:'Пройдена', kycSuccess:'✅ Отправлено!', kycErr:'Заполните на англ.', betsBtn:'📊 История', betLbl:'Ставка', winLbl:'Выигрыш', emptyBets:'Пусто', depRulesTitle:'Реквизиты:', depRulesText:'После перевода нажмите «Создать заявку»', wdWalletPh:'Адрес кошелька/карты', copied:'✅ Скопировано!', copyErr:'❌ Ошибка', licenseText:'Licensed by Curacao', licenseDesc:'MADGEK CASINO · 18+ · Play responsibly', welcomeBonusTitle:'ПРИВЕТСТВЕННЫЙ БОНУС', welcomeBonusSub:'К первому депозиту', bonusWagerLbl:'Вейджер:', bonusMaxLbl:'Макс. бонус:', bonusMaxWithdrawLbl:'Макс. вывод:', bonusActivateBtn:'🎁 Подключить' },
+        en: {games:'Games', liveTab:'Live', cash:'Cashier', support:'Support', profile:'Profile', bonus:'Bonuses', popular:'Popular', table:'Table', slotsTab:'Slots', crash:'Rocket', crashDesc:'Cash out in time', bj:'Blackjack', bjDesc:'21 points', bacc:'Baccarat', baccDesc:'Player vs Banker', slotsClassic:'Classic Slots', slotsClassicDesc:'3 reels', slotsLucky:'Lucky 7', slotsLuckyDesc:'Sevens', slotsBook:'Book of Ra', slotsBookDesc:'Book of Pharaoh', keno:'Keno', kenoDesc:'80 numbers', wheel:'Wheel', wheelDesc:'Spin', mines:'Mines', minesDesc:'5×5', roulette:'Roulette', rouletteDesc:'European', plinko:'Plinko', plinkoDesc:'Drop', tower:'Tower', towerDesc:'Climb', dice:'Dice', diceDesc:'Guess', balanceLbl:'Balance', topupLbl:'Deposit', withdrawLbl:'Withdraw', historyLbl:'History', createReq:'Create', sendBtn:'Send', msgPlaceholder:'Message...', supportTitle:'Support', roundsLbl:'Rounds', bestWinLbl:'Best win', minAmountPrefix:'Min: ', depositLbl:'Deposit', withdrawLblTx:'Withdrawal', pendingLbl:'Pending', completedLbl:'Done', rejectedLbl:'Rejected', loading:'Loading...', historyEmpty:'Empty', dealer:'Dealer', you:'You', banker:'Banker', playerGame:'Player', take:'Hit', stand:'Stand', playAgain:'Play again', start:'Start', cashoutNow:'Cash out (x{0})', spin:'Spin', spinAgain:'Spin again', spinning:'Spinning...', playBet:'Bet and play', crashReady:'Ready', flying:'Flying...', crashed:'CRASH!', won:'Cashed!', missed:'😔 Missed', betOnPlayer:'Player', betOnBanker:'Banker', betOnTie:'Tie', rulesBtn:'📖 Rules', hideRules:'✖ Hide', insufficient:'Insufficient!', balanceUpdated:'Balance updated!', serverSleep:'Server sleep', netErr:'Network error', errPrefix:'Error: ', enterMsg:'Enter', sent:'✅ Sent!', welcomeVoice:'Welcome to Magic casino!', audioPrompt:'👆 Tap for sound 🔊', tiedLbl:'Tie', crashedMsg:'💥 Crashed at {0}x.', cashoutMsg:'🎉 Cashed ${0} at x{1}!', winAmountTpl:'🎉 +{2}{0} (x{1})', baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Tie', bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 Win {1}{0}!', bjTieMsg:'🤝 Tie. Return {1}{0}', bjDealerWin:'😢 Dealer wins.', bjBust:'😢 Bust!', bjDealerBust:'🎉 Dealer bust!', depCreated:'✅ Created!', wdCreated:'✅ Created!', insufficientBal:'Insufficient. Balance: {1}{0}', betPositive:'Bet > 0', minesCountLbl:'Mines', minesPicks:'Picks', minesMultiplier:'Mult', minesPotential:'Pot.', minesCashout:'Cash out', minesBoom:'💥 Boom!', minesCashed:'🎉 {2}{0} (x{1})', rouletteSpin:'Spin', rouletteSpinning:'Spinning...', rouletteSelectBet:'Select', rouletteWin:'🎉 Win {1}{0}!', rouletteLose:'😔 Loss {1}{0}', rouletteRed:'Red', rouletteBlack:'Black', rouletteOdd:'Odd', rouletteEven:'Even', rouletteDozen1:'1st 12', rouletteDozen2:'2nd 12', rouletteDozen3:'3rd 12', rouletteCol1:'Col 1', rouletteCol2:'Col 2', rouletteCol3:'Col 3', rouletteNumber:'Number', rouletteSelected:'Selected', regTitle:'📝 Registration', regSubtitle:'Register', regNamePh:'Name', regPhonePh:'+1 555 123-45-67', regEmailPh:'Email', regSubmit:'Register', regNote:'Data for payouts', regSuccess:'✅ Success!', regNameErr:'Name too short', regPhoneErr:'Invalid phone', emailErr:'Invalid email', regRequired:'Register first', editRegBtn:'✏️ Edit', plinkoDrop:'🎯 Drop', plinkoDropping:'🎯 Dropping...', towerLevel:'Level', towerMult:'Mult', towerPotential:'Pot.', towerStart:'🚀 Start', towerCashout:'💰 Cash out', towerWin:'🎉 {2}{0} (x{1})', towerLose:'💥 Trap!', towerSelectLane:'Pick', diceRoll:'🎲 Roll', diceRolling:'🎲 Rolling...', diceOver:'OVER', diceUnder:'UNDER', diceMultiplier:'Mult', diceWinChance:'Chance', kenoPlay:'Play', kenoDrawn:'Drawn', kenoMatches:'Matches', kenoPickNum:'Pick', kenoMax:'Max 10', wheelSpinBtn:'Spin', wheelResult:'Result', kycTitle:'🛡️ KYC', kycDesc:'Verify to withdraw', goKyc:'Go KYC', kycNamePh:'Full Name', kycCountryPh:'Country', kycSubmit:'Submit', notPassed:'Not passed', pendingKyc:'Pending', approvedKyc:'Approved', kycSuccess:'✅ Submitted!', kycErr:'Fill in English', betsBtn:'📊 History', betLbl:'Bet', winLbl:'Win', emptyBets:'Empty', depRulesTitle:'Details:', depRulesText:'After transfer click "Create"', wdWalletPh:'Wallet/card', copied:'✅ Copied!', copyErr:'❌ Error', licenseText:'Licensed by Curacao', licenseDesc:'MADGEK CASINO · 18+', welcomeBonusTitle:'WELCOME BONUS', welcomeBonusSub:'On first deposit', bonusWagerLbl:'Wager:', bonusMaxLbl:'Max bonus:', bonusMaxWithdrawLbl:'Max withdraw:', bonusActivateBtn:'🎁 Activate' },
+        pl: {games:'Gry', liveTab:'Live', cash:'Kasa', support:'Pomoc', profile:'Profil', bonus:'Bonusy', popular:'Popularne', table:'Stołowe', slotsTab:'Sloty', crash:'Rakieta', crashDesc:'Odbierz', bj:'Blackjack', bjDesc:'21', bacc:'Baccarat', baccDesc:'Player/Banker', slotsClassic:'Classic Slots', slotsClassicDesc:'3 bębny', slotsLucky:'Lucky 7', slotsLuckyDesc:'Siódemki', slotsBook:'Book of Ra', slotsBookDesc:'Księga', keno:'Keno', kenoDesc:'80 liczb', wheel:'Koło', wheelDesc:'Kręcić', mines:'Miny', minesDesc:'5×5', roulette:'Ruletka', rouletteDesc:'Europejska', plinko:'Plinko', plinkoDesc:'Kulka', tower:'Wieża', towerDesc:'Wyżej', dice:'Kości', diceDesc:'Zgadnij', balanceLbl:'Saldo', topupLbl:'Wpłata', withdrawLbl:'Wypłata', historyLbl:'Historia', createReq:'Utwórz', sendBtn:'Wyślij', msgPlaceholder:'Wiadomość...', supportTitle:'Pomoc', roundsLbl:'Rund', bestWinLbl:'Rekord', minAmountPrefix:'Min: ', depositLbl:'Wpłata', withdrawLblTx:'Wypłata', pendingLbl:'W trakcie', completedLbl:'Gotowe', rejectedLbl:'Odrzucone', loading:'Ładowanie...', historyEmpty:'Pusto', dealer:'Krupier', you:'Ty', banker:'Bankier', playerGame:'Gracz', take:'Dobierz', stand:'Stop', playAgain:'Zagraj', start:'Start', cashoutNow:'Odbierz (x{0})', spin:'Kręcić', spinAgain:'Kręcić', spinning:'Kręcimy...', playBet:'Zagraj', crashReady:'Gotowy', flying:'Start...', crashed:'KRAKS!', won:'Odebrano!', missed:'😔 Pudło', betOnPlayer:'Player', betOnBanker:'Banker', betOnTie:'Tie', rulesBtn:'📖 Zasady', hideRules:'✖ Ukryj', insufficient:'Za mało!', balanceUpdated:'Saldo ok!', serverSleep:'Serwer śpi', netErr:'Błąd sieci', errPrefix:'Błąd: ', enterMsg:'Wpisz', sent:'✅ Wysłano!', welcomeVoice:'Witamy w Magic casino!', audioPrompt:'👆 Dotknij 🔊', tiedLbl:'Remis', crashedMsg:'💥 {0}x', cashoutMsg:'🎉 ${0} x{1}', winAmountTpl:'🎉 +{2}{0} (x{1})', baccWin:'🎉 {0}! +{2}{1}', baccLose:'😔 {0}. -{2}{1}', baccTie:'🤝 Remis', bjBlackjack:'🎉 Blackjack! +{1}{0}', bjWin:'🎉 {1}{0}!', bjTieMsg:'🤝 Remis {1}{0}', bjDealerWin:'😢 Krupier', bjBust:'😢 Bust!', bjDealerBust:'🎉 Krupier bust!', depCreated:'✅ Wniosek!', wdCreated:'✅ Wniosek!', insufficientBal:'Za mało: {1}{0}', betPositive:'Zakład > 0', minesCountLbl:'Miny', minesPicks:'Odkryto', minesMultiplier:'Mnożnik', minesPotential:'Pot.', minesCashout:'Odbierz', minesBoom:'💥 Bum!', minesCashed:'🎉 {2}{0} (x{1})', rouletteSpin:'Kręcić', rouletteSpinning:'Kręcimy...', rouletteSelectBet:'Wybierz', rouletteWin:'🎉 {1}{0}!', rouletteLose:'😔 {1}{0}', rouletteRed:'Czerwone', rouletteBlack:'Czarne', rouletteOdd:'Nieparzyste', rouletteEven:'Parzyste', rouletteDozen1:'1. 12', rouletteDozen2:'2. 12', rouletteDozen3:'3. 12', rouletteCol1:'Kol. 1', rouletteCol2:'Kol. 2', rouletteCol3:'Kol. 3', rouletteNumber:'Liczba', rouletteSelected:'Wybrano', regTitle:'📝 Rejestracja', regSubtitle:'Zarejestruj się', regNamePh:'Imię', regPhonePh:'+48 500 123 456', regEmailPh:'Email', regSubmit:'Zarejestruj', regNote:'Dane do wypłat', regSuccess:'✅ OK!', regNameErr:'Imię za krótkie', regPhoneErr:'Zły telefon', emailErr:'Zły email', regRequired:'Zarejestruj', editRegBtn:'✏️ Edytuj', plinkoDrop:'🎯 Rzuć', plinkoDropping:'🎯 Lecisz...', towerLevel:'Poziom', towerMult:'Mnożnik', towerPotential:'Pot.', towerStart:'🚀 Start', towerCashout:'💰 Odbierz', towerWin:'🎉 {2}{0} (x{1})', towerLose:'💥 Pułapka!', towerSelectLane:'Wybierz', diceRoll:'🎲 Rzuć', diceRolling:'🎲 Toczy...', diceOver:'WIĘCEJ', diceUnder:'MNIEJ', diceMultiplier:'Mnożnik', diceWinChance:'Szansa', kenoPlay:'Zagraj', kenoDrawn:'Wylos.', kenoMatches:'Traf.', kenoPickNum:'Wybierz', kenoMax:'Max 10', wheelSpinBtn:'Kręcić', wheelResult:'Wynik', kycTitle:'🛡️ KYC', kycDesc:'Weryfikacja', goKyc:'KYC', kycNamePh:'Imię po ang.', kycCountryPh:'Kraj', kycSubmit:'Wyślij', notPassed:'Brak', pendingKyc:'W trakcie', approvedKyc:'OK', kycSuccess:'✅ Wysłano!', kycErr:'Wypełnij', betsBtn:'📊 Historia', betLbl:'Zakład', winLbl:'Wygrana', emptyBets:'Pusto', depRulesTitle:'Dane:', depRulesText:'Po przelewie kliknij', wdWalletPh:'Portfel/karta', copied:'✅ Skopiowano!', copyErr:'❌ Błąd', licenseText:'Licensed by Curacao', licenseDesc:'MADGEK CASINO · 18+', welcomeBonusTitle:'BONUS POWITALNY', welcomeBonusSub:'Na pierwszy depozyt', bonusWagerLbl:'Wager:', bonusMaxLbl:'Maks. bonus:', bonusMaxWithdrawLbl:'Maks. wypłata:', bonusActivateBtn:'🎁 Aktywuj' }
     };
 
     let lang = localStorage.getItem('lang') || 'ru';
@@ -869,7 +572,6 @@
     }
     function getSym() { return currentCurrency === 'UAH' ? '₴' : '$'; }
 
-    // GOLDEN RAIN
     (function initGoldRain() {
         const container = document.getElementById('goldRain');
         for(let i=0; i<30; i++) {
@@ -890,7 +592,6 @@
         updateMinLabels();
         if (typeof state !== 'undefined') updateUI();
         if (typeof currentTab !== 'undefined' && currentTab) switchTab(currentTab);
-        if (document.getElementById('gameModal').classList.contains('open')) closeGame();
     }
     function updateMinLabels() {
         const depSym = depMethod === 'UAH' ? '₴' : '$';
@@ -919,7 +620,8 @@
             const chips = document.getElementById('betChips');
             if (chips) renderBetChips('betChips');
         }
-        if (typeof updateSportPotential === 'function') updateSportPotential();
+        updateLivePotential();
+        renderLiveChips();
     }
 
     let tg = window.Telegram.WebApp;
@@ -1238,10 +940,10 @@
 
         if (document.getElementById('vipName')) {
             const vipLevels = [
-                {lvl: 0, name: 'Новичок',  icon: '👤', threshold: 0,     reward: 0},
-                {lvl: 1, name: 'Bronze',   icon: '🥉', threshold: 2000,  reward: 200},
-                {lvl: 2, name: 'Silver',   icon: '🥈', threshold: 7000,  reward: 700},
-                {lvl: 3, name: 'Gold',     icon: '🥇', threshold: 20000, reward: 2000},
+                {lvl: 0, name: 'Новичок', icon: '👤', threshold: 0, reward: 0},
+                {lvl: 1, name: 'Bronze', icon: '🥉', threshold: 2000, reward: 200},
+                {lvl: 2, name: 'Silver', icon: '🥈', threshold: 7000, reward: 700},
+                {lvl: 3, name: 'Gold', icon: '🥇', threshold: 20000, reward: 2000},
                 {lvl: 4, name: 'Platinum', icon: '💎', threshold: 50000, reward: 5000}
             ];
             const cur = Math.min(4, Math.max(0, state.vip_level || 0));
@@ -1261,7 +963,7 @@
                 const pct = range > 0 ? Math.min(100, (done / range) * 100) : 0;
                 document.getElementById('vipProgressBar').style.width = pct + '%';
             } else {
-                document.getElementById('vipCurrLabel').innerText = 'Платина — максимум';
+                document.getElementById('vipCurrLabel').innerText = 'Максимум';
                 document.getElementById('vipNextLabel').innerText = 'MAX';
                 document.getElementById('vipProgressBar').style.width = '100%';
             }
@@ -1285,123 +987,9 @@
         document.getElementById('nav-' + view).classList.add('active');
         if (view === 'cash') loadHistory();
         if (view === 'bonus') loadBonusStatus();
-        if (view === 'sports') loadSportMyBets();
-    }
-    function switchSportsTab(tab) {
-        document.getElementById('sports-tab-line').classList.remove('active');
-        document.getElementById('sports-tab-live').classList.remove('active');
-        document.getElementById('sports-tab-' + tab).classList.add('active');
-        document.getElementById('sports-line-content').classList.toggle('hidden', tab !== 'line');
-        document.getElementById('sports-live-content').classList.toggle('hidden', tab !== 'live');
+        if (view === 'live') { renderLiveChips(); renderLiveNumbers(); drawLiveWheel(0); }
     }
 
-    // ============ SPORTS ============
-    let selectedSportBet = null;
-
-    function selectSportOdd(btn, sel, odds, label) {
-        document.querySelectorAll('.odd-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedSportBet = { match_id: 'bayern_arsenal_2026_10_21', selection: sel, odds: odds, label: label };
-        const info = document.getElementById('sportBetInfo');
-        const btnPlace = document.getElementById('sportBetBtn');
-        info.innerHTML = `Выбрано: <b>${label}</b> @ <b>${odds.toFixed(2)}</b>`;
-        btnPlace.disabled = false;
-        updateSportPotential();
-    }
-
-    function updateSportPotential() {
-        if (!selectedSportBet) return;
-        const amount = parseFloat(document.getElementById('sportBetAmount').value) || 0;
-        const potential = amount * selectedSportBet.odds;
-        document.getElementById('sportPotential').innerText = `Потенциал: ${getSym()}${potential.toFixed(2)}`;
-    }
-
-    async function placeSportsBet() {
-        if (!selectedSportBet) return;
-        if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
-        const amount = parseFloat(document.getElementById('sportBetAmount').value);
-        const minBet = currentCurrency === 'UAH' ? 40 : 1;
-        if (!amount || amount < minBet) return tg.showAlert(`Минимальная ставка: ${getSym()}${minBet}`);
-        const btn = document.getElementById('sportBetBtn');
-        btn.disabled = true; btn.innerText = 'Отправка...';
-        try {
-            const res = await fetch('/api/sports/bet', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    id: user.id,
-                    match_id: selectedSportBet.match_id,
-                    selection: selectedSportBet.selection,
-                    amount: amount,
-                    currency: currentCurrency
-                })
-            });
-            const data = await res.json();
-            btn.disabled = false; btn.innerText = 'Сделать ставку';
-            if (data.error) return tg.showAlert(translateErr(data.error));
-            applyServerBalance(data.balance);
-            updateUI();
-            tg.showAlert(`✅ Ставка принята!\nПотенциал: ${getSym()}${data.potential_win.toFixed(2)}`);
-            document.querySelectorAll('.odd-btn').forEach(b => b.classList.remove('selected'));
-            selectedSportBet = null;
-            document.getElementById('sportBetBtn').disabled = true;
-            document.getElementById('sportBetInfo').innerText = 'Выберите исход';
-            document.getElementById('sportBetAmount').value = 1;
-            document.getElementById('sportPotential').innerText = `Потенциал: ${getSym()}0.00`;
-            loadSportMyBets();
-        } catch (e) {
-            btn.disabled = false; btn.innerText = 'Сделать ставку';
-            tg.showAlert(t('netErr'));
-        }
-    }
-
-    async function loadSportMyBets() {
-        try {
-            const res = await fetch(`/api/sports/my_bets?id=${user.id}`);
-            const data = await res.json();
-            const container = document.getElementById('sportMyBets');
-            if (!container) return;
-            if (!data || data.length === 0) { container.innerHTML = ''; return; }
-            container.innerHTML = '<div style="font-size:13px; font-weight:800; color:var(--gold); margin: 15px 0 8px;">📋 Мои ставки на этот матч</div>' + data.map(b => {
-                const isWon = b.status === 'Won';
-                const isLost = b.status === 'Lost';
-                const isPending = b.status === 'Pending';
-                const color = isWon ? 'var(--green)' : isLost ? 'var(--red)' : 'var(--gold)';
-                const statusLabel = isWon ? '✅ Выиграла' : isLost ? '❌ Проиграла' : '⏳ Ожидание';
-                const sym = b.currency === 'UAH' ? '₴' : '$';
-                return `<div class="sport-my-bet-row" style="border-color:${color};">
-                    <div style="font-size:11px; color:var(--muted);">${b.date}</div>
-                    <div style="font-weight:800; color:var(--text);">${b.selection}</div>
-                    <div style="color:var(--muted);">Ставка: <b>${sym}${b.amount.toFixed(2)}</b> @ ${b.odds.toFixed(2)}</div>
-                    <div style="color:${color}; font-weight:800;">${statusLabel} | Потенциал: ${sym}${b.potential_win.toFixed(2)}</div>
-                </div>`;
-            }).join('');
-        } catch (e) { console.log('sports bets load error', e); }
-    }
-
-    function startCountdowns() {
-        setInterval(() => {
-            const el = document.getElementById('matchCountdown');
-            if (!el) return;
-            const start = new Date(el.dataset.start).getTime();
-            const diff = start - Date.now();
-            if (diff <= 0) {
-                el.innerText = '⚽ Матч начался — ставки закрыты';
-                el.style.color = 'var(--red)';
-                const btn = document.getElementById('sportBetBtn');
-                if (btn) { btn.disabled = true; btn.innerText = 'Ставки закрыты'; }
-                document.querySelectorAll('.odd-btn').forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
-                return;
-            }
-            const d = Math.floor(diff / 86400000);
-            const h = Math.floor((diff % 86400000) / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            el.innerText = `⏳ До матча: ${d}д ${h}ч ${m}м ${s}с`;
-        }, 1000);
-    }
-
-    // ============ BONUS ============
     async function loadBonusStatus() {
         try {
             const res = await fetch(`/api/bonus/status?id=${user.id}`);
@@ -1411,26 +999,26 @@
             if (!badge || !btn) return;
             const sym = data.currency === 'UAH' ? '₴' : '$';
             if (data.status === 'unavailable') {
-                badge.innerText = '❌ Бонус недоступен'; badge.style.background = 'rgba(229,57,53,0.15)'; badge.style.color = 'var(--red)'; btn.style.display = 'none';
+                badge.innerText = '❌ Недоступен'; badge.style.background = 'rgba(229,57,53,0.15)'; badge.style.color = 'var(--red)'; btn.style.display = 'none';
             } else if (data.status === 'pending') {
-                badge.innerText = '⏳ Активирован. Сделайте первый депозит'; badge.style.background = 'rgba(255,165,0,0.15)'; badge.style.color = 'orange'; btn.style.display = 'none';
+                badge.innerText = '⏳ Ожидает депозита'; badge.style.background = 'rgba(255,165,0,0.15)'; badge.style.color = 'orange'; btn.style.display = 'none';
             } else if (data.status === 'active') {
-                badge.innerText = `✅ Бонус: ${sym}${(data.bonus_amount||0).toFixed(2)} | Отыграно: ${sym}${(data.wager_progress||0).toFixed(2)} / ${sym}${(data.wager_required||0).toFixed(2)}`;
+                badge.innerText = `✅ ${sym}${(data.bonus_amount||0).toFixed(2)} | ${sym}${(data.wager_progress||0).toFixed(2)} / ${sym}${(data.wager_required||0).toFixed(2)}`;
                 badge.style.background = 'rgba(76,175,80,0.15)'; badge.style.color = 'var(--green)'; btn.style.display = 'none';
             } else if (data.status === 'completed') {
-                badge.innerText = '🏆 Бонус отыгран!'; badge.style.background = 'rgba(255,215,0,0.15)'; badge.style.color = 'var(--gold)'; btn.style.display = 'none';
+                badge.innerText = '🏆 Отыгран!'; badge.style.background = 'rgba(255,215,0,0.15)'; badge.style.color = 'var(--gold)'; btn.style.display = 'none';
             } else {
-                badge.innerText = '🎁 Готов к подключению'; badge.style.background = 'rgba(76,175,80,0.15)'; badge.style.color = 'var(--green)'; btn.style.display = 'block';
+                badge.innerText = '🎁 Готов'; badge.style.background = 'rgba(76,175,80,0.15)'; badge.style.color = 'var(--green)'; btn.style.display = 'block';
             }
         } catch (e) { console.log('bonus status error', e); }
     }
     async function activateBonus() {
         const btn = document.getElementById('bonusActivateBtn');
-        if (btn) { btn.disabled = true; btn.innerText = '⏳ Отправка...'; }
+        if (btn) { btn.disabled = true; btn.innerText = '⏳...'; }
         const data = await postApi('/api/bonus/activate', {});
         if (btn) { btn.disabled = false; btn.innerText = t('bonusActivateBtn'); }
         if (data.error) return tg.showAlert(translateErr(data.error));
-        tg.showAlert('✅ Заявка отправлена администратору!');
+        tg.showAlert('✅ Заявка отправлена!');
         loadBonusStatus();
     }
 
@@ -1483,8 +1071,7 @@
         if (msg.includes('Недостаточно средств')) return t('insufficient');
         if (msg.includes('Ставка должна')) return t('betPositive');
         if (msg.includes('Ошибка KYC')) return t('kycErr');
-        if (msg.includes('заблокирован')) return '🚫 Аккаунт заблокирован.';
-        if (msg.includes('Матч уже начался')) return '⚽ Матч уже начался — ставки закрыты';
+        if (msg.includes('заблокирован')) return '🚫 Аккаунт заблокирован';
         return msg;
     }
     async function doDeposit() {
@@ -1503,7 +1090,7 @@
         const sym = wdMethod === 'UAH' ? '₴' : '$';
         const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
         if (isNaN(amt) || amt <= 0) return tg.showAlert(t('enterMsg'));
-        if (!wallet) return tg.showAlert('Введите реквизиты для вывода!');
+        if (!wallet) return tg.showAlert('Введите реквизиты!');
         if (amt < minLimits[wdMethod]) return tg.showAlert(t('minAmountPrefix') + minLimits[wdMethod] + sym);
         if (bal < amt) return tg.showAlert(t('insufficientBal', bal.toFixed(2), sym));
         const data = await postApi('/api/withdraw', { amount: amt, method: wdMethod, wallet: wallet });
@@ -1564,6 +1151,305 @@
         b.innerText = isHidden ? t('hideRules') : t('rulesBtn');
     }
 
+    // ============ LIVE ROULETTE ============
+    const EUROPEAN_ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+    let liveSelectedBet = null;
+    let liveSelectedValue = null;
+    let liveBetAmount = 10;
+    let liveHistory = [];
+    let liveSpinning = false;
+    let liveCurrentWheelAngle = 0;
+
+    function dealerSay(text) {
+        const el = document.getElementById('dealerText');
+        if (!el) return;
+        el.style.opacity = '0';
+        setTimeout(() => { el.textContent = text; el.style.opacity = '1'; }, 150);
+    }
+
+    function renderLiveChips() {
+        const el = document.getElementById('liveChipsRow');
+        if (!el) return;
+        const sym = getSym();
+        el.innerHTML = [1, 5, 10, 50, 100].map(v =>
+            `<button class="live-chip ${liveBetAmount === v ? 'active' : ''}" onclick="setLiveChip(${v})">${sym}${v}</button>`
+        ).join('');
+    }
+    function setLiveChip(v) {
+        liveBetAmount = v;
+        document.getElementById('liveBetAmount').value = v;
+        renderLiveChips();
+        updateLivePotential();
+    }
+
+    function renderLiveNumbers() {
+        const el = document.getElementById('liveNumbersGrid');
+        if (!el) return;
+        // Классическая раскладка: 12 столбцов (3,6,9..36 / 2,5,8..35 / 1,4,7..34)
+        let html = '';
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 12; col++) {
+                const num = 3 * col + (3 - row);
+                const cls = RED_SET.has(num) ? 'red' : 'black';
+                html += `<button class="roul-cell ${cls}" data-bet="number" data-val="${num}" onclick="selectLiveBet('number', ${num})">${num}</button>`;
+            }
+        }
+        el.innerHTML = html;
+    }
+
+    function selectLiveBet(type, value = null) {
+        if (liveSpinning) return;
+        liveSelectedBet = type;
+        liveSelectedValue = value;
+        
+        document.querySelectorAll('.roul-cell, .roul-zero-btn, .roul-outside-btn').forEach(b => b.classList.remove('selected'));
+        
+        if (type === 'number') {
+            const btn = document.querySelector(`.roul-cell[data-val="${value}"]`);
+            if (btn) btn.classList.add('selected');
+            else if (value === 0) document.querySelector('.roul-zero-btn').classList.add('selected');
+        } else {
+            const btn = document.querySelector(`.roul-outside-btn[data-bet="${type}"]`);
+            if (btn) btn.classList.add('selected');
+        }
+        
+        const labels = {
+            'red': 'КРАСНОЕ (1:1)', 'black': 'ЧЁРНОЕ (1:1)',
+            'odd': 'НЕЧЁТ (1:1)', 'even': 'ЧЁТ (1:1)',
+            'low': '1-18 (1:1)', 'high': '19-36 (1:1)',
+            'dozen1': '1-я дюжина (2:1)', 'dozen2': '2-я дюжина (2:1)', 'dozen3': '3-я дюжина (2:1)',
+            'column1': 'Колонка 1 (2:1)', 'column2': 'Колонка 2 (2:1)', 'column3': 'Колонка 3 (2:1)',
+            'number': `Число ${value} (35:1)`
+        };
+        document.getElementById('liveBetInfo').innerHTML = `Ставка: <b>${labels[type] || type}</b>`;
+        document.getElementById('liveSpinBtn').disabled = false;
+        updateLivePotential();
+        dealerSay(`Хороший выбор! ${labels[type] || type}. Крутите колесо!`);
+    }
+
+    function updateLivePotential() {
+        if (!liveSelectedBet) return;
+        const amt = parseFloat(document.getElementById('liveBetAmount').value) || 0;
+        liveBetAmount = amt;
+        let mult = 1;
+        if (liveSelectedBet === 'number') mult = 36;
+        else if (['dozen1','dozen2','dozen3','column1','column2','column3'].includes(liveSelectedBet)) mult = 3;
+        const potential = amt * mult;
+        document.getElementById('livePotential').innerText = `Потенциал: ${getSym()}${potential.toFixed(2)}`;
+    }
+
+    function drawLiveWheel(angle) {
+        const canvas = document.getElementById('liveWheelCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const cx = w/2, cy = h/2;
+        const outerR = w/2 - 8;
+        const innerR = outerR - 55;
+        const centerR = 28;
+        const sectors = 37;
+        const sectorAngle = (Math.PI * 2) / sectors;
+        
+        ctx.clearRect(0, 0, w, h);
+        
+        // Внешнее кольцо
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR + 4, 0, Math.PI*2);
+        ctx.fillStyle = '#8B6914';
+        ctx.fill();
+        
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        
+        // Сектора
+        for (let i = 0; i < sectors; i++) {
+            const startAngle = i * sectorAngle - Math.PI/2 - sectorAngle/2;
+            const endAngle = startAngle + sectorAngle;
+            const num = EUROPEAN_ORDER[i];
+            let color;
+            if (num === 0) color = '#0a7a0a';
+            else if (RED_SET.has(num)) color = '#C41E3A';
+            else color = '#1a1a1a';
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, outerR, startAngle, endAngle);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,215,0,0.5)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // Число
+            ctx.save();
+            ctx.rotate(startAngle + sectorAngle/2);
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 13px Montserrat, sans-serif';
+            ctx.shadowColor = '#000';
+            ctx.shadowBlur = 3;
+            ctx.fillText(num, outerR - 10, 0);
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+        
+        // Внутреннее кольцо
+        ctx.beginPath();
+        ctx.arc(0, 0, innerR, 0, Math.PI*2);
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fill();
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Ступица
+        const grad = ctx.createRadialGradient(-8, -8, 2, 0, 0, centerR);
+        grad.addColorStop(0, '#FFD700');
+        grad.addColorStop(1, '#8B6914');
+        ctx.beginPath();
+        ctx.arc(0, 0, centerR, 0, Math.PI*2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Крестовина
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 4; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            const a = i * Math.PI/2 + Math.PI/4;
+            ctx.lineTo(Math.cos(a) * centerR * 0.85, Math.sin(a) * centerR * 0.85);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+
+    async function spinLiveRoulette() {
+        if (!liveSelectedBet || liveSpinning) return;
+        if (!state.registered) { checkRegistration(); return tg.showAlert(t('regRequired')); }
+        
+        const amt = parseFloat(document.getElementById('liveBetAmount').value);
+        if (!amt || amt < 1) return tg.showAlert('Мин. ставка: ' + getSym() + '1');
+        
+        liveSpinning = true;
+        document.getElementById('liveSpinBtn').disabled = true;
+        document.getElementById('liveSpinBtn').innerText = '🎡 Крутим колесо...';
+        document.getElementById('liveResultBadge').classList.remove('show');
+        dealerSay('Ставок больше нет! Колесо в движении... 🎡');
+        
+        const body = { bet: amt, bet_type: liveSelectedBet };
+        if (liveSelectedBet === 'number') body.bet_value = liveSelectedValue;
+        
+        const d = await postApi('/api/live/roulette/spin', body);
+        
+        if (d.error) {
+            liveSpinning = false;
+            document.getElementById('liveSpinBtn').disabled = false;
+            document.getElementById('liveSpinBtn').innerText = '🎡 Сделать ставку и крутить';
+            return tg.showAlert(translateErr(d.error));
+        }
+        
+        // Определяем угол для нужного числа
+        const idxInOrder = EUROPEAN_ORDER.indexOf(d.number);
+        const sectorAngle = (Math.PI * 2) / 37;
+        const targetAngle = -idxInOrder * sectorAngle - Math.PI*2 * 5; // 5 оборотов
+        
+        const duration = 4200;
+        const startTime = performance.now();
+        const startAngle = liveCurrentWheelAngle;
+        
+        await new Promise(resolve => {
+            function frame(now) {
+                const t = Math.min(1, (now - startTime) / duration);
+                const ease = 1 - Math.pow(1 - t, 3.5);
+                liveCurrentWheelAngle = startAngle + (targetAngle - startAngle) * ease;
+                drawLiveWheel(liveCurrentWheelAngle);
+                
+                // Шарик
+                const ballAngle = -Math.PI/2 - Math.PI*2 * 8 * (1 - ease);
+                const ballRadius = outerR() - 15 - Math.sin(t * Math.PI) * 10;
+                drawBallOnWheel(ballAngle, ballRadius);
+                
+                if (t < 1) requestAnimationFrame(frame);
+                else resolve();
+            }
+            function outerR() {
+                const canvas = document.getElementById('liveWheelCanvas');
+                return canvas.width/2 - 8;
+            }
+            function drawBallOnWheel(ballAngle, ballRadius) {
+                const canvas = document.getElementById('liveWheelCanvas');
+                const ctx = canvas.getContext('2d');
+                const cx = canvas.width/2, cy = canvas.height/2;
+                const x = cx + Math.cos(ballAngle) * ballRadius;
+                const y = cy + Math.sin(ballAngle) * ballRadius;
+                ctx.beginPath();
+                ctx.arc(x, y, 7, 0, Math.PI*2);
+                ctx.fillStyle = '#fff';
+                ctx.shadowColor = '#000';
+                ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            requestAnimationFrame(frame);
+        });
+        
+        // Финал
+        liveCurrentWheelAngle = targetAngle % (Math.PI * 2);
+        drawLiveWheel(liveCurrentWheelAngle);
+        
+        applyServerBalance(d.balance);
+        state.total_rounds++;
+        updateUI();
+        
+        // Показать результат
+        const badge = document.getElementById('liveResultBadge');
+        const numEl = document.getElementById('liveResultNum');
+        numEl.innerText = d.number;
+        numEl.className = 'live-result-num ' + d.color;
+        badge.classList.add('show');
+        setTimeout(() => badge.classList.remove('show'), 2500);
+        
+        // История
+        liveHistory.unshift({ number: d.number, color: d.color });
+        if (liveHistory.length > 15) liveHistory.pop();
+        renderLiveHistory();
+        
+        // Реплики дилера
+        const colorRu = d.color === 'red' ? 'красное' : d.color === 'black' ? 'чёрное' : 'зеро';
+        const sym = getSym();
+        if (d.profit > 0) {
+            dealerSay(`🎉 Поздравляю! Выпало ${d.number} ${colorRu}! Вы выиграли ${sym}${(d.profit).toFixed(2)}!`);
+            bigWin(d.profit);
+        } else {
+            dealerSay(`Выпало ${d.number} ${colorRu}. Не повезло... Но удача любит настойчивых!`);
+            bigLoss(amt);
+        }
+        
+        setTimeout(() => {
+            liveSpinning = false;
+            document.getElementById('liveSpinBtn').disabled = !liveSelectedBet;
+            document.getElementById('liveSpinBtn').innerText = '🎡 Сделать ставку и крутить';
+        }, 2000);
+    }
+
+    function renderLiveHistory() {
+        const el = document.getElementById('liveHistory');
+        if (!el) return;
+        el.innerHTML = liveHistory.map(h => `<div class="live-hist-ball ${h.color}">${h.number}</div>`).join('');
+    }
+
+    // ============ ОБЫЧНЫЕ ИГРЫ ============
     function openGame(gameId) {
         if (state.loaded && !state.registered) { tg.showAlert(t('regRequired')); checkRegistration(); return; }
         document.getElementById('gameModal').classList.add('open');
@@ -1589,7 +1475,7 @@
                     <div class="dice-info">
                         <div><div class="lbl">${t('diceMultiplier')}</div><div class="val" id="diceMultDisplay">1.98x</div></div>
                         <div><div class="lbl">${t('diceWinChance')}</div><div class="val" id="diceChanceDisplay">49.5%</div></div>
-                        <div><div class="lbl">${t('minesPotential')}</div><div class="val" id="dicePayDisplay">${getSym()}0.00</div></div>
+                        <div><div class="lbl">Потенциал</div><div class="val" id="dicePayDisplay">${getSym()}0.00</div></div>
                     </div>
                     <div id="diceControls" style="display:flex; justify-content:center;"><button class="btn btn-primary" onclick="rollDice()">${t('diceRoll')}</button></div>
                 </div>
@@ -1597,158 +1483,56 @@
             renderBetChips('betChips'); diceTarget = 50; diceCondition = 'under'; updateDiceUI();
         } else if (gameId === 'keno') {
             title.innerText = '🔢 ' + t('keno');
-            content.innerHTML = `
-                ${rulesHTML('rulesKeno')}
-                ${chipsHTML}
-                <div style="text-align:center; margin-bottom:10px; color:var(--muted); font-size:12px;">${t('kenoMax')}</div>
-                <div class="keno-grid" id="kenoGrid"></div>
-                <div id="kenoControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="playKeno()">${t('kenoPlay')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesKeno')}${chipsHTML}<div style="text-align:center; margin-bottom:10px; color:var(--muted); font-size:12px;">${t('kenoMax')}</div><div class="keno-grid" id="kenoGrid"></div><div id="kenoControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="playKeno()">${t('kenoPlay')}</button></div>`;
             renderBetChips('betChips'); buildKenoGrid();
         } else if (gameId === 'wheel') {
             title.innerText = '🎡 ' + t('wheel');
-            content.innerHTML = `
-                ${rulesHTML('rulesWheel')}
-                ${chipsHTML}
-                <div class="wheel-container">
-                    <div class="wheel-pointer">▼</div>
-                    <div class="wheel-bg" id="wheelBg"></div>
-                    <div class="wheel-inner" id="wheelInner"><span class="wheel-result-text" id="wheelResultText">?</span></div>
-                    <canvas id="wheelCanvas" width="300" height="300"></canvas>
-                </div>
-                <div id="wheelControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="spinWheel()">${t('wheelSpinBtn')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesWheel')}${chipsHTML}<div class="wheel-container"><div class="wheel-pointer">▼</div><div class="wheel-bg"></div><div class="wheel-inner"><span class="wheel-result-text" id="wheelResultText">?</span></div><canvas id="wheelCanvas" width="300" height="300"></canvas></div><div id="wheelControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="spinWheel()">${t('wheelSpinBtn')}</button></div>`;
             renderBetChips('betChips'); drawWheelTexts();
         } else if (gameId === 'slots_book') {
             title.innerText = '📖 ' + t('slotsBook');
-            content.innerHTML = `
-                ${rulesHTML('rulesBook')}
-                ${chipsHTML}
-                <div class="bookofra-wrap">
-                    <div class="bookofra-reels" id="bookReels"><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div></div>
-                    <div id="bookResult" style="margin-top:15px; font-size:18px; color:var(--muted); min-height:24px; font-weight:800; text-align:center;">—</div>
-                </div>
-                <div id="bookControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startBookOfRa()">${t('spin')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesBook')}${chipsHTML}<div class="bookofra-wrap"><div class="bookofra-reels" id="bookReels"><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div><div class="bookofra-cell">❓</div></div><div id="bookResult" style="margin-top:15px; font-size:18px; color:var(--muted); min-height:24px; font-weight:800; text-align:center;">—</div></div><div id="bookControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startBookOfRa()">${t('spin')}</button></div>`;
             renderBetChips('betChips');
         } else if (gameId === 'blackjack') {
             title.innerText = '🃏 ' + t('bj');
-            content.innerHTML = `
-                ${rulesHTML('rulesBj')}
-                ${chipsHTML}
-                <div class="bj-table">
-                    <div class="bj-zone"><div class="bj-score">${t('dealer')}: <span id="dScore">?</span></div><div class="hand-cards" id="dealerCards"></div></div>
-                    <div class="bj-zone"><div class="hand-cards" id="playerCards"></div><div class="bj-score" style="margin-top:10px;">${t('you')}: <span id="pScore">0</span></div></div>
-                </div>
-                <div id="bjControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startBlackjack()">${t('playBet')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesBj')}${chipsHTML}<div class="bj-table"><div class="bj-zone"><div class="bj-score">${t('dealer')}: <span id="dScore">?</span></div><div class="hand-cards" id="dealerCards"></div></div><div class="bj-zone"><div class="hand-cards" id="playerCards"></div><div class="bj-score" style="margin-top:10px;">${t('you')}: <span id="pScore">0</span></div></div></div><div id="bjControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startBlackjack()">${t('playBet')}</button></div>`;
             renderBetChips('betChips');
         } else if (gameId === 'crash') {
             title.innerText = '🚀 ' + t('crash');
-            content.innerHTML = `
-                ${rulesHTML('rulesCrash')}
-                ${chipsHTML}
-                <div class="crash-container">
-                    <div class="crash-multiplier" id="crashMult">1.00x</div>
-                    <div class="crash-status" id="crashStatus">${t('crashReady')}</div>
-                    <div class="crash-rocket" id="crashRocket">🚀</div>
-                </div>
-                <div id="crashControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startCrash()">${t('start')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesCrash')}${chipsHTML}<div class="crash-container"><div class="crash-multiplier" id="crashMult">1.00x</div><div class="crash-status" id="crashStatus">${t('crashReady')}</div><div class="crash-rocket" id="crashRocket">🚀</div></div><div id="crashControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startCrash()">${t('start')}</button></div>`;
             renderBetChips('betChips');
         } else if (gameId === 'slots_classic') {
             title.innerText = '🎰 ' + t('slotsClassic');
-            content.innerHTML = `
-                ${rulesHTML('rulesClassic')}
-                ${chipsHTML}
-                <div style="width:100%; max-width:400px; background:#111; border:2px solid var(--border); border-radius:16px; padding:30px 20px; text-align:center; margin-bottom:20px;">
-                    <div id="slotReels" style="font-size:52px; min-height:70px; display:flex; justify-content:center; gap:10px;"><span>❓</span><span>❓</span><span>❓</span></div>
-                    <div id="slotResult" style="margin-top:15px; font-size:16px; color:var(--muted); min-height:24px;">—</div>
-                </div>
-                <div id="slotControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startSlotsClassic()">${t('spin')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesClassic')}${chipsHTML}<div style="width:100%; max-width:400px; background:#111; border:2px solid var(--border); border-radius:16px; padding:30px 20px; text-align:center; margin-bottom:20px;"><div id="slotReels" style="font-size:52px; min-height:70px; display:flex; justify-content:center; gap:10px;"><span>❓</span><span>❓</span><span>❓</span></div><div id="slotResult" style="margin-top:15px; font-size:16px; color:var(--muted); min-height:24px;">—</div></div><div id="slotControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startSlotsClassic()">${t('spin')}</button></div>`;
             renderBetChips('betChips');
         } else if (gameId === 'slots_lucky7') {
             title.innerText = '7️⃣ ' + t('slotsLucky');
-            content.innerHTML = `
-                ${rulesHTML('rulesLucky')}
-                ${chipsHTML}
-                <div style="width:100%; max-width:400px; background:#1a0a0a; border:2px solid var(--gold); border-radius:16px; padding:30px 20px; text-align:center; margin-bottom:20px;">
-                    <div id="luckyReels" style="font-size:52px; min-height:70px; display:flex; justify-content:center; gap:10px;"><span>❓</span><span>❓</span><span>❓</span></div>
-                    <div id="luckyResult" style="margin-top:15px; font-size:16px; color:var(--muted); min-height:24px;">—</div>
-                </div>
-                <div id="luckyControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spin')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesLucky')}${chipsHTML}<div style="width:100%; max-width:400px; background:#1a0a0a; border:2px solid var(--gold); border-radius:16px; padding:30px 20px; text-align:center; margin-bottom:20px;"><div id="luckyReels" style="font-size:52px; min-height:70px; display:flex; justify-content:center; gap:10px;"><span>❓</span><span>❓</span><span>❓</span></div><div id="luckyResult" style="margin-top:15px; font-size:16px; color:var(--muted); min-height:24px;">—</div></div><div id="luckyControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" onclick="startSlotsLucky7()">${t('spin')}</button></div>`;
             renderBetChips('betChips');
         } else if (gameId === 'baccarat') {
             title.innerText = '🎴 ' + t('bacc');
-            content.innerHTML = `
-                ${rulesHTML('rulesBacc')}
-                ${chipsHTML}
-                <div class="bj-table">
-                    <div class="bj-zone"><div class="bj-score">${t('banker')}: <span id="bankerScore">0</span></div><div class="hand-cards" id="bankerHand"></div></div>
-                    <div class="bj-zone"><div class="hand-cards" id="playerHand"></div><div class="bj-score" style="margin-top:10px;">${t('playerGame')}: <span id="playerScore">0</span></div></div>
-                </div>
-                <div id="baccaratResult" style="margin-bottom:15px; font-size:16px; min-height:24px; text-align:center;"></div>
-                <div id="baccaratControls" style="width:100%; max-width:400px; display:flex; flex-direction:column; align-items:center;"></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesBacc')}${chipsHTML}<div class="bj-table"><div class="bj-zone"><div class="bj-score">${t('banker')}: <span id="bankerScore">0</span></div><div class="hand-cards" id="bankerHand"></div></div><div class="bj-zone"><div class="hand-cards" id="playerHand"></div><div class="bj-score" style="margin-top:10px;">${t('playerGame')}: <span id="playerScore">0</span></div></div></div><div id="baccaratResult" style="margin-bottom:15px; font-size:16px; min-height:24px; text-align:center;"></div><div id="baccaratControls" style="width:100%; max-width:400px; display:flex; flex-direction:column; align-items:center;"></div>`;
             renderBetChips('betChips'); renderBaccaratControls();
         } else if (gameId === 'mines') {
             title.innerText = '💣 ' + t('mines');
-            content.innerHTML = `
-                ${rulesHTML('rulesMines')}
-                ${chipsHTML}
-                <div class="mines-count-grid" id="minesCountGrid"></div>
-                <div class="mines-grid" id="minesGrid"></div>
-                <div class="mines-info" id="minesInfo"></div>
-                <div id="minesCashoutBtn" style="width:100%; max-width:340px;"></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesMines')}${chipsHTML}<div class="mines-count-grid" id="minesCountGrid"></div><div class="mines-grid" id="minesGrid"></div><div class="mines-info" id="minesInfo"></div><div id="minesCashoutBtn" style="width:100%; max-width:340px;"></div>`;
             renderBetChips('betChips'); resetMinesState(); minesBet = 0; buildMinesCountButtons(); renderMinesGrid(); updateMinesInfo();
         } else if (gameId === 'roulette') {
             title.innerText = '🎡 ' + t('roulette');
-            content.innerHTML = `
-                ${rulesHTML('rulesRoulette')}
-                ${chipsHTML}
-                <div class="roulette-reel-container" id="rouletteReelContainer"><div class="roulette-pointer">▼</div><div class="roulette-reel" id="rouletteReel"></div></div>
-                <div class="roulette-result-display" id="rouletteResult" style="background: transparent; color: var(--muted);">—</div>
-                <div class="roulette-bet-info" id="rouletteBetInfo">—</div>
-                <div class="roul-grid-3" id="rouletteOutside"></div>
-                <div class="roul-grid-3" id="rouletteDozens"></div>
-                <div class="roul-grid-3" id="rouletteColumns"></div>
-                <button class="roul-zero" data-num="0" onclick="selectRouletteNumber(0)">0</button>
-                <div class="roul-numbers" id="rouletteNumberGrid"></div>
-                <div id="rouletteSpinBtn" style="width:100%; max-width:340px; margin-top:8px;"><button class="btn btn-primary" onclick="spinRoulette()">${t('rouletteSpin')}</button></div>
-            `;
-            renderBetChips('betChips'); selectedRouletteBet = null; selectedRouletteValue = null;
-            buildRouletteReel(); buildRouletteOutside(); buildRouletteDozens(); buildRouletteColumns(); buildRouletteNumbers(); updateRouletteBetDisplay(); refreshRouletteSelection();
+            content.innerHTML = `${rulesHTML('rulesRoulette')}${chipsHTML}<div style="text-align:center; padding:30px; color:var(--muted);"><div style="font-size:60px; margin-bottom:15px;">🎡</div><p style="font-size:13px; margin-bottom:10px;">Классическая европейская рулетка</p><p style="font-size:11px;">Хотите версию с живым дилером? Откройте <b style="color:var(--gold);">🎰 Лайв</b> в навигации!</p></div>`;
+            renderBetChips('betChips');
         } else if (gameId === 'plinko') {
             title.innerText = '🎯 ' + t('plinko');
-            content.innerHTML = `
-                ${rulesHTML('rulesPlinko')}
-                ${chipsHTML}
-                <div class="plinko-history" id="plinkoHistory"></div>
-                <div class="plinko-wrap"><canvas id="plinkoCanvas" width="340" height="380"></canvas></div>
-                <div id="plinkoControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" id="plinkoBtn" onclick="startPlinko()">${t('plinkoDrop')}</button></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesPlinko')}${chipsHTML}<div class="plinko-history" id="plinkoHistory"></div><div class="plinko-wrap"><canvas id="plinkoCanvas" width="340" height="380"></canvas></div><div id="plinkoControls" style="width:100%; max-width:340px; display:flex; justify-content:center;"><button class="btn btn-primary" id="plinkoBtn" onclick="startPlinko()">${t('plinkoDrop')}</button></div>`;
             renderBetChips('betChips'); plinkoInProgress = false; plinkoHistory = []; drawPlinkoBoard(null);
         } else if (gameId === 'tower') {
             title.innerText = '🏰 ' + t('tower');
-            content.innerHTML = `
-                ${rulesHTML('rulesTower')}
-                ${chipsHTML}
-                <div class="tower-header">
-                    <div><div>${t('towerLevel')}</div><div id="towerLevelDisp">0/8</div></div>
-                    <div><div>${t('towerMult')}</div><div id="towerMultDisp">x1.00</div></div>
-                    <div><div>${t('towerPotential')}</div><div id="towerPotentialDisp">${getSym()}0.00</div></div>
-                </div>
-                <div class="tower-grid" id="towerGrid"></div>
-                <div class="tower-controls" id="towerControls"></div>
-            `;
+            content.innerHTML = `${rulesHTML('rulesTower')}${chipsHTML}<div class="tower-header"><div><div>${t('towerLevel')}</div><div id="towerLevelDisp">0/8</div></div><div><div>${t('towerMult')}</div><div id="towerMultDisp">x1.00</div></div><div><div>${t('towerPotential')}</div><div id="towerPotentialDisp">${getSym()}0.00</div></div></div><div class="tower-grid" id="towerGrid"></div><div class="tower-controls" id="towerControls"></div>`;
             renderBetChips('betChips'); towerReset();
         }
     }
 
-    // ============ MINI-GAMES (сохранены полностью) ============
+    // ============ MINI GAMES ============
     let kenoSelected = [];
     function buildKenoGrid() {
         const grid = document.getElementById('kenoGrid');
@@ -1764,7 +1548,7 @@
         else { if (kenoSelected.length >= 10) return tg.showAlert(t('kenoMax')); kenoSelected.push(num); el.classList.add('selected'); }
     }
     async function playKeno() {
-        if (kenoSelected.length === 0) return tg.showAlert('Выберите хотя бы одно число!');
+        if (kenoSelected.length === 0) return tg.showAlert('Выберите число!');
         const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
         if (bal < currentBet) return tg.showAlert(t('insufficient'));
         const btn = document.querySelector('#kenoControls button');
@@ -2007,124 +1791,6 @@
         bigWin(r.win, 'x' + r.multiplier.toFixed(2));
         tg.showAlert(t('minesCashed', r.win.toFixed(2), r.multiplier, getSym()));
         minesRoundId = null; minesPicks = 0; minesMult = 1.0; updateMinesInfo();
-    }
-
-    let selectedRouletteBet = null;
-    let selectedRouletteValue = null;
-    let rouletteSpinning = false;
-    function buildRouletteReel() {
-        const reel = document.getElementById('rouletteReel');
-        if (!reel) return;
-        const REPS = 8; let html = '';
-        for (let r = 0; r < REPS; r++) for (const n of WHEEL_ORDER) {
-            const c = n === 0 ? 'green' : (RED_SET.has(n) ? 'red' : 'black');
-            html += `<div class="roulette-cell-strip ${c}">${n}</div>`;
-        }
-        reel.innerHTML = html; reel.style.transition = 'none'; reel.style.transform = 'translateX(0px)';
-    }
-    function buildRouletteOutside() {
-        const el = document.getElementById('rouletteOutside');
-        if (!el) return;
-        el.innerHTML = `
-            <button class="roul-btn" data-bet="red" onclick="selectRouletteBet('red')">${t('rouletteRed')}</button>
-            <button class="roul-btn" data-bet="black" onclick="selectRouletteBet('black')">${t('rouletteBlack')}</button>
-            <button class="roul-btn" data-bet="odd" onclick="selectRouletteBet('odd')">${t('rouletteOdd')}</button>
-            <button class="roul-btn" data-bet="even" onclick="selectRouletteBet('even')">${t('rouletteEven')}</button>
-            <button class="roul-btn" data-bet="low" onclick="selectRouletteBet('low')">1-18</button>
-            <button class="roul-btn" data-bet="high" onclick="selectRouletteBet('high')">19-36</button>
-        `;
-    }
-    function buildRouletteDozens() {
-        const el = document.getElementById('rouletteDozens');
-        if (!el) return;
-        el.innerHTML = `<button class="roul-btn" data-bet="dozen1" onclick="selectRouletteBet('dozen1')">${t('rouletteDozen1')}</button><button class="roul-btn" data-bet="dozen2" onclick="selectRouletteBet('dozen2')">${t('rouletteDozen2')}</button><button class="roul-btn" data-bet="dozen3" onclick="selectRouletteBet('dozen3')">${t('rouletteDozen3')}</button>`;
-    }
-    function buildRouletteColumns() {
-        const el = document.getElementById('rouletteColumns');
-        if (!el) return;
-        el.innerHTML = `<button class="roul-btn" data-bet="column1" onclick="selectRouletteBet('column1')">${t('rouletteCol1')}</button><button class="roul-btn" data-bet="column2" onclick="selectRouletteBet('column2')">${t('rouletteCol2')}</button><button class="roul-btn" data-bet="column3" onclick="selectRouletteBet('column3')">${t('rouletteCol3')}</button>`;
-    }
-    function buildRouletteNumbers() {
-        const el = document.getElementById('rouletteNumberGrid');
-        if (!el) return;
-        let html = '';
-        for (let i = 1; i <= 36; i++) {
-            const c = RED_SET.has(i) ? 'red' : 'black';
-            html += `<button class="roul-num ${c}" data-num="${i}" onclick="selectRouletteNumber(${i})">${i}</button>`;
-        }
-        el.innerHTML = html;
-    }
-    function selectRouletteBet(type, value = null) {
-        if (rouletteSpinning) return;
-        selectedRouletteBet = type; selectedRouletteValue = value;
-        updateRouletteBetDisplay(); refreshRouletteSelection();
-    }
-    function selectRouletteNumber(n) { selectRouletteBet('number', n); }
-    function updateRouletteBetDisplay() {
-        const el = document.getElementById('rouletteBetInfo');
-        if (!el) return;
-        if (!selectedRouletteBet) { el.innerText = '—'; return; }
-        const labels = {
-            'red': t('rouletteRed') + ' (1:1)', 'black': t('rouletteBlack') + ' (1:1)',
-            'odd': t('rouletteOdd') + ' (1:1)', 'even': t('rouletteEven') + ' (1:1)',
-            'low': '1-18 (1:1)', 'high': '19-36 (1:1)',
-            'dozen1': t('rouletteDozen1') + ' (2:1)', 'dozen2': t('rouletteDozen2') + ' (2:1)', 'dozen3': t('rouletteDozen3') + ' (2:1)',
-            'column1': t('rouletteCol1') + ' (2:1)', 'column2': t('rouletteCol2') + ' (2:1)', 'column3': t('rouletteCol3') + ' (2:1)',
-            'number': t('rouletteNumber') + ' ' + selectedRouletteValue + ' (35:1)'
-        };
-        el.innerText = t('rouletteSelected') + ': ' + (labels[selectedRouletteBet] || selectedRouletteBet);
-    }
-    function refreshRouletteSelection() {
-        document.querySelectorAll('.roul-btn').forEach(b => b.classList.toggle('selected', b.dataset.bet === selectedRouletteBet));
-        document.querySelectorAll('.roul-num, .roul-zero').forEach(b => {
-            const n = parseInt(b.dataset.num);
-            b.classList.toggle('selected', selectedRouletteBet === 'number' && selectedRouletteValue === n);
-        });
-    }
-    async function animateRouletteWheel(number) {
-        const reel = document.getElementById('rouletteReel');
-        const container = document.getElementById('rouletteReelContainer');
-        if (!reel || !container) return;
-        const CELL_W = 60; const WHEEL_LEN = WHEEL_ORDER.length;
-        const targetIdx = WHEEL_ORDER.indexOf(number);
-        const targetRep = 5 + Math.floor(Math.random() * 2);
-        const globalIdx = targetRep * WHEEL_LEN + targetIdx;
-        const containerW = container.clientWidth;
-        const targetPx = globalIdx * CELL_W - containerW / 2 + CELL_W / 2;
-        reel.style.transition = 'none'; reel.style.transform = 'translateX(0px)'; void reel.offsetWidth;
-        reel.style.transition = 'transform 4.2s cubic-bezier(0.12, 0.8, 0.15, 1)';
-        reel.style.transform = `translateX(-${targetPx}px)`;
-        await new Promise(r => setTimeout(r, 4400));
-    }
-    async function spinRoulette() {
-        if (!selectedRouletteBet) return tg.showAlert(t('rouletteSelectBet'));
-        const bal = currentCurrency === 'UAH' ? state.balance_uah : state.balance;
-        if (bal < currentBet) return tg.showAlert(t('insufficient'));
-        if (rouletteSpinning) return;
-        rouletteSpinning = true;
-        document.getElementById('rouletteSpinBtn').innerHTML = `<button class="btn btn-primary" disabled>${t('rouletteSpinning')}</button>`;
-        const resultEl = document.getElementById('rouletteResult');
-        if (resultEl) { resultEl.innerText = '—'; resultEl.style.background = 'transparent'; resultEl.style.color = 'var(--muted)'; }
-        const body = { bet: currentBet, bet_type: selectedRouletteBet };
-        if (selectedRouletteBet === 'number') body.bet_value = selectedRouletteValue;
-        const d = await postApi('/api/roulette/spin', body);
-        if (d.error) { tg.showAlert(translateErr(d.error)); rouletteSpinning = false; restoreRouletteSpinBtn(); return; }
-        await animateRouletteWheel(d.number);
-        const rEl = document.getElementById('rouletteResult');
-        if (rEl) {
-            const bg = d.color === 'red' ? '#8B0000' : d.color === 'black' ? '#1a1a1a' : '#0a4a0a';
-            rEl.innerText = d.number + ' ' + (d.color === 'red' ? '🔴' : d.color === 'black' ? '⚫' : '🟢');
-            rEl.style.background = bg; rEl.style.color = '#fff';
-            pulseEl(rEl, d.profit > 0 ? 'win' : 'loss');
-        }
-        applyServerBalance(d.balance); state.total_rounds++; updateUI();
-        if (d.profit > 0) { bigWin(d.profit); tg.showAlert(t('rouletteWin', d.profit.toFixed(2), getSym())); }
-        else { bigLoss(currentBet); tg.showAlert(t('rouletteLose', Math.abs(d.profit).toFixed(2), getSym())); }
-        rouletteSpinning = false; restoreRouletteSpinBtn();
-    }
-    function restoreRouletteSpinBtn() {
-        const el = document.getElementById('rouletteSpinBtn');
-        if (el) el.innerHTML = `<button class="btn btn-primary" onclick="spinRoulette()">${t('rouletteSpin')}</button>`;
     }
 
     let deck = [], pHand = [], dHand = [], isGameActive = false;
@@ -2508,7 +2174,6 @@
         if (ctrl) ctrl.innerHTML = `<button class="btn btn-primary" onclick="towerReset()">${t('playAgain')}</button>`;
     }
 
-    // ============ INIT ============
     document.documentElement.lang = lang;
     applyLang();
     switchTab('pop');
@@ -2516,7 +2181,6 @@
         document.getElementById('registerModal').classList.add('open');
     }
     loadUser();
-    startCountdowns();
     </script>
 </body>
 </html>
