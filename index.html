@@ -182,6 +182,12 @@
 
         #audioPrompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 13px; z-index: 1000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); animation: bounce 1s infinite alternate; pointer-events: none; text-align: center; }
         @keyframes bounce { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
+        
+        /* SPORTS PLACEHOLDER STYLES */
+        .sports-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; text-align: center; }
+        .sports-placeholder .icon { font-size: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(255,215,0,0.4)); animation: pulse 2s infinite; }
+        .sports-placeholder h2 { color: var(--gold); font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+        .sports-placeholder p { color: var(--muted); font-size: 14px; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -215,6 +221,19 @@
             <button class="tab-btn" data-tab="slots" onclick="switchTab('slots')">🎰 <span data-i18n="slotsTab">Слоты</span></button>
         </div>
         <div class="games-grid" id="gamesGrid"></div>
+    </div>
+
+    <!-- НОВЫЙ РАЗДЕЛ: СПОРТ -->
+    <div id="view-sports" class="hidden">
+        <div class="tabs-container">
+            <button class="tab-btn active" id="sports-tab-line" onclick="switchSportsTab('line')">📋 <span data-i18n="line">Линия</span></button>
+            <button class="tab-btn" id="sports-tab-live" onclick="switchSportsTab('live')">🔴 <span data-i18n="live">Лайв</span></button>
+        </div>
+        <div class="card sports-placeholder">
+            <div class="icon">⚽</div>
+            <h2 data-i18n="sportsTitle">Ставки на спорт</h2>
+            <p data-i18n="comingSoon">Откроется в скором времени...</p>
+        </div>
     </div>
 
     <div id="view-cash" class="hidden">
@@ -287,6 +306,7 @@
 
     <div class="nav-bar">
         <button class="nav-btn active" id="nav-games" onclick="switchView('games')"><span class="icon">🎮</span><span data-i18n="games">Игры</span></button>
+        <button class="nav-btn" id="nav-sports" onclick="switchView('sports')"><span class="icon">⚽</span><span data-i18n="sports">Спорт</span></button>
         <button class="nav-btn" id="nav-cash" onclick="switchView('cash')"><span class="icon">💰</span><span data-i18n="cash">Касса</span></button>
         <button class="nav-btn" id="nav-support" onclick="switchView('support')"><span class="icon">💬</span><span data-i18n="support">Помощь</span></button>
         <button class="nav-btn" id="nav-profile" onclick="switchView('profile')"><span class="icon">👤</span><span data-i18n="profile">Профиль</span></button>
@@ -324,10 +344,11 @@
     </audio>
 
     <script>
-    // ============ i18n (ПОЛНЫЙ СЛОВАРЬ, ВОССТАНОВЛЕННЫЙ) ============
+    // ============ i18n (ДОБАВЛЕНЫ СЛОВА ДЛЯ СПОРТА) ============
     const i18n = {
         ru: {
-            games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль',
+            games:'Игры', cash:'Касса', support:'Помощь', profile:'Профиль', sports:'Спорт',
+            line:'Линия', live:'Лайв', sportsTitle:'Ставки на спорт', comingSoon:'Откроется в скором времени...',
             popular:'Популярные', table:'Настольные', slotsTab:'Слоты',
             crash:'Ракетка', crashDesc:'Успей забрать',
             bj:'Blackjack', bjDesc:'21 очко',
@@ -414,7 +435,8 @@
             diceMultiplier:'Множитель', diceWinChance:'Шанс выигрыша'
         },
         en: {
-            games:'Games', cash:'Cashier', support:'Support', profile:'Profile',
+            games:'Games', cash:'Cashier', support:'Support', profile:'Profile', sports:'Sports',
+            line:'Line', live:'Live', sportsTitle:'Sports Betting', comingSoon:'Will open soon...',
             popular:'Popular', table:'Table', slotsTab:'Slots',
             crash:'Rocket', crashDesc:'Cash out in time',
             bj:'Blackjack', bjDesc:'21 points',
@@ -501,7 +523,8 @@
             diceMultiplier:'Multiplier', diceWinChance:'Win chance'
         },
         pl: {
-            games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil',
+            games:'Gry', cash:'Kasa', support:'Pomoc', profile:'Profil', sports:'Sport',
+            line:'Linia', live:'Na żywo', sportsTitle:'Zakłady sportowe', comingSoon:'Otworzy się wkrótce...',
             popular:'Popularne', table:'Stołowe', slotsTab:'Sloty',
             crash:'Rakieta', crashDesc:'Odbierz na czas',
             bj:'Blackjack', bjDesc:'21 punktów',
@@ -884,6 +907,13 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-' + view).classList.add('active');
         if (view === 'cash') loadHistory();
+    }
+
+    // ФУНКЦИЯ ДЛЯ ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК СПОРТА
+    function switchSportsTab(tab) {
+        document.getElementById('sports-tab-line').classList.remove('active');
+        document.getElementById('sports-tab-live').classList.remove('active');
+        document.getElementById('sports-tab-' + tab).classList.add('active');
     }
 
     const gamesData = {
