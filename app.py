@@ -18,7 +18,10 @@ WEBAPP_URL = "https://my-casino-bot-3.onrender.com"
 
 RED_ROULETTE_NUMBERS = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
 MINES_ROUNDS = {}
-ADMIN_PENDING = {}  # {admin_id: {'action': 'add_balance', 'user_id': uid}}
+ADMIN_PENDING = {}
+
+VIP_LEVELS = [(1, 2000, 200), (2, 7000, 700), (3, 20000, 2000), (4, 50000, 5000)]
+VIP_NAMES = {0: '—', 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Platinum'}
 
 def init_db():
     conn = sqlite3.connect('casino.db', timeout=15)
@@ -41,7 +44,9 @@ def init_db():
         ('bonus_currency', 'TEXT DEFAULT "USD"'),
         ('bonus_withdraw_done', 'INTEGER DEFAULT 0'),
         ('blocked', 'INTEGER DEFAULT 0'),
-        ('first_deposit_done', 'INTEGER DEFAULT 0')
+        ('first_deposit_done', 'INTEGER DEFAULT 0'),
+        ('vip_turnover', 'REAL DEFAULT 0'),
+        ('vip_level', 'INTEGER DEFAULT 0')
     ]:
         try:
             c.execute(f"ALTER TABLE users ADD COLUMN {col} {typ}")
@@ -104,9 +109,51 @@ def set_user_bal(c, uid, currency, new_bal, best_win=None):
         if best_win and best_win > 0:
             c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (best_win, uid))
 
+def _track_vip(c, user_id, usd_bet):
+    try:
+        c.execute("SELECT vip_turnover, vip_level FROM users WHERE id=?", (user_id,))
+        vr = c.fetchone()
+        if not vr:
+            return 0
+        new_turnover = round((vr[0] or 0) + usd_bet, 2)
+        current_level = vr[1] or 0
+        new_level = current_level
+        total_reward = 0
+        for lvl, thr, reward in VIP_LEVELS:
+            if new_turnover >= thr and current_level < lvl:
+                new_level = lvl
+                total_reward += reward
+        
+        if total_reward > 0:
+            c.execute("UPDATE users SET vip_turnover=?, vip_level=?, balance=balance+? WHERE id=?",
+                      (new_turnover, new_level, total_reward, user_id))
+            try:
+                bot.send_message(user_id,
+                    f"🏆 Поздравляем! Вы достигли статуса VIP <b>{VIP_NAMES[new_level]}</b>!\n"
+                    f"💰 Бонус ${total_reward:.2f} зачислен на баланс.\n"
+                    f"📊 Оборот: ${new_turnover:.2f}",
+                    parse_mode='HTML')
+            except Exception as e:
+                print("VIP user notify error:", e)
+            try:
+                bot.send_message(STATS_CHAT_ID,
+                    f"🏆 <b>VIP UPGRADE</b>\n"
+                    f"ID: {user_id}\n"
+                    f"Уровень: {VIP_NAMES[new_level]}\n"
+                    f"Бонус: ${total_reward:.2f}\n"
+                    f"Оборот: ${new_turnover:.2f}",
+                    parse_mode='HTML')
+            except Exception as e:
+                print("VIP admin notify error:", e)
+        else:
+            c.execute("UPDATE users SET vip_turnover=? WHERE id=?", (new_turnover, user_id))
+        return total_reward
+    except Exception as e:
+        print("VIP track error:", e)
+        return 0
+
 def log_bet(c, user_id, game, bet, win, currency):
     c.execute("INSERT INTO bets_history (user_id, game, bet, win, currency) VALUES (?, ?, ?, ?, ?)", (user_id, game, bet, win, currency))
-    # BONUS WAGER TRACKING (additive, does not affect original logic)
     try:
         c.execute("SELECT bonus_status, bonus_wager_required, bonus_wager_progress, bonus_currency FROM users WHERE id=?", (user_id,))
         br = c.fetchone()
@@ -119,6 +166,11 @@ def log_bet(c, user_id, game, bet, win, currency):
                 c.execute("UPDATE users SET bonus_wager_progress=? WHERE id=?", (new_progress, user_id))
     except Exception as e:
         print("wager track error:", e)
+    try:
+        usd_bet = bet if currency == 'USD' else round(bet / 40.0, 2)
+        _track_vip(c, user_id, usd_bet)
+    except Exception as e:
+        print("vip track in log_bet error:", e)
 
 # ============ ОБРАБОТЧИКИ КНОПОК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
@@ -159,7 +211,6 @@ def handle_admin_action(call):
             status_line = f"✅ Пополнение #{tx_id} одобрено"
             user_msg = f"✅ Ваш депозит на {amount}{sym} одобрен! Баланс пополнен."
 
-            # BONUS: apply welcome bonus if pending
             try:
                 c.execute("SELECT bonus_status, first_deposit_done FROM users WHERE id=?", (user_id,))
                 br = c.fetchone()
@@ -178,7 +229,6 @@ def handle_admin_action(call):
             except Exception as e:
                 print("bonus apply error:", e)
             
-            # Mark first deposit done regardless
             try:
                 c.execute("UPDATE users SET first_deposit_done=1 WHERE id=?", (user_id,))
             except Exception:
@@ -221,7 +271,6 @@ def handle_admin_action(call):
     except Exception as e:
         print("Callback error:", e)
 
-# ============ KYC ОБРАБОТЧИК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_kyc', 'rej_kyc')))
 def handle_kyc_action(call):
     try:
@@ -307,6 +356,15 @@ def send_stats(message):
     total_win = totals[1] or 0
     casino_profit = total_bet - total_win
     
+    c.execute("SELECT COUNT(*) FROM users WHERE vip_level >= 1")
+    vip_bronze = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM users WHERE vip_level >= 2")
+    vip_silver = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM users WHERE vip_level >= 3")
+    vip_gold = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM users WHERE vip_level >= 4")
+    vip_plat = c.fetchone()[0]
+    
     conn.close()
     
     text = f"📊 <b>СТАТИСТИКА КАЗИНО</b>\n\n"
@@ -316,6 +374,7 @@ def send_stats(message):
     text += f"📥 <b>Депозиты (успешные):</b>\n  USD: ${dep_usd:.2f}\n  UAH: ₴{dep_uah:.2f}\n\n"
     text += f"📤 <b>Выплаты (успешные):</b>\n  USD: ${wd_usd:.2f}\n  UAH: ₴{wd_uah:.2f}\n\n"
     text += f"⏳ <b>Ожидают обработки:</b>\n  Депозиты: {pend_dep}\n  Выводы: {pend_wd}\n\n"
+    text += f"🏆 <b>VIP по уровням:</b>\n  Bronze: {vip_bronze}\n  Silver: {vip_silver}\n  Gold: {vip_gold}\n  Platinum: {vip_plat}\n\n"
     
     text += f"🎮 <b>ТОП-5 игр:</b>\n"
     if top_games:
@@ -336,7 +395,7 @@ def show_admin_users(chat_id, page=0):
     c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM users WHERE registered=1")
     total = c.fetchone()[0]
-    c.execute("""SELECT id, username, reg_name, phone, email, balance, balance_uah, blocked, bonus_status 
+    c.execute("""SELECT id, username, reg_name, phone, email, balance, balance_uah, blocked, bonus_status, vip_level, vip_turnover 
                  FROM users WHERE registered=1 ORDER BY id DESC LIMIT 8 OFFSET ?""", (page*8,))
     users = c.fetchall()
     conn.close()
@@ -353,14 +412,16 @@ def show_admin_users(chat_id, page=0):
     
     markup = types.InlineKeyboardMarkup()
     for u in users:
-        uid, uname, rname, phone, email, bal, bal_uah, blk, bst = u
+        uid, uname, rname, phone, email, bal, bal_uah, blk, bst, vlvl, vturn = u
         status = "🚫 ЗАБЛОКИРОВАН" if blk else "✅ Активен"
         bonus_icon = ""
         if bst == 'active': bonus_icon = " 🎁(актив)"
         elif bst == 'completed': bonus_icon = " 🏆(отыгран)"
         elif bst == 'pending': bonus_icon = " ⏳(ожид)"
         
-        text += f"{status} | <b>ID {uid}</b>{bonus_icon}\n"
+        vip_icon = f" | VIP: {VIP_NAMES[vlvl or 0]} (${(vturn or 0):.0f})" if vlvl else ""
+        
+        text += f"{status} | <b>ID {uid}</b>{bonus_icon}{vip_icon}\n"
         text += f"  👤 {rname or uname or '—'}\n"
         text += f"  📱 {phone or '—'} | ✉️ {email or '—'}\n"
         text += f"  💰 ${(bal or 0):.2f} / ₴{(bal_uah or 0):.2f}\n\n"
@@ -507,19 +568,20 @@ def get_user():
     if not user_id: return jsonify({'error': 'No ID'}), 400
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
-    c.execute("SELECT balance, total_rounds, best_result, phone, reg_name, registered, balance_uah, email, kyc_name, kyc_country, kyc_status FROM users WHERE id=?", (user_id,))
+    c.execute("SELECT balance, total_rounds, best_result, phone, reg_name, registered, balance_uah, email, kyc_name, kyc_country, kyc_status, vip_turnover, vip_level FROM users WHERE id=?", (user_id,))
     user = c.fetchone()
     if not user:
         c.execute("INSERT INTO users (id, username, balance, total_rounds, best_result, registered, balance_uah) VALUES (?, ?, ?, ?, ?, 0, ?)",
                   (user_id, username, 0.0, 0, 0.0, 0.0))
         conn.commit()
-        user = (0.0, 0, 0.0, None, None, 0, 0.0, None, None, None, "Not passed")
+        user = (0.0, 0, 0.0, None, None, 0, 0.0, None, None, None, "Not passed", 0.0, 0)
     conn.close()
     return jsonify({
         'balance': user[0], 'total_rounds': user[1], 'best_result': user[2],
         'phone': user[3], 'reg_name': user[4], 'registered': bool(user[5]),
         'balance_uah': user[6], 'email': user[7], 
-        'kyc_name': user[8], 'kyc_country': user[9], 'kyc_status': user[10]
+        'kyc_name': user[8], 'kyc_country': user[9], 'kyc_status': user[10],
+        'vip_turnover': user[11] or 0, 'vip_level': user[12] or 0
     })
 
 @app.route('/api/register', methods=['POST'])
@@ -591,11 +653,32 @@ def submit_kyc():
 
 @app.route('/api/save', methods=['POST'])
 def save_user():
-    data = request.json
+    data = request.json or {}
+    user_id = data['id']
+    delta_usd = data.get('balance_delta_usd', None)
+    delta_uah = data.get('balance_delta_uah', 0) or 0
+    bet_delta_usd = float(data.get('bet_delta_usd', 0) or 0)
+    
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
-    c.execute("UPDATE users SET balance=?, balance_uah=?, total_rounds=?, best_result=? WHERE id=?", 
-              (data.get('balance', 0), data.get('balance_uah', 0), data.get('total_rounds', 0), data.get('best_result', 0), data['id']))
+    
+    if delta_usd is not None:
+        if delta_usd != 0 or delta_uah != 0:
+            c.execute("UPDATE users SET balance = balance + ?, balance_uah = balance_uah + ? WHERE id=?",
+                      (delta_usd, delta_uah, user_id))
+    else:
+        c.execute("UPDATE users SET balance=?, balance_uah=? WHERE id=?",
+                  (data.get('balance', 0), data.get('balance_uah', 0), user_id))
+    
+    if bet_delta_usd > 0:
+        try:
+            _track_vip(c, user_id, bet_delta_usd)
+        except Exception as e:
+            print("VIP track in /api/save error:", e)
+    
+    c.execute("UPDATE users SET total_rounds=MAX(total_rounds, ?), best_result=MAX(best_result, ?) WHERE id=?",
+              (data.get('total_rounds', 0) or 0, data.get('best_result', 0) or 0, user_id))
+    
     conn.commit()
     conn.close()
     return jsonify({'status': 'ok'})
@@ -674,7 +757,6 @@ def withdraw():
         if not row: return jsonify({'error': 'Пользователь не найден'}), 404
         if not row[2]: return jsonify({'error': 'Сначала зарегистрируйтесь'}), 400
         
-        # BONUS CHECKS (additive)
         c.execute("SELECT bonus_status, bonus_amount FROM users WHERE id=?", (user_id,))
         br = c.fetchone()
         if br and br[0] == 'active':
@@ -808,8 +890,10 @@ def slots_classic():
         set_user_bal(c, user_id, currency, new_bal, win)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Classic Slots', bet, win, currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
-        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': new_bal})
+        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': final_bal})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/api/slots/lucky7', methods=['POST'])
@@ -837,8 +921,10 @@ def slots_lucky7():
         set_user_bal(c, user_id, currency, new_bal, win)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Lucky 7', bet, win, currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
-        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': new_bal})
+        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': final_bal})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/api/slots/bookofra', methods=['POST'])
@@ -871,8 +957,10 @@ def slots_bookofra():
         set_user_bal(c, user_id, currency, new_bal, win)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Book of Ra', bet, win, currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
-        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': new_bal})
+        return jsonify({'reels': reels, 'multiplier': mult, 'win': win, 'balance': final_bal})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/api/roulette/spin', methods=['POST'])
@@ -905,8 +993,10 @@ def roulette_spin():
         set_user_bal(c, user_id, currency, new_bal, profit)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Roulette', bet, max(0, profit+bet), currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
-        return jsonify({'number': result, 'color': color, 'profit': profit, 'balance': new_bal})
+        return jsonify({'number': result, 'color': color, 'profit': profit, 'balance': final_bal})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/api/mines/start', methods=['POST'])
@@ -966,8 +1056,10 @@ def mines_cashout():
         new_bal = round(bal + win, 2)
         set_user_bal(c, user_id, rd['currency'], new_bal, win)
         log_bet(c, user_id, 'Mines', rd['bet'], win, rd['currency'])
+        c.execute(f"SELECT {'balance_uah' if rd['currency']=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
-        return jsonify({'win': win, 'multiplier': mult, 'balance': new_bal, 'mines': list(rd['mines'])})
+        return jsonify({'win': win, 'multiplier': mult, 'balance': final_bal, 'mines': list(rd['mines'])})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/api/baccarat/play', methods=['POST'])
@@ -993,8 +1085,10 @@ def baccarat_play():
         set_user_bal(c, user_id, currency, new_bal, profit)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Baccarat', bet, max(0, profit+bet), currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
-        return jsonify({'player_hand': p_cards, 'banker_hand': b_cards, 'player_score': ps, 'banker_score': bs, 'winner': winner, 'profit': profit, 'balance': new_bal})
+        return jsonify({'player_hand': p_cards, 'banker_hand': b_cards, 'player_score': ps, 'banker_score': bs, 'winner': winner, 'profit': profit, 'balance': final_bal})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 @app.route('/api/dice/roll', methods=['POST'])
@@ -1037,6 +1131,8 @@ def dice_roll():
         set_user_bal(c, user_id, currency, new_bal, win)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Dice', bet, win, currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit()
         conn.close()
         
@@ -1044,7 +1140,7 @@ def dice_roll():
             'result': result,
             'multiplier': multiplier,
             'win': win,
-            'balance': new_bal
+            'balance': final_bal
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -1096,6 +1192,8 @@ def keno_play():
         set_user_bal(c, user_id, currency, new_bal, win)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Keno', bet, win, currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit()
         conn.close()
         
@@ -1104,7 +1202,7 @@ def keno_play():
             'matches': matches,
             'multiplier': mult,
             'win': win,
-            'balance': new_bal
+            'balance': final_bal
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -1135,6 +1233,8 @@ def wheel_spin():
         set_user_bal(c, user_id, currency, new_bal, win)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Wheel', bet, win, currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
         conn.commit()
         conn.close()
         
@@ -1142,7 +1242,7 @@ def wheel_spin():
             'index': result_idx,
             'multiplier': mult,
             'win': win,
-            'balance': new_bal
+            'balance': final_bal
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
