@@ -12,8 +12,6 @@ bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
 ADMIN_ID = 7695713296
-# Если задать STATS_CHAT_ID (в переменных Render), все уведомления и статистика пойдут в этот чат/канал.
-# Если нет — всё пойдёт в личку админу.
 STATS_CHAT_ID = os.environ.get('STATS_CHAT_ID', ADMIN_ID)
 
 WEBAPP_URL = "https://my-casino-bot-3.onrender.com" 
@@ -75,6 +73,7 @@ def set_user_bal(c, uid, currency, new_bal, best_win=None):
 def log_bet(c, user_id, game, bet, win, currency):
     c.execute("INSERT INTO bets_history (user_id, game, bet, win, currency) VALUES (?, ?, ?, ?, ?)", (user_id, game, bet, win, currency))
 
+# ============ ОБРАБОТЧИКИ КНОПОК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
     try:
@@ -150,6 +149,51 @@ def handle_admin_action(call):
     except Exception as e:
         print("Callback error:", e)
 
+# ============ KYC ОБРАБОТЧИК ============
+@bot.callback_query_handler(func=lambda call: call.data.startswith(('app_kyc', 'rej_kyc')))
+def handle_kyc_action(call):
+    try:
+        bot.answer_callback_query(call.id, "⏳ Обработка KYC...")
+    except Exception:
+        pass
+
+    if str(call.from_user.id) != str(ADMIN_ID):
+        return
+
+    try:
+        parts = call.data.split('_')
+        action, user_id = parts[0], int(parts[2])
+        
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        
+        if action == 'app':
+            c.execute("UPDATE users SET kyc_status = 'Approved' WHERE id=?", (user_id,))
+            status_line = f"✅ KYC пользователя {user_id} одобрена"
+            user_msg = f"✅ Ваша KYC верификация одобрена! Теперь вы можете выводить крупные суммы."
+        else:
+            c.execute("UPDATE users SET kyc_status = 'Not passed' WHERE id=?", (user_id,))
+            status_line = f"❌ KYC пользователя {user_id} отклонена"
+            user_msg = f"❌ Ваша KYC верификация отклонена. Проверьте данные и попробуйте снова."
+            
+        conn.commit()
+        conn.close()
+
+        try:
+            markup = types.InlineKeyboardMarkup()
+            markup.add(types.InlineKeyboardButton("🎰 Открыть казино", web_app=types.WebAppInfo(url=WEBAPP_URL)))
+            bot.send_message(user_id, user_msg, reply_markup=markup)
+        except Exception as e:
+            print("notify user error (KYC):", e)
+
+        try:
+            new_text = call.message.text + "\n\n" + status_line
+            bot.edit_message_text(new_text, call.message.chat.id, call.message.message_id, reply_markup=None)
+        except Exception as e:
+            print("edit_message error (KYC):", e)
+    except Exception as e:
+        print("Callback error (KYC):", e)
+
 # ============ СТАТИСТИКА ============
 @bot.message_handler(commands=['stats'])
 def send_stats(message):
@@ -158,43 +202,32 @@ def send_stats(message):
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
     
-    # 1. Общее количество юзеров
     c.execute("SELECT COUNT(*) FROM users")
     total_users = c.fetchone()[0]
-    
-    # 2. Зарегистрированные
     c.execute("SELECT COUNT(*) FROM users WHERE registered=1")
     reg_users = c.fetchone()[0]
-    
-    # 3. Общий баланс (USD + UAH)
     c.execute("SELECT SUM(balance), SUM(balance_uah) FROM users")
     sum_bal = c.fetchone()
     sum_usd = sum_bal[0] or 0
     sum_uah = sum_bal[1] or 0
     
-    # 4. Депозиты (подтвержденные)
     c.execute("SELECT SUM(amount) FROM transactions WHERE type='Deposit' AND status='Completed' AND currency='USD'")
     dep_usd = c.fetchone()[0] or 0
     c.execute("SELECT SUM(amount) FROM transactions WHERE type='Deposit' AND status='Completed' AND currency='UAH'")
     dep_uah = c.fetchone()[0] or 0
-    
-    # 5. Выводы (подтвержденные)
     c.execute("SELECT SUM(amount) FROM transactions WHERE type='Withdrawal' AND status='Completed' AND currency='USD'")
     wd_usd = c.fetchone()[0] or 0
     c.execute("SELECT SUM(amount) FROM transactions WHERE type='Withdrawal' AND status='Completed' AND currency='UAH'")
     wd_uah = c.fetchone()[0] or 0
     
-    # 6. Заявки в ожидании
     c.execute("SELECT COUNT(*) FROM transactions WHERE type='Deposit' AND status='Pending'")
     pend_dep = c.fetchone()[0]
     c.execute("SELECT COUNT(*) FROM transactions WHERE type='Withdrawal' AND status='Pending'")
     pend_wd = c.fetchone()[0]
     
-    # 7. Популярные игры (по кол-ву ставок)
     c.execute("SELECT game, COUNT(*) as cnt, SUM(bet) as total_bet FROM bets_history GROUP BY game ORDER BY cnt DESC LIMIT 5")
     top_games = c.fetchall()
     
-    # 8. Общий оборот и выигрыш казино
     c.execute("SELECT SUM(bet), SUM(win) FROM bets_history")
     totals = c.fetchone()
     total_bet = totals[0] or 0
@@ -206,32 +239,18 @@ def send_stats(message):
     text = f"📊 <b>СТАТИСТИКА КАЗИНО</b>\n\n"
     text += f"👥 Всего пользователей: <b>{total_users}</b>\n"
     text += f"✅ Успешных регистраций: <b>{reg_users}</b>\n\n"
+    text += f"💰 <b>Балансы игроков:</b>\n  USD: ${sum_usd:.2f}\n  UAH: ₴{sum_uah:.2f}\n\n"
+    text += f"📥 <b>Депозиты (успешные):</b>\n  USD: ${dep_usd:.2f}\n  UAH: ₴{dep_uah:.2f}\n\n"
+    text += f"📤 <b>Выплаты (успешные):</b>\n  USD: ${wd_usd:.2f}\n  UAH: ₴{wd_uah:.2f}\n\n"
+    text += f"⏳ <b>Ожидают обработки:</b>\n  Депозиты: {pend_dep}\n  Выводы: {pend_wd}\n\n"
     
-    text += f"💰 <b>Балансы игроков:</b>\n"
-    text += f"  USD: ${sum_usd:.2f}\n"
-    text += f"  UAH: ₴{sum_uah:.2f}\n\n"
-    
-    text += f"📥 <b>Депозиты (успешные):</b>\n"
-    text += f"  USD: ${dep_usd:.2f}\n"
-    text += f"  UAH: ₴{dep_uah:.2f}\n\n"
-    
-    text += f"📤 <b>Выплаты (успешные):</b>\n"
-    text += f"  USD: ${wd_usd:.2f}\n"
-    text += f"  UAH: ₴{wd_uah:.2f}\n\n"
-    
-    text += f"⏳ <b>Ожидают обработки:</b>\n"
-    text += f"  Депозиты: {pend_dep}\n"
-    text += f"  Выводы: {pend_wd}\n\n"
-    
-    text += f"🎮 <b>ТОП-5 игр (по кол-ву ставок):</b>\n"
+    text += f"🎮 <b>ТОП-5 игр:</b>\n"
     if top_games:
-        for g in top_games:
-            text += f"  {g[0]}: {g[1]} ставок на ${g[2]:.0f}\n"
-    else:
-        text += f"  Пока нет ставок\n"
+        for g in top_games: text += f"  {g[0]}: {g[1]} ставок на ${g[2]:.0f}\n"
+    else: text += f"  Пока нет ставок\n"
         
-    text += f"\n💵 <b>Оборот (все ставки):</b> ${total_bet:.2f}\n"
-    text += f"🏆 <b>Выплачено игрокам:</b> ${total_win:.2f}\n"
+    text += f"\n💵 <b>Оборот:</b> ${total_bet:.2f}\n"
+    text += f"🏆 <b>Выплачено:</b> ${total_win:.2f}\n"
     text += f"🏦 <b>Профит казино:</b> ${casino_profit:.2f}\n"
     
     bot.send_message(STATS_CHAT_ID, text, parse_mode='HTML')
@@ -309,13 +328,18 @@ def submit_kyc():
             
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
-        
         c.execute("UPDATE users SET kyc_name=?, kyc_country=?, kyc_status='Pending' WHERE id=?", (kyc_name, kyc_country, user_id))
         conn.commit()
         conn.close()
         
+        markup = types.InlineKeyboardMarkup()
+        markup.add(
+            types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_kyc_{user_id}"),
+            types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_kyc_{user_id}")
+        )
+        
         try:
-            bot.send_message(STATS_CHAT_ID, f"🛡️ <b>Новая заявка KYC</b>\nID: {user_id}\nФИО: {kyc_name}\nСтрана: {kyc_country}", parse_mode='HTML')
+            bot.send_message(STATS_CHAT_ID, f"🛡️ <b>Новая заявка KYC</b>\nID: {user_id}\nФИО: {kyc_name}\nСтрана: {kyc_country}", reply_markup=markup, parse_mode='HTML')
         except: 
             pass
             
@@ -700,6 +724,114 @@ def dice_roll():
         return jsonify({
             'result': result,
             'multiplier': multiplier,
+            'win': win,
+            'balance': new_bal
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============ НОВАЯ ИГРА: КЕНО ============
+@app.route('/api/keno/play', methods=['POST'])
+def keno_play():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        selected_numbers = data['numbers'] # список чисел от 1 до 80
+        currency = data.get('currency', 'USD')
+        
+        if not selected_numbers or len(selected_numbers) > 10:
+            return jsonify({'error': 'Выберите от 1 до 10 чисел'}), 400
+            
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, currency)
+        
+        if bal < bet: 
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
+        
+        # Генерируем 20 выигрышных чисел
+        drawn_numbers = random.sample(range(1, 81), 20)
+        
+        # Считаем совпадения
+        matches = len(set(selected_numbers) & set(drawn_numbers))
+        picked_count = len(selected_numbers)
+        
+        # Таблица выплат (упрощенная)
+        multipliers = {
+            1: {1: 3.5},
+            2: {2: 15},
+            3: {2: 2, 3: 25},
+            4: {2: 1.5, 3: 5, 4: 50},
+            5: {3: 2, 4: 10, 5: 100},
+            6: {3: 1.5, 4: 5, 5: 20, 6: 200},
+            7: {4: 2, 5: 10, 6: 50, 7: 300},
+            8: {4: 1.5, 5: 5, 6: 20, 7: 100, 8: 500},
+            9: {5: 2, 6: 10, 7: 50, 8: 200, 9: 1000},
+            10: {5: 1.5, 6: 5, 7: 20, 8: 100, 9: 500, 10: 2000}
+        }
+        
+        mult = 0
+        if picked_count in multipliers and matches in multipliers[picked_count]:
+            mult = multipliers[picked_count][matches]
+            
+        win = round(bet * mult, 2)
+        new_bal = round(bal - bet + win, 2)
+        
+        set_user_bal(c, user_id, currency, new_bal, win)
+        c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
+        log_bet(c, user_id, 'Keno', bet, win, currency)
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'drawn': drawn_numbers,
+            'matches': matches,
+            'multiplier': mult,
+            'win': win,
+            'balance': new_bal
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============ НОВАЯ ИГРА: КОЛЕСО ФОРТУНЫ ============
+@app.route('/api/wheel/spin', methods=['POST'])
+def wheel_spin():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        currency = data.get('currency', 'USD')
+        
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, currency)
+        
+        if bal < bet: 
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
+        
+        # 10 секторов, индексы 0-9
+        # Множители: 1.5, 0, 2, 0, 1.5, 5, 0, 2, 0, 10
+        segments = [1.5, 0, 2, 0, 1.5, 5, 0, 2, 0, 10]
+        
+        # Выбор случайного сектора
+        result_idx = random.randint(0, 9)
+        mult = segments[result_idx]
+        
+        win = round(bet * mult, 2)
+        new_bal = round(bal - bet + win, 2)
+        
+        set_user_bal(c, user_id, currency, new_bal, win)
+        c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
+        log_bet(c, user_id, 'Wheel', bet, win, currency)
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'index': result_idx,
+            'multiplier': mult,
             'win': win,
             'balance': new_bal
         })
