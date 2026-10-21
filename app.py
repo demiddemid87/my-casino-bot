@@ -215,17 +215,13 @@ def _live_bj_state(rd, active=True):
 
 def _live_bj_resolve(rd, user_id):
     player_val = _bj_hand_value(rd['player'])
-    
     if player_val <= 21:
         while _bj_hand_value(rd['dealer']) < 17:
             rd['dealer'].append(_deal_live_bj_card())
-    
     dealer_val = _bj_hand_value(rd['dealer'])
     rd['active'] = False
-    
     win = 0
     if player_val > 21:
-        win = 0
         rd['profit'] = -rd['bet']
     elif dealer_val > 21:
         win = rd['bet'] * 2
@@ -234,12 +230,10 @@ def _live_bj_resolve(rd, user_id):
         win = rd['bet'] * 2
         rd['profit'] = rd['bet']
     elif player_val < dealer_val:
-        win = 0
         rd['profit'] = -rd['bet']
     else:
         win = rd['bet']
         rd['profit'] = 0
-    
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
     if win > 0:
@@ -252,7 +246,6 @@ def _live_bj_resolve(rd, user_id):
     final_bal = row[0] if row else 0
     conn.commit()
     conn.close()
-    
     result = _live_bj_state(rd, active=False)
     result['balance'] = final_bal
     return result
@@ -260,12 +253,9 @@ def _live_bj_resolve(rd, user_id):
 # ============ ОБРАБОТЧИКИ КНОПОК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
-    print(f"[CALLBACK] deposit/withdraw: {call.data} from {call.from_user.id}")
     try: bot.answer_callback_query(call.id, "⏳ Обработка...")
     except Exception: pass
-    if str(call.from_user.id) != str(ADMIN_ID):
-        print(f"[CALLBACK] NOT ADMIN: {call.from_user.id} != {ADMIN_ID}")
-        return
+    if str(call.from_user.id) != str(ADMIN_ID): return
     try:
         parts = call.data.split('_')
         action, tx_type, tx_id = parts[0], parts[1], int(parts[2])
@@ -274,7 +264,6 @@ def handle_admin_action(call):
         c.execute("SELECT user_id, amount, status, currency FROM transactions WHERE id=?", (tx_id,))
         tx = c.fetchone()
         if not tx or tx[2] != 'Pending':
-            print(f"[CALLBACK] tx {tx_id} not found or not pending: {tx}")
             conn.close(); return
         user_id, amount = int(tx[0]), float(tx[1])
         tx_curr = tx[3] if tx[3] else 'USD'
@@ -648,12 +637,7 @@ def deposit():
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("✅ Одобрить", callback_data=f"app_dep_{tx_id}"),
                    types.InlineKeyboardButton("❌ Отклонить", callback_data=f"rej_dep_{tx_id}"))
-        try:
-            bot.send_message(STATS_CHAT_ID, f"💰 <b>Депозит #{tx_id}</b>\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}", reply_markup=markup, parse_mode='HTML')
-            print(f"[DEPOSIT] Deposit #{tx_id} created and message sent to admin")
-        except Exception as e:
-            print(f"[DEPOSIT] Failed to send admin message: {e}")
-            return jsonify({'error': f'Не удалось отправить заявку админу: {e}'}), 500
+        bot.send_message(STATS_CHAT_ID, f"💰 <b>Депозит #{tx_id}</b>\nID: {user_id}\nСумма: {amount} {sym}\nСеть: {method}", reply_markup=markup, parse_mode='HTML')
         return jsonify({'status': 'ok'})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
@@ -808,62 +792,42 @@ def live_bj_start():
         user_id = int(data['id'])
         bet = float(data['bet'])
         currency = data.get('currency', 'USD')
-        
         if bet <= 0:
             return jsonify({'error': 'Ставка должна быть больше 0'}), 400
-        
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
         if bal < bet:
             conn.close()
             return jsonify({'error': 'Недостаточно средств'}), 400
-        
         new_bal = round(bal - bet, 2)
         set_user_bal(c, user_id, currency, new_bal)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         conn.commit()
         conn.close()
-        
         player = [_deal_live_bj_card(), _deal_live_bj_card()]
         dealer = [_deal_live_bj_card(), _deal_live_bj_card()]
-        
         round_id = secrets.token_hex(8)
         rd = {
-            'id': round_id,
-            'user_id': user_id,
-            'bet': bet,
-            'currency': currency,
-            'player': player,
-            'dealer': dealer,
-            'active': True,
-            'profit': 0,
-            'blackjack': False,
+            'id': round_id, 'user_id': user_id, 'bet': bet, 'currency': currency,
+            'player': player, 'dealer': dealer, 'active': True, 'profit': 0, 'blackjack': False,
         }
         LIVE_BJ_ROUNDS[round_id] = rd
-        
         player_val = _bj_hand_value(player)
         dealer_val = _bj_hand_value(dealer)
-        
         player_bj = (player_val == 21 and len(player) == 2)
         dealer_bj = (dealer_val == 21 and len(dealer) == 2)
-        
         if player_bj or dealer_bj:
             rd['active'] = False
             rd['blackjack'] = player_bj
             conn = sqlite3.connect('casino.db', timeout=15)
             c = conn.cursor()
-            
             if player_bj and dealer_bj:
-                win = bet
-                rd['profit'] = 0
+                win = bet; rd['profit'] = 0
             elif player_bj:
-                win = round(bet * 2.5, 2)
-                rd['profit'] = round(bet * 1.5, 2)
+                win = round(bet * 2.5, 2); rd['profit'] = round(bet * 1.5, 2)
             else:
-                win = 0
-                rd['profit'] = -bet
-            
+                win = 0; rd['profit'] = -bet
             if win > 0:
                 bal_col = 'balance_uah' if currency == 'UAH' else 'balance'
                 c.execute(f"UPDATE users SET {bal_col} = {bal_col} + ? WHERE id=?", (win, user_id))
@@ -872,13 +836,10 @@ def live_bj_start():
             c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
             row = c.fetchone()
             final_bal = row[0] if row else 0
-            conn.commit()
-            conn.close()
-            
+            conn.commit(); conn.close()
             result = _live_bj_state(rd, active=False)
             result['balance'] = final_bal
             return jsonify(result)
-        
         result = _live_bj_state(rd, active=True)
         result['balance'] = new_bal
         return jsonify(result)
@@ -894,13 +855,10 @@ def live_bj_hit():
         rd = LIVE_BJ_ROUNDS.get(round_id)
         if not rd or rd['user_id'] != user_id or not rd['active']:
             return jsonify({'error': 'Раунд не найден'}), 404
-        
         rd['player'].append(_deal_live_bj_card())
         player_val = _bj_hand_value(rd['player'])
-        
         if player_val >= 21:
             return jsonify(_live_bj_resolve(rd, user_id))
-        
         result = _live_bj_state(rd, active=True)
         return jsonify(result)
     except Exception as e:
@@ -915,7 +873,6 @@ def live_bj_stand():
         rd = LIVE_BJ_ROUNDS.get(round_id)
         if not rd or rd['user_id'] != user_id or not rd['active']:
             return jsonify({'error': 'Раунд не найден'}), 404
-        
         return jsonify(_live_bj_resolve(rd, user_id))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -931,23 +888,85 @@ def live_bj_double():
             return jsonify({'error': 'Раунд не найден'}), 404
         if len(rd['player']) != 2:
             return jsonify({'error': 'Удвоение доступно только на первых 2 картах'}), 400
-        
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
         bal = get_user_bal(c, user_id, rd['currency'])
         if bal < rd['bet']:
             conn.close()
             return jsonify({'error': 'Недостаточно средств для удвоения'}), 400
-        
         new_bal = round(bal - rd['bet'], 2)
         set_user_bal(c, user_id, rd['currency'], new_bal)
         conn.commit()
         conn.close()
-        
         rd['bet'] *= 2
         rd['player'].append(_deal_live_bj_card())
-        
         return jsonify(_live_bj_resolve(rd, user_id))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============ LIVE DRAGON TIGER ============
+@app.route('/api/live/dragon_tiger/play', methods=['POST'])
+def live_dragon_tiger_play():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        bet_on = data.get('bet_on', 'dragon')  # 'dragon' | 'tiger' | 'tie'
+        currency = data.get('currency', 'USD')
+
+        if bet <= 0:
+            return jsonify({'error': 'Ставка должна быть больше 0'}), 400
+        if bet_on not in ('dragon', 'tiger', 'tie'):
+            return jsonify({'error': 'Неверная ставка'}), 400
+
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, currency)
+        if bal < bet:
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
+
+        ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
+        suits = ['♠','♥','♦','♣']
+        dragon_card = {'v': random.choice(ranks), 's': random.choice(suits)}
+        tiger_card = {'v': random.choice(ranks), 's': random.choice(suits)}
+        rank_values = {'A':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13}
+        dragon_val = rank_values[dragon_card['v']]
+        tiger_val = rank_values[tiger_card['v']]
+
+        if dragon_val > tiger_val:
+            winner = 'dragon'
+        elif tiger_val > dragon_val:
+            winner = 'tiger'
+        else:
+            winner = 'tie'
+
+        profit = -bet
+        if bet_on == winner:
+            if winner == 'tie':
+                profit = round(bet * 8, 2)
+            else:
+                profit = round(bet * 1, 2)
+
+        new_bal = round(bal + profit, 2)
+        set_user_bal(c, user_id, currency, new_bal, profit if profit > 0 else None)
+        c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
+        log_bet(c, user_id, 'Live Dragon Tiger', bet, max(0, profit + bet), currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'dragon_card': dragon_card,
+            'tiger_card': tiger_card,
+            'dragon_value': dragon_val,
+            'tiger_value': tiger_val,
+            'winner': winner,
+            'profit': profit,
+            'balance': final_bal,
+            'bet_on': bet_on,
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1247,67 +1266,18 @@ def wheel_spin():
 def index():
     return send_file('index.html')
 
-@app.route('/health')
-def health():
-    return jsonify({'status': 'alive', 'time': datetime.datetime.now().isoformat()})
-
 @app.errorhandler(404)
 def not_found(e): return jsonify({'error': 'not_found'}), 404
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    print(f"[START] /start from user {message.from_user.id} (@{message.from_user.username})")
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("💎 Открыть MADGEK CASINO", web_app=types.WebAppInfo(url=WEBAPP_URL)))
-    try:
-        bot.send_message(message.chat.id, "Добро пожаловать в MADGEK CASINO!", reply_markup=markup)
-        print(f"[START] Response sent to {message.chat.id}")
-    except Exception as e:
-        print(f"[START] Send failed: {e}")
+    bot.send_message(message.chat.id, "Добро пожаловать в MADGEK CASINO!", reply_markup=markup)
 
 if __name__ == "__main__":
     import threading
-    import time
-    import urllib.request
-    
-    print("[BOOT] Starting bot...")
-    
-    # 1. Clear webhook with retries (главная причина "молчащего" бота)
-    webhook_cleared = False
-    for attempt in range(1, 4):
-        try:
-            bot.remove_webhook()
-            print(f"[BOOT] Webhook cleared on attempt {attempt}")
-            webhook_cleared = True
-            break
-        except Exception as e:
-            print(f"[BOOT] Webhook clear attempt {attempt} failed: {e}")
-            time.sleep(2)
-    
-    if not webhook_cleared:
-        print("[BOOT] WARNING: Webhook may still be set! Polling won't receive updates.")
-        print("[BOOT] Check: https://api.telegram.org/bot<TOKEN>/getWebhookInfo")
-    
-    # 2. Verify bot is reachable
-    try:
-        me = bot.get_me()
-        print(f"[BOOT] Bot ready: @{me.username} (id={me.id})")
-    except Exception as e:
-        print(f"[BOOT] get_me failed: {e}")
-    
-    # 3. Keep-alive: ping self every 10 min, чтобы Render free tier не засыпал
-    def keep_alive():
-        time.sleep(60)
-        while True:
-            try:
-                urllib.request.urlopen(WEBAPP_URL + "/health", timeout=15)
-                print("[KEEP-ALIVE] Ping OK")
-            except Exception as e:
-                print(f"[KEEP-ALIVE] Error: {e}")
-            time.sleep(600)
-    
-    threading.Thread(target=keep_alive, daemon=True).start()
+    try: bot.remove_webhook()
+    except: pass
     threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
-    print("[BOOT] Polling thread started")
-    
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), threaded=True)
