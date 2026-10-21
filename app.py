@@ -25,6 +25,9 @@ ADMIN_PENDING = {}
 VIP_LEVELS = [(1, 2000, 200), (2, 7000, 700), (3, 20000, 2000), (4, 50000, 5000)]
 VIP_NAMES = {0: '—', 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Platinum'}
 
+# Символы и выплаты для Fortune Chests
+THREE_OF_KIND = {'WILD': 25.0, '7️⃣': 15.0, 'BAR': 10.0, '🔔': 8.0, '🍇': 8.0, '🍊': 2.0, '🍒': 0.5}
+
 def init_db():
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
@@ -1071,6 +1074,100 @@ def wheel_spin():
         final_bal = c.fetchone()[0]; conn.commit(); conn.close()
         return jsonify({'index': result_idx, 'multiplier': mult, 'win': win, 'balance': final_bal})
     except Exception as e: return jsonify({'error': str(e)}), 500
+
+# ============ FORTUNE CHESTS ============
+@app.route('/api/fortune-chests/spin', methods=['POST'])
+def fortune_chests_spin():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        currency = data.get('currency', 'USD')
+
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, currency)
+        if bal < bet:
+            conn.close()
+            return jsonify({'error': 'Недостаточно средств'}), 400
+
+        symbols = ['🍒', '🍊', '🍇', '🔔', 'BAR', '7️⃣', 'WILD']
+        weights = [30, 25, 20, 15, 10, 8, 2]
+        reels = []
+        for _ in range(3):
+            r = random.randint(1, sum(weights))
+            acc = 0
+            for sym, w in zip(symbols, weights):
+                acc += w
+                if r <= acc:
+                    reels.append(sym)
+                    break
+
+        win = 0
+        if reels[0] == reels[1] == reels[2]:
+            mult = THREE_OF_KIND.get(reels[0], 0)
+            win = round(bet * mult, 2)
+
+        new_bal = round(bal - bet + win, 2)
+        set_user_bal(c, user_id, currency, new_bal, win)
+        c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
+        log_bet(c, user_id, 'Fortune Chests', bet, win, currency)
+        c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
+        conn.commit()
+        conn.close()
+
+        bonus = None
+        if random.random() < 0.1:
+            bonus_type = random.choice(['green', 'red', 'purple'])
+            if bonus_type == 'green':
+                prizes = []
+                for _ in range(20):
+                    prizes.append('ROYAL' if random.random() < 0.05 else random.choice([2, 3, 4, 5, 7, 10, 12, 15, 20, 25, 50]))
+                bonus = {'type': 'green', 'attempts': 10, 'prizes': prizes}
+            elif bonus_type == 'red':
+                grid = [[None]*3 for _ in range(3)]
+                for row in range(3):
+                    for col in [0, 2]:
+                        if random.random() < 0.6:
+                            prize = random.choice([1, 2, 3, 4, 5, 10, 15, 25, 50, 200, 500])
+                            grid[row][col] = prize
+                grid[1][1] = 'KING'
+                bonus = {'type': 'red', 'grid': grid}
+            else:
+                grid = [[None]*3 for _ in range(3)]
+                for row in range(3):
+                    for col in range(3):
+                        if random.random() < 0.5:
+                            grid[row][col] = random.choice(['MIN', 'MID', 'MAX', 'ULTRA'])
+                bonus = {'type': 'purple', 'grid': grid}
+
+        return jsonify({'reels': reels, 'win': win, 'balance': final_bal, 'bonus': bonus})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/fortune-chests/bonus-finish', methods=['POST'])
+def fortune_chests_bonus_finish():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        win = float(data['win'])
+        currency = data.get('currency', 'USD')
+
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, currency)
+        new_bal = round(bal + win, 2)
+        set_user_bal(c, user_id, currency, new_bal, win)
+        conn.commit()
+        conn.close()
+        return jsonify({'balance': new_bal})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/fortune-chests')
+def fortune_chests_page():
+    return send_file('fortune_chests.html')
 
 @app.route('/')
 def index(): return send_file('index.html')
