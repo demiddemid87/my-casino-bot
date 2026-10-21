@@ -5,6 +5,7 @@ import sqlite3
 import random
 import secrets
 import datetime
+import time
 from flask import Flask, send_file, request, jsonify
 
 TOKEN = os.environ.get('TELEGRAM_TOKEN', '')
@@ -13,12 +14,12 @@ app = Flask(__name__)
 
 ADMIN_ID = 7695713296
 STATS_CHAT_ID = os.environ.get('STATS_CHAT_ID', ADMIN_ID)
-
-WEBAPP_URL = "https://my-casino-bot-3.onrender.com" 
+WEBAPP_URL = "https://my-casino-bot-3.onrender.com"
 
 RED_ROULETTE_NUMBERS = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
 MINES_ROUNDS = {}
 LIVE_BJ_ROUNDS = {}
+LIVE_KENO_ROUNDS = {}
 ADMIN_PENDING = {}
 
 VIP_LEVELS = [(1, 2000, 200), (2, 7000, 700), (3, 20000, 2000), (4, 50000, 5000)]
@@ -33,7 +34,6 @@ def init_db():
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type TEXT, method TEXT, amount REAL, status TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     c.execute('''CREATE TABLE IF NOT EXISTS bets_history 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, game TEXT, bet REAL, win REAL, currency TEXT, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    
     for col, typ in [
         ('phone', 'TEXT'), ('reg_name', 'TEXT'), ('registered', 'INTEGER DEFAULT 0'), 
         ('balance_uah', 'REAL DEFAULT 0'), ('email', 'TEXT'), 
@@ -53,17 +53,14 @@ def init_db():
             c.execute(f"ALTER TABLE users ADD COLUMN {col} {typ}")
         except sqlite3.OperationalError:
             pass
-            
     try:
         c.execute("ALTER TABLE transactions ADD COLUMN currency TEXT DEFAULT 'USD'")
     except sqlite3.OperationalError:
         pass
-        
     try:
         c.execute("ALTER TABLE transactions ADD COLUMN wallet TEXT")
     except sqlite3.OperationalError:
         pass
-
     conn.commit()
     conn.close()
 
@@ -189,58 +186,94 @@ def _bj_hand_value(hand):
     return total
 
 def _live_bj_state(rd, active=True):
-    player_value = _bj_hand_value(rd['player'])
+    hands_out = []
+    for h in rd['hands']:
+        hands_out.append({
+            'cards': h['cards'],
+            'value': _bj_hand_value(h['cards']),
+            'bet': h['bet'],
+            'done': h['done'],
+            'split': h.get('split', False),
+            'bust': _bj_hand_value(h['cards']) > 21,
+            'result': h.get('result'),
+        })
     if active:
-        visible_dealer = [rd['dealer'][0]]
+        current_hand = rd['hands'][rd['active_hand']]
+        can_split = (
+            len(rd['hands']) == 1
+            and len(current_hand['cards']) == 2
+            and current_hand['cards'][0]['v'] == current_hand['cards'][1]['v']
+            and not current_hand.get('split', False)
+        )
+        can_double = (
+            not current_hand['done']
+            and len(current_hand['cards']) == 2
+        )
         return {
             'round_id': rd['id'],
             'active': True,
-            'player_hand': rd['player'],
-            'player_value': player_value,
-            'dealer_hand': visible_dealer,
-            'dealer_value': _bj_hand_value(visible_dealer),
+            'dealer_hand': [rd['dealer'][0]],
+            'dealer_value': _bj_hand_value([rd['dealer'][0]]),
+            'hands': hands_out,
+            'active_hand': rd['active_hand'],
+            'can_split': can_split,
+            'can_double': can_double,
+            'total_bet': rd['total_bet'],
         }
     else:
         return {
             'round_id': rd['id'],
             'active': False,
-            'player_hand': rd['player'],
-            'player_value': player_value,
             'dealer_hand': rd['dealer'],
             'dealer_value': _bj_hand_value(rd['dealer']),
-            'profit': rd['profit'],
-            'bet': rd['bet'],
-            'blackjack': rd.get('blackjack', False),
+            'hands': hands_out,
+            'total_profit': rd['total_profit'],
+            'total_bet': rd['total_bet'],
         }
 
 def _live_bj_resolve(rd, user_id):
-    player_val = _bj_hand_value(rd['player'])
-    if player_val <= 21:
+    all_bust = all(_bj_hand_value(h['cards']) > 21 for h in rd['hands'])
+    if not all_bust:
         while _bj_hand_value(rd['dealer']) < 17:
             rd['dealer'].append(_deal_live_bj_card())
     dealer_val = _bj_hand_value(rd['dealer'])
+    total_win = 0
+    total_profit = 0
+    for h in rd['hands']:
+        player_val = _bj_hand_value(h['cards'])
+        if player_val > 21:
+            h['result'] = 'bust'
+            total_profit -= h['bet']
+            continue
+        is_bj = (len(h['cards']) == 2 and player_val == 21 and not h.get('split', False))
+        if is_bj:
+            payout = round(h['bet'] * 2.5, 2)
+            total_win += payout
+            total_profit += round(h['bet'] * 1.5, 2)
+            h['result'] = 'blackjack'
+        elif dealer_val > 21:
+            total_win += h['bet'] * 2
+            total_profit += h['bet']
+            h['result'] = 'win'
+        elif player_val > dealer_val:
+            total_win += h['bet'] * 2
+            total_profit += h['bet']
+            h['result'] = 'win'
+        elif player_val < dealer_val:
+            total_profit -= h['bet']
+            h['result'] = 'lose'
+        else:
+            total_win += h['bet']
+            h['result'] = 'push'
     rd['active'] = False
-    win = 0
-    if player_val > 21:
-        rd['profit'] = -rd['bet']
-    elif dealer_val > 21:
-        win = rd['bet'] * 2
-        rd['profit'] = rd['bet']
-    elif player_val > dealer_val:
-        win = rd['bet'] * 2
-        rd['profit'] = rd['bet']
-    elif player_val < dealer_val:
-        rd['profit'] = -rd['bet']
-    else:
-        win = rd['bet']
-        rd['profit'] = 0
+    rd['total_profit'] = round(total_profit, 2)
     conn = sqlite3.connect('casino.db', timeout=15)
     c = conn.cursor()
-    if win > 0:
+    if total_win > 0:
         bal_col = 'balance_uah' if rd['currency'] == 'UAH' else 'balance'
-        c.execute(f"UPDATE users SET {bal_col} = {bal_col} + ? WHERE id=?", (win, user_id))
-        c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (win, user_id))
-    log_bet(c, user_id, 'Live Blackjack', rd['bet'], win, rd['currency'])
+        c.execute(f"UPDATE users SET {bal_col} = {bal_col} + ? WHERE id=?", (total_win, user_id))
+        c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (total_win, user_id))
+    log_bet(c, user_id, 'Live Blackjack', rd['total_bet'], total_win, rd['currency'])
     c.execute(f"SELECT {'balance_uah' if rd['currency']=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
     row = c.fetchone()
     final_bal = row[0] if row else 0
@@ -250,9 +283,21 @@ def _live_bj_resolve(rd, user_id):
     result['balance'] = final_bal
     return result
 
+def _advance_bj_hand_or_resolve(rd, user_id):
+    for i, h in enumerate(rd['hands']):
+        if not h['done']:
+            val = _bj_hand_value(h['cards'])
+            if val > 21 or val == 21:
+                h['done'] = True
+                continue
+            rd['active_hand'] = i
+            return jsonify(_live_bj_state(rd, active=True))
+    return jsonify(_live_bj_resolve(rd, user_id))
+
 # ============ ОБРАБОТЧИКИ КНОПОК ============
 @bot.callback_query_handler(func=lambda call: call.data.startswith(('app_dep', 'rej_dep', 'app_wd', 'rej_wd')))
 def handle_admin_action(call):
+    print(f"[CALLBACK] {call.data} from {call.from_user.id}")
     try: bot.answer_callback_query(call.id, "⏳ Обработка...")
     except Exception: pass
     if str(call.from_user.id) != str(ADMIN_ID): return
@@ -741,16 +786,13 @@ def live_roulette_spin():
         bet_type = data.get('bet_type')
         bet_value = data.get('bet_value')
         currency = data.get('currency', 'USD')
-        
         conn = sqlite3.connect('casino.db', timeout=15); c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
         if bal < bet: 
             conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
-        
         result = random.randint(0, 36)
         color = 'green' if result == 0 else ('red' if result in RED_ROULETTE_NUMBERS else 'black')
         profit = -bet
-        
         if bet_type == 'number' and result == bet_value: profit = bet * 35
         elif bet_type == 'red' and color == 'red': profit = bet
         elif bet_type == 'black' and color == 'black': profit = bet
@@ -764,7 +806,6 @@ def live_roulette_spin():
         elif bet_type == 'column1' and result != 0 and result % 3 == 1: profit = bet * 2
         elif bet_type == 'column2' and result != 0 and result % 3 == 2: profit = bet * 2
         elif bet_type == 'column3' and result != 0 and result % 3 == 0: profit = bet * 2
-        
         new_bal = round(bal + profit, 2)
         set_user_bal(c, user_id, currency, new_bal, profit)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
@@ -772,16 +813,7 @@ def live_roulette_spin():
         c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
         final_bal = c.fetchone()[0]
         conn.commit(); conn.close()
-        
-        return jsonify({
-            'number': result, 
-            'color': color, 
-            'profit': profit, 
-            'balance': final_bal,
-            'bet_type': bet_type,
-            'bet_value': bet_value,
-            'win': profit > 0
-        })
+        return jsonify({'number': result, 'color': color, 'profit': profit, 'balance': final_bal, 'bet_type': bet_type, 'bet_value': bet_value, 'win': profit > 0})
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 # ============ LIVE BLACKJACK ============
@@ -798,48 +830,26 @@ def live_bj_start():
         c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
         if bal < bet:
-            conn.close()
-            return jsonify({'error': 'Недостаточно средств'}), 400
+            conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
         new_bal = round(bal - bet, 2)
         set_user_bal(c, user_id, currency, new_bal)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
-        conn.commit()
-        conn.close()
+        conn.commit(); conn.close()
         player = [_deal_live_bj_card(), _deal_live_bj_card()]
         dealer = [_deal_live_bj_card(), _deal_live_bj_card()]
         round_id = secrets.token_hex(8)
         rd = {
-            'id': round_id, 'user_id': user_id, 'bet': bet, 'currency': currency,
-            'player': player, 'dealer': dealer, 'active': True, 'profit': 0, 'blackjack': False,
+            'id': round_id, 'user_id': user_id, 'currency': currency,
+            'hands': [{'cards': player, 'bet': bet, 'done': False, 'split': False}],
+            'dealer': dealer,
+            'active': True, 'active_hand': 0,
+            'total_bet': bet, 'total_profit': 0,
         }
         LIVE_BJ_ROUNDS[round_id] = rd
         player_val = _bj_hand_value(player)
         dealer_val = _bj_hand_value(dealer)
-        player_bj = (player_val == 21 and len(player) == 2)
-        dealer_bj = (dealer_val == 21 and len(dealer) == 2)
-        if player_bj or dealer_bj:
-            rd['active'] = False
-            rd['blackjack'] = player_bj
-            conn = sqlite3.connect('casino.db', timeout=15)
-            c = conn.cursor()
-            if player_bj and dealer_bj:
-                win = bet; rd['profit'] = 0
-            elif player_bj:
-                win = round(bet * 2.5, 2); rd['profit'] = round(bet * 1.5, 2)
-            else:
-                win = 0; rd['profit'] = -bet
-            if win > 0:
-                bal_col = 'balance_uah' if currency == 'UAH' else 'balance'
-                c.execute(f"UPDATE users SET {bal_col} = {bal_col} + ? WHERE id=?", (win, user_id))
-                c.execute("UPDATE users SET best_result = MAX(best_result, ?) WHERE id=?", (win, user_id))
-            log_bet(c, user_id, 'Live Blackjack', bet, win, currency)
-            c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
-            row = c.fetchone()
-            final_bal = row[0] if row else 0
-            conn.commit(); conn.close()
-            result = _live_bj_state(rd, active=False)
-            result['balance'] = final_bal
-            return jsonify(result)
+        if player_val == 21 or dealer_val == 21:
+            return jsonify(_live_bj_resolve(rd, user_id))
         result = _live_bj_state(rd, active=True)
         result['balance'] = new_bal
         return jsonify(result)
@@ -855,12 +865,15 @@ def live_bj_hit():
         rd = LIVE_BJ_ROUNDS.get(round_id)
         if not rd or rd['user_id'] != user_id or not rd['active']:
             return jsonify({'error': 'Раунд не найден'}), 404
-        rd['player'].append(_deal_live_bj_card())
-        player_val = _bj_hand_value(rd['player'])
-        if player_val >= 21:
-            return jsonify(_live_bj_resolve(rd, user_id))
-        result = _live_bj_state(rd, active=True)
-        return jsonify(result)
+        h = rd['hands'][rd['active_hand']]
+        if h['done']:
+            return jsonify({'error': 'Эта рука завершена'}), 400
+        h['cards'].append(_deal_live_bj_card())
+        val = _bj_hand_value(h['cards'])
+        if val >= 21:
+            h['done'] = True
+            return _advance_bj_hand_or_resolve(rd, user_id)
+        return jsonify(_live_bj_state(rd, active=True))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -873,7 +886,9 @@ def live_bj_stand():
         rd = LIVE_BJ_ROUNDS.get(round_id)
         if not rd or rd['user_id'] != user_id or not rd['active']:
             return jsonify({'error': 'Раунд не найден'}), 404
-        return jsonify(_live_bj_resolve(rd, user_id))
+        h = rd['hands'][rd['active_hand']]
+        h['done'] = True
+        return _advance_bj_hand_or_resolve(rd, user_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -886,21 +901,58 @@ def live_bj_double():
         rd = LIVE_BJ_ROUNDS.get(round_id)
         if not rd or rd['user_id'] != user_id or not rd['active']:
             return jsonify({'error': 'Раунд не найден'}), 404
-        if len(rd['player']) != 2:
-            return jsonify({'error': 'Удвоение доступно только на первых 2 картах'}), 400
+        h = rd['hands'][rd['active_hand']]
+        if len(h['cards']) != 2:
+            return jsonify({'error': 'Удвоение только на первых 2 картах'}), 400
+        if h['done']:
+            return jsonify({'error': 'Рука уже завершена'}), 400
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
         bal = get_user_bal(c, user_id, rd['currency'])
-        if bal < rd['bet']:
-            conn.close()
-            return jsonify({'error': 'Недостаточно средств для удвоения'}), 400
-        new_bal = round(bal - rd['bet'], 2)
+        if bal < h['bet']:
+            conn.close(); return jsonify({'error': 'Недостаточно средств для удвоения'}), 400
+        new_bal = round(bal - h['bet'], 2)
         set_user_bal(c, user_id, rd['currency'], new_bal)
-        conn.commit()
-        conn.close()
-        rd['bet'] *= 2
-        rd['player'].append(_deal_live_bj_card())
-        return jsonify(_live_bj_resolve(rd, user_id))
+        conn.commit(); conn.close()
+        h['bet'] *= 2
+        rd['total_bet'] = sum(x['bet'] for x in rd['hands'])
+        h['cards'].append(_deal_live_bj_card())
+        h['done'] = True
+        return _advance_bj_hand_or_resolve(rd, user_id)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/live/blackjack/split', methods=['POST'])
+def live_bj_split():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        round_id = data.get('round_id')
+        rd = LIVE_BJ_ROUNDS.get(round_id)
+        if not rd or rd['user_id'] != user_id or not rd['active']:
+            return jsonify({'error': 'Раунд не найден'}), 404
+        if len(rd['hands']) > 1:
+            return jsonify({'error': 'Уже разделено'}), 400
+        h = rd['hands'][0]
+        if len(h['cards']) != 2:
+            return jsonify({'error': 'Нужно 2 карты'}), 400
+        if h['cards'][0]['v'] != h['cards'][1]['v']:
+            return jsonify({'error': 'Нужна пара одинаковых карт'}), 400
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, rd['currency'])
+        if bal < h['bet']:
+            conn.close(); return jsonify({'error': 'Недостаточно средств для сплита'}), 400
+        new_bal = round(bal - h['bet'], 2)
+        set_user_bal(c, user_id, rd['currency'], new_bal)
+        conn.commit(); conn.close()
+        c1, c2 = h['cards']
+        hand_a = {'cards': [c1, _deal_live_bj_card()], 'bet': h['bet'], 'done': False, 'split': True}
+        hand_b = {'cards': [c2, _deal_live_bj_card()], 'bet': h['bet'], 'done': False, 'split': True}
+        rd['hands'] = [hand_a, hand_b]
+        rd['active_hand'] = 0
+        rd['total_bet'] = sum(x['bet'] for x in rd['hands'])
+        return _advance_bj_hand_or_resolve(rd, user_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -911,21 +963,17 @@ def live_dragon_tiger_play():
         data = request.get_json(silent=True) or {}
         user_id = int(data['id'])
         bet = float(data['bet'])
-        bet_on = data.get('bet_on', 'dragon')  # 'dragon' | 'tiger' | 'tie'
+        bet_on = data.get('bet_on', 'dragon')
         currency = data.get('currency', 'USD')
-
         if bet <= 0:
             return jsonify({'error': 'Ставка должна быть больше 0'}), 400
         if bet_on not in ('dragon', 'tiger', 'tie'):
             return jsonify({'error': 'Неверная ставка'}), 400
-
         conn = sqlite3.connect('casino.db', timeout=15)
         c = conn.cursor()
         bal = get_user_bal(c, user_id, currency)
         if bal < bet:
-            conn.close()
-            return jsonify({'error': 'Недостаточно средств'}), 400
-
+            conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
         ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
         suits = ['♠','♥','♦','♣']
         dragon_card = {'v': random.choice(ranks), 's': random.choice(suits)}
@@ -933,40 +981,94 @@ def live_dragon_tiger_play():
         rank_values = {'A':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13}
         dragon_val = rank_values[dragon_card['v']]
         tiger_val = rank_values[tiger_card['v']]
-
-        if dragon_val > tiger_val:
-            winner = 'dragon'
-        elif tiger_val > dragon_val:
-            winner = 'tiger'
-        else:
-            winner = 'tie'
-
+        if dragon_val > tiger_val: winner = 'dragon'
+        elif tiger_val > dragon_val: winner = 'tiger'
+        else: winner = 'tie'
         profit = -bet
         if bet_on == winner:
-            if winner == 'tie':
-                profit = round(bet * 8, 2)
-            else:
-                profit = round(bet * 1, 2)
-
+            if winner == 'tie': profit = round(bet * 8, 2)
+            else: profit = round(bet * 1, 2)
         new_bal = round(bal + profit, 2)
         set_user_bal(c, user_id, currency, new_bal, profit if profit > 0 else None)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
         log_bet(c, user_id, 'Live Dragon Tiger', bet, max(0, profit + bet), currency)
         c.execute(f"SELECT {'balance_uah' if currency=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
         final_bal = c.fetchone()[0]
-        conn.commit()
-        conn.close()
+        conn.commit(); conn.close()
+        return jsonify({'dragon_card': dragon_card, 'tiger_card': tiger_card, 'dragon_value': dragon_val, 'tiger_value': tiger_val, 'winner': winner, 'profit': profit, 'balance': final_bal, 'bet_on': bet_on})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-        return jsonify({
-            'dragon_card': dragon_card,
-            'tiger_card': tiger_card,
-            'dragon_value': dragon_val,
-            'tiger_value': tiger_val,
-            'winner': winner,
-            'profit': profit,
-            'balance': final_bal,
-            'bet_on': bet_on,
-        })
+# ============ LIVE KENO ============
+KENO_MULTIPLIERS = {
+    1: {1: 3.5}, 2: {2: 15}, 3: {2: 2, 3: 25}, 4: {2: 1.5, 3: 5, 4: 50},
+    5: {3: 2, 4: 10, 5: 100}, 6: {3: 1.5, 4: 5, 5: 20, 6: 200},
+    7: {4: 2, 5: 10, 6: 50, 7: 300}, 8: {4: 1.5, 5: 5, 6: 20, 7: 100, 8: 500},
+    9: {5: 2, 6: 10, 7: 50, 8: 200, 9: 1000},
+    10: {5: 1.5, 6: 5, 7: 20, 8: 100, 9: 500, 10: 2000}
+}
+
+@app.route('/api/live/keno/start', methods=['POST'])
+def live_keno_start():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        bet = float(data['bet'])
+        numbers = data.get('numbers', [])
+        currency = data.get('currency', 'USD')
+        if bet <= 0:
+            return jsonify({'error': 'Ставка должна быть больше 0'}), 400
+        if not numbers or len(numbers) > 10:
+            return jsonify({'error': 'Выберите от 1 до 10 чисел'}), 400
+        numbers = [int(n) for n in numbers]
+        if any(n < 1 or n > 80 for n in numbers):
+            return jsonify({'error': 'Числа от 1 до 80'}), 400
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, currency)
+        if bal < bet:
+            conn.close(); return jsonify({'error': 'Недостаточно средств'}), 400
+        new_bal = round(bal - bet, 2)
+        set_user_bal(c, user_id, currency, new_bal)
+        c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
+        conn.commit(); conn.close()
+        drawn = random.sample(range(1, 81), 20)
+        round_id = secrets.token_hex(8)
+        LIVE_KENO_ROUNDS[round_id] = {'user_id': user_id, 'bet': bet, 'numbers': set(numbers), 'drawn': drawn, 'currency': currency, 'done': False}
+        return jsonify({'round_id': round_id, 'drawn': drawn, 'balance': new_bal, 'picked': numbers})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/live/keno/finish', methods=['POST'])
+def live_keno_finish():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_id = int(data['id'])
+        round_id = data.get('round_id')
+        rd = LIVE_KENO_ROUNDS.get(round_id)
+        if not rd or rd['user_id'] != user_id or rd['done']:
+            return jsonify({'error': 'Раунд не найден'}), 404
+        rd['done'] = True
+        picked_count = len(rd['numbers'])
+        matches = len(rd['numbers'] & set(rd['drawn']))
+        mult = 0
+        table = KENO_MULTIPLIERS.get(picked_count, {})
+        if matches in table:
+            mult = table[matches]
+        win = round(rd['bet'] * mult, 2)
+        conn = sqlite3.connect('casino.db', timeout=15)
+        c = conn.cursor()
+        bal = get_user_bal(c, user_id, rd['currency'])
+        if win > 0:
+            new_bal = round(bal + win, 2)
+            set_user_bal(c, user_id, rd['currency'], new_bal, win)
+        else:
+            new_bal = bal
+        log_bet(c, user_id, 'Live Keno', rd['bet'], win, rd['currency'])
+        c.execute(f"SELECT {'balance_uah' if rd['currency']=='UAH' else 'balance'} FROM users WHERE id=?", (user_id,))
+        final_bal = c.fetchone()[0]
+        conn.commit(); conn.close()
+        return jsonify({'matches': matches, 'multiplier': mult, 'win': win, 'profit': round(win - rd['bet'], 2), 'balance': final_bal, 'drawn': rd['drawn']})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1221,16 +1323,9 @@ def keno_play():
         drawn_numbers = random.sample(range(1, 81), 20)
         matches = len(set(selected_numbers) & set(drawn_numbers))
         picked_count = len(selected_numbers)
-        multipliers = {
-            1: {1: 3.5}, 2: {2: 15}, 3: {2: 2, 3: 25}, 4: {2: 1.5, 3: 5, 4: 50},
-            5: {3: 2, 4: 10, 5: 100}, 6: {3: 1.5, 4: 5, 5: 20, 6: 200},
-            7: {4: 2, 5: 10, 6: 50, 7: 300}, 8: {4: 1.5, 5: 5, 6: 20, 7: 100, 8: 500},
-            9: {5: 2, 6: 10, 7: 50, 8: 200, 9: 1000},
-            10: {5: 1.5, 6: 5, 7: 20, 8: 100, 9: 500, 10: 2000}
-        }
         mult = 0
-        if picked_count in multipliers and matches in multipliers[picked_count]:
-            mult = multipliers[picked_count][matches]
+        if picked_count in KENO_MULTIPLIERS and matches in KENO_MULTIPLIERS[picked_count]:
+            mult = KENO_MULTIPLIERS[picked_count][matches]
         win = round(bet * mult, 2); new_bal = round(bal - bet + win, 2)
         set_user_bal(c, user_id, currency, new_bal, win)
         c.execute("UPDATE users SET total_rounds = total_rounds + 1 WHERE id=?", (user_id,))
@@ -1266,18 +1361,60 @@ def wheel_spin():
 def index():
     return send_file('index.html')
 
+@app.route('/health')
+def health():
+    return jsonify({'status': 'alive'})
+
+@app.route('/diag')
+def diag():
+    try:
+        wh = bot.get_webhook_info()
+        me = bot.get_me()
+        return jsonify({
+            'bot_username': me.username,
+            'bot_id': me.id,
+            'webhook_url': wh.url or '(пусто - ПОЛЛИНГ РЕЖИМ OK)',
+            'pending_updates': wh.pending_update_count,
+            'last_error': wh.last_error_message or '(нет)',
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.errorhandler(404)
 def not_found(e): return jsonify({'error': 'not_found'}), 404
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("💎 Открыть MADGEK CASINO", web_app=types.WebAppInfo(url=WEBAPP_URL)))
-    bot.send_message(message.chat.id, "Добро пожаловать в MADGEK CASINO!", reply_markup=markup)
+    print(f"[START] /start from {message.from_user.id}")
+    try:
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("💎 Открыть MADGEK CASINO", web_app=types.WebAppInfo(url=WEBAPP_URL)))
+        bot.send_message(message.chat.id, "Добро пожаловать в MADGEK CASINO!", reply_markup=markup)
+        print(f"[START] Reply sent")
+    except Exception as e:
+        print(f"[START] Send failed: {e}")
 
 if __name__ == "__main__":
     import threading
-    try: bot.remove_webhook()
-    except: pass
-    threading.Thread(target=bot.infinity_polling, kwargs={'skip_pending': True}).start()
+    print("[BOOT] Starting bot...")
+    for attempt in range(1, 4):
+        try:
+            bot.remove_webhook()
+            print(f"[BOOT] Webhook cleared (attempt {attempt})")
+            break
+        except Exception as e:
+            print(f"[BOOT] Webhook clear failed: {e}")
+            time.sleep(2)
+    try:
+        me = bot.get_me()
+        print(f"[BOOT] Bot ready: @{me.username}")
+    except Exception as e:
+        print(f"[BOOT] get_me failed: {e}")
+    def run_bot():
+        try:
+            bot.infinity_polling(skip_pending=True, timeout=60, long_polling_timeout=50)
+        except Exception as e:
+            print(f"[POLLING] CRASHED: {e}")
+    threading.Thread(target=run_bot, daemon=True).start()
+    print("[BOOT] Polling started, Flask starting...")
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), threaded=True)
