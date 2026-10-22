@@ -3,381 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fortune Chests | MADGEK</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Fortune Chests</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0a0805; --gold: #FFD700; --text: #fff; --muted: #8b8b93; --border: rgba(255,215,0,0.3); --red: #E53935; --green: #4CAF50; --purple: #9C27B0; }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: radial-gradient(circle at top, #1a1508 0%, #050505 70%); color: var(--text); font-family: 'Montserrat', sans-serif; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-        .header { width: 100%; max-width: 420px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
-        .logo { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 900; background: linear-gradient(to right, #FFD700, #FFF8DC, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .balance { background: rgba-radius(:0,0,0,0.6); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 14px; }
-        .game-area { width: 100%; max-width: 420px; background: #1a0f0a; border: 3px solid #DAA520; border 20px; padding: 15px 10px; box-shadow: 0 0 40px rgba(255,215,0,0.15); position: relative; margin-bottom: 15px; }
-        .chests-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
-        .chest-icon { font-size: 30px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.5)); }
-        .reels { display: flex; justify-content: center; gap: 8px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 12px; border: 2px solid #B8860B; margin-bottom: 15px; }
-        .reel { width: 70px; height: 210px; background: #111; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,215,0,0.2); }
-        .reel-strip { display: flex; flex-direction: column; align-items: center; transition: transform 0.1s linear; }
-        .symbol { width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
-        .controls { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
-        .info-panel { display: flex; justify-content: space-between; width: 100%; background: rgba(0,0,0,0.6); padding: 12px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); margin-bottom: 10px; }
-        .info-panel span { color: var(--gold); }
-        .bet-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
-        .chip { background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: #fff; padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .chip.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .btn-spin { width: 100%; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; font-weight: 900; font-size: 16px; letter-spacing: 1.5px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 20px rgba(255,215,0,0.4); text-transform: uppercase; font-family: inherit; }
-        .btn-spin:active { transform: scale(0.97); }
-        .btn-spin:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
-        .rules-btn { background: transparent; border: 1px solid var(--border); color: var(--gold); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; margin-bottom: 10px; }
-        .rules-content { display: none; width: 100%; background: rgba(0,0,0,0.7); border: 1px solid var(--border); border-radius: 10px; padding: 15px; font-size: 12px; line-height: 1.5; color: var(--muted); margin-bottom: 15px; text-align: left; }
-        .rules-content.open { display: block; }
-        .rules-content h4 { color: var(--gold); margin: 10px 0 5px; font-size: 13px; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); display: none; flex-direction: column; z-index: 200; overflow-y: auto; padding: 20px; align-items: center; justify-content: center; }
-        .modal-overlay.open { display: flex; }
-        .modal-box { background: #1a0f0a; border: 3px solid var(--gold); border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 0 50px rgba(255,215,0,0.3); }
-        .modal-box h2 { font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 15px; font-size: 22px; }
-        .chest-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 15px 0; }
-        .chest-cell { aspect-ratio: 1; background: rgba(0,0,0,0.5); border: 2px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; transition: 0.2s; }
-        .chest-cell:active { transform: scale(0.95); }
-        .chest-cell.opened { background: rgba(255,215,0,0.15); border-color: var(--gold); cursor: default; }
-        .hold-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
-        .hold-cell { aspect-ratio: 1; background: rgba(0,0,0,0.5); border: 2px solid var(--border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: var(--gold); }
-        .hold-cell.locked { border-color: var(--gold); background: rgba(255,215,0,0.1); }
-        .hold-cell.king { border-color: #FFD700; background: radial-gradient(circle, rgba(255,215,0,0.3), rgba(0,0,0,0.5)); }
-        .bonus-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; font-weight: 900; font-size: 15px; cursor: pointer; font-family: inherit; margin-top: 10px; }
-        .bonus-btn:disabled { opacity: 0.5; }
-        .result-text { font-size: 18px; font-weight: 900; color: var(--gold); margin: 10px 0; min-height: 24px; }
-        .particles { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
-        .particle { position: absolute; background: var(--gold); border-radius: 50%; opacity: 0.2; animation: float linear infinite; }
-        @keyframes float { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.4; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
+        :root { --bg: #050505; --gold: #FFD700; --text: #fff; --border: rgba(255,215,0,0.4); }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #0a0805 url('https://i.imgur.com/8Y6wJ8k.jpeg') center/cover; font-family: 'Montserrat', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; color: var(--text); }
+        /* Затемняющий слой для фона, чтобы игра была четче */
+        body::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: -1; }
+        
+        .top-bar { width: 100%; max-width: 450px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: absolute; top: 0; left: 0; right: 0; margin: 0 auto; z-index: 10; }
+        .balance { background: rgba(0,0,0,0.7); border: 1px solid var(--border); padding: 8px 15px; border-radius: 20px; font-weight: 800; color: var(--gold); font-size: 14px; }
+        .back-btn { background: rgba(0,0,0,0.7); border: 1px solid var(--border); color: var(--gold); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; text-decoration: none; }
+
+        .game-container { width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; position: relative; margin-top: 40px; }
+        
+        /* Три сундука */
+        .chests-top { display: flex; justify-content: space-between; width: 100%; max-width: 320px; margin-bottom: 5px; z-index: 2; padding: 0 10px; }
+        .chest { font-size: 30px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.8)); animation: floatChest 2s infinite alternate; }
+        .chest.green { animation-delay: 0s; }
+        .chest.red { animation-delay: 0.3s; }
+        .chest.purple { animation-delay: 0.6s; }
+        @keyframes floatChest { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+
+        /* Золотая рамка вокруг слотов */
+        .reels-frame { background: linear-gradient(180deg, #5a3a0a 0%, #d4af37 50%, #5a3a0a 100%); padding: 4px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.5); }
+        .reels-bg { background: #1a0f0a; border-radius: 12px; display: flex; overflow: hidden; padding: 5px; gap: 5px; }
+        
+        .reel-col { width: 80px; height: 240px; overflow: hidden; position: relative; border-radius: 8px; background: #111; box-shadow: inset 0 0 20px rgba(0,0,0,1); }
+        .reel-strip { display: flex; flex-direction: column; }
+        .symbol-box { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        
+        /* Кнопка спина */
+        .controls-area { margin-top: 20px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 320px; padding: 0 10px; }
+        .spin-btn { width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, #ffd700, #b8860b); border: 4px solid #fff; box-shadow: 0 0 20px rgba(255,215,0,0.8), inset 0 0 10px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 32px; color: #fff; transition: 0.1s; }
+        .spin-btn:active { transform: scale(0.95); box-shadow: 0 0 30px rgba(255,215,0,1); }
+        .spin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .info-side { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .info-lbl { font-size: 10px; text-transform: uppercase; color: #aaa; font-weight: 800; }
+        .info-val { font-size: 16px; font-weight: 900; color: var(--gold); }
+        
+        .bet-side { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .bet-controls { display: flex; align-items: center; gap: 8px; }
+        .bet-btn { background: rgba(0,0,0,0.6); border: 1px solid var(--border); color: var(--gold); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; font-weight: bold; }
+        .bet-btn:active { background: rgba(255,215,0,0.2); }
+
+        .win-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 0.3s; }
+        .win-overlay.show { opacity: 1; }
+        .win-text { font-size: 48px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px #FFD700, 0 0 40px #FFA500; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    <div class="header">
-        <div class="logo">FORTUNE CHESTS</div>
-        <div class="balance" id="headerBalance">$0.00</div>
+    <div class="top-bar">
+        <a href="javascript:window.close()" class="back-btn">←</a>
+        <div class="balance" id="headerBalance">0.00</div>
     </div>
 
-    <div class="game-area" id="gameArea">
-        <div class="chests-row">
-            <span class="chest-icon">🟢</span>
-            <span class="chest-icon">🔴</span>
-            <span class="chest-icon">🟣</span>
+    <div class="game-container">
+        <!-- Сундуки -->
+        <div class="chests-top">
+            <div class="chest green">🎁</div>
+            <div class="chest red">🎁</div>
+            <div class="chest purple">🎁</div>
         </div>
-        <div class="reels" id="reels">
-            <div class="reel"><div class="reel-strip" id="reel0"></div></div>
-            <div class="reel"><div class="reel-strip" id="reel1"></div></div>
-            <div class="reel"><div class="reel-strip" id="reel2"></div></div>
+
+        <!-- Барабаны -->
+        <div class="reels-frame">
+            <div class="reels-bg">
+                <div class="reel-col"><div class="reel-strip" id="reel0"></div></div>
+                <div class="reel-col"><div class="reel-strip" id="reel1"></div></div>
+                <div class="reel-col"><div class="reel-strip" id="reel2"></div></div>
+            </div>
         </div>
-        <div class="info-panel">
-            <div>Ставка: <span id="betDisplay">$0.5</span></div>
-            <div>Баланс: <span id="balanceDisplay">$0.00</span></div>
-            <div>Валюта: <span id="currencyDisplay">UAH</span></div>
-        </div>
-        <div class="bet-row" id="betChips"></div>
-        <button class="btn-spin" id="spinBtn" onclick="spin()">СДЕЛАТЬ СТАВКУ</button>
-        <button class="rules-btn" onclick="toggleRules()">📖 ПРАВИЛА ИГРЫ</button>
-        <div class="rules-content" id="rulesContent">
-            <h4>🎰 Основная игра</h4>
-            <p>Барабаны 3×3. Символы: WILD (заменяет все, кроме TOKEN), 7, BAR, колокол, арбуз, виноград, слива, апельсин, вишня.</p>
-            <h4>🪙 Символ TOKEN</h4>
-            <p>Выпадает поверх других символов только в основной игре. Когда TOKEN улетает, открывшийся символ может участвовать в выигрышной комбинации.</p>
-            <h4>🎁 Механика Lucky Time</h4>
-            <p>Над барабанами три сундука: зелёный (Pick Me), красный (Hold and Win), фиолетовый (Jackpot Collecting). Каждый притягивает TOKEN своего цвета и запускает бонусную игру.</p>
-            <h4>🟢 Зелёный сундук (Pick Me)</h4>
-            <p>20 сундуков, 10 попыток. Внутри ROYAL JACKPOT (250 ставок) или обычные призы (2–50 ставок). Каждый найденный ROYAL добавляет 1 попытку.</p>
-            <h4>🔴 Красный сундук (Hold and Win)</h4>
-            <p>Поле 3×3. В 1-м и 3-м столбцах выпадают золотые монеты с призами (RUBY 500, AMETHYST 200, SAPPHIRE 50, EMERALD 25, обычные 1–15). Во 2-м столбце — королевские монеты. В начале на центральном барабане уже есть 1 королевская монета.</p>
-            <h4>🟣 Фиолетовый сундук (Jackpot Collecting)</h4>
-            <p>Поле 3×3 с монетами MIN, MID, MAX, ULTRA. Сбор 5 монет одного типа даёт джекпот (ULTRA 500, MAX 200, MID 50, MIN 20). Лишние монеты дают множитель x2.</p>
+
+        <!-- Кнопка и панель управления -->
+        <div class="controls-area">
+            <!-- Инфо слева -->
+            <div class="info-side">
+                <div class="info-lbl">Баланс</div>
+                <div class="info-val" id="balanceDisplay">0.00</div>
+            </div>
+
+            <!-- Кнопка спина -->
+            <div class="spin-btn" id="spinBtn" onclick="spin()">
+                <!-- SVG для стрелочки как на скрине -->
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.93 6.61 2.39M21 3v6h-6"/></svg>
+            </div>
+
+            <!-- Ставка справа -->
+            <div class="bet-side">
+                <div class="info-lbl">Ставка</div>
+                <div class="bet-controls">
+                    <button class="bet-btn" onclick="changeBet(-1)">-</button>
+                    <div class="info-val" id="betDisplay">10</div>
+                    <button class="bet-btn" onclick="changeBet(1)">+</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="bonusModal">
-        <div class="modal-box" id="bonusBox"></div>
+    <div class="win-overlay" id="winOverlay">
+        <div class="win-text" id="winText">+0</div>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        if (tg) tg.expand();
-        const user = tg.initDataUnsafe?.user || { id: 0, first_name: 'Игрок' };
-
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = parseInt(urlParams.get('id')) || 0;
+        const currency = urlParams.get('currency') || 'USD';
+        
         let balance = 0;
-        let currency = 'UAH';
-        let currentBet = 0.5;
-        let isSpinning = false;
+        let currentBet = 10;
 
-        const SYMBOLS = ['🍒', '🍊', '🍇', '🔔', 'BAR', '7️⃣', 'WILD', 'TOKEN'];
-        const SYMBOL_WEIGHTS = { '🍒': 30, '🍊': 25, '🍇': 20, '🔔': 15, 'BAR': 10, '7️⃣': 8, 'WILD': 2, 'TOKEN': 5 };
-
-        const PAYTABLE = {
-            'WILD': { 3: 25.0 },
-            '7️⃣': { 3: 15.0 },
-            'BAR': { 3: 10.0 },
-            '🔔': { 3: 8.0 },
-            '🍇': { 3: 8.0 },
-            '🍊': { 3: 2.0 },
-            '🍇': { 3: 2.0 },
-            '🍒': { 3: 0.5 }
+        const SYMBOLS = {
+            'JOKER': '🃏', 'SEVEN': '7️⃣', 'BAR': '🏷️', 'BELL': '🔔', 'MELON': '🍉', 'GRAPE': '🫐', 'CHERRY': '🍒', 'TOKEN': '🪙'
         };
-        // Упрощённая таблица для 3-в-ряд
-        const THREE_OF_KIND = {
-            'WILD': 25.0, '7️⃣': 15.0, 'BAR': 10.0, '🔔': 8.0,
-            '🍇': 8.0, '🍊': 2.0, '🍒': 0.5
-        };
+        const REEL_STRIP = ['🍒','🍉','🫐','🔔','🏷️','7️⃣','🃏'];
 
         function getSym() { return currency === 'UAH' ? '₴' : '$'; }
 
         async function loadUser() {
             try {
-                const res = await fetch(`/api/user?id=${user.id}&username=${user.username || 'guest'}`);
+                const res = await fetch(`/api/user?id=${userId}&username=guest`);
                 const data = await res.json();
                 balance = currency === 'UAH' ? data.balance_uah : data.balance;
-                if (typeof data.balance_uah === 'undefined') balance = data.balance;
-                document.getElementById('headerBalance').innerText = getSym() + balance.toFixed(2);
-                document.getElementById('balanceDisplay').innerText = getSym() + balance.toFixed(2);
-                document.getElementById('currencyDisplay').innerText = currency;
+                updateBalanceUI();
             } catch (e) { console.log('load error', e); }
         }
 
-        function renderBetChips() {
-            const el = document.getElementById('betChips');
-            const sym = getSym();
-            el.innerHTML = [0.5, 1, 5, 10, 50].map(v =>
-                `<div class="chip ${currentBet === v ? 'active' : ''}" onclick="setBet(${v})">${sym}${v}</div>`
-            ).join('');
-            document.getElementById('betDisplay').innerText = sym + currentBet;
+        function updateBalanceUI() {
+            document.getElementById('headerBalance').innerText = getSym() + balance.toFixed(2);
+            document.getElementById('balanceDisplay').innerText = getSym() + balance.toFixed(2);
+            document.getElementById('betDisplay').innerText = currentBet;
         }
 
-        function setBet(v) { currentBet = v; renderBetChips(); }
-
-        function toggleRules() {
-            document.getElementById('rulesContent').classList.toggle('open');
+        function changeBet(dir) {
+            if (dir > 0) currentBet += 5;
+            else if (currentBet > 5) currentBet -= 5;
+            updateBalanceUI();
         }
 
-        function getRandomSymbol() {
-            const total = Object.values(SYMBOL_WEIGHTS).reduce((a, b) => a + b, 0);
-            let r = Math.random() * total;
-            for (const [sym, w] of Object.entries(SYMBOL_WEIGHTS)) {
-                r -= w;
-                if (r <= 0) return sym;
+        // Заполняем барабаны начальными символами
+        function initReels() {
+            for (let i = 0; i < 3; i++) {
+                let html = '';
+                for (let j = 0; j < 5; j++) {
+                    const sym = REEL_STRIP[Math.floor(Math.random() * REEL_STRIP.length)];
+                    html += `<div class="symbol-box">${sym}</div>`;
+                }
+                document.getElementById(`reel${i}`).innerHTML = html;
+                document.getElementById(`reel${i}`).style.transform = 'translateY(0px)';
             }
-            return '🍒';
-        }
-
-        function buildReelStrip(reelEl, symbols) {
-            // Создаём длинную ленту для анимации
-            let html = '';
-            for (let i = 0; i < 20; i++) {
-                const sym = symbols[i % symbols.length];
-                html += `<div class="symbol">${sym}</div>`;
-            }
-            reelEl.innerHTML = html;
-            reelEl.style.transform = 'translateY(0)';
         }
 
         async function spin() {
-            if (isSpinning) return;
-            if (balance < currentBet) { tg.showAlert('Недостаточно средств!'); return; }
-            isSpinning = true;
-            document.getElementById('spinBtn').disabled = true;
-            document.getElementById('spinBtn').innerText = 'ВРАЩЕНИЕ...';
+            if (balance < currentBet) { alert('Недостаточно средств!'); return; }
+            const btn = document.getElementById('spinBtn');
+            btn.disabled = true;
 
-            // Анимация
-            const allSyms = ['🍒', '🍊', '🍇', '🔔', 'BAR', '7️⃣', 'WILD'];
-            const reels = [0, 1, 2].map(i => {
+            // Анимация кручения
+            const spinIntervals = [];
+            for (let i = 0; i < 3; i++) {
                 const el = document.getElementById(`reel${i}`);
-                const syms = [];
-                for (let j = 0; j < 20; j++) syms.push(allSyms[Math.floor(Math.random() * allSyms.length)]);
-                buildReelStrip(el, syms);
-                return el;
-            });
+                let offset = 0;
+                spinIntervals.push(setInterval(() => {
+                    offset -= 10; // Скорость
+                    el.style.transform = `translateY(${offset}px)`;
+                    // Сброс, чтобы лента не кончалась
+                    if (offset <= -160) {
+                        offset = 0;
+                    }
+                }, 30));
+            }
 
-            // Отправляем запрос на сервер
             const res = await fetch('/api/fortune-chests/spin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: user.id, bet: currentBet, currency })
+                body: JSON.stringify({ id: userId, bet: currentBet, currency })
             });
             const data = await res.json();
 
             if (data.error) {
-                tg.showAlert(data.error);
-                isSpinning = false;
-                document.getElementById('spinBtn').disabled = false;
-                document.getElementById('spinBtn').innerText = 'СДЕЛАТЬ СТАВКУ';
+                for (let i = 0; i < 3; i++) clearInterval(spinIntervals[i]);
+                btn.disabled = false;
+                alert(data.error);
                 return;
             }
 
-            // Останавливаем барабаны
-            const finalReels = data.reels;
-            for (let i = 0; i < 3; i++) {
-                const el = document.getElementById(`reel${i}`);
-                const strip = el.querySelector('.reel-strip');
-                // Устанавливаем финальные символы
+            // Останавливаем через разное время для эффекта
+            setTimeout(() => {
+                clearInterval(spinIntervals[0]);
+                // Устанавливаем финальные символы на 1-й барабан
                 let html = '';
-                for (let j = 0; j < 20; j++) {
-                    const sym = (j === 19) ? finalReels[i] : allSyms[Math.floor(Math.random() * allSyms.length)];
-                    html += `<div class="symbol">${sym}</div>`;
-                }
-                strip.innerHTML = html;
-                strip.style.transform = `translateY(-${19 * 70}px)`;
-            }
+                for(let j=0;j<3;j++) html += `<div class="symbol-box">${data.reels[0][j]}</div>`;
+                document.getElementById(`reel0`).innerHTML = html;
+                document.getElementById(`reel0`).style.transform = 'translateY(0)';
+            }, 400);
 
-            setTimeout(async () => {
+            setTimeout(() => {
+                clearInterval(spinIntervals[1]);
+                let html = '';
+                for(let j=0;j<3;j++) html += `<div class="symbol-box">${data.reels[1][j]}</div>`;
+                document.getElementById(`reel1`).innerHTML = html;
+                document.getElementById(`reel1`).style.transform = 'translateY(0)';
+            }, 600);
+
+            setTimeout(() => {
+                clearInterval(spinIntervals[2]);
+                let html = '';
+                for(let j=0;j<3;j++) html += `<div class="symbol-box">${data.reels[2][j]}</div>`;
+                document.getElementById(`reel2`).innerHTML = html;
+                document.getElementById(`reel2`).style.transform = 'translateY(0)';
+
                 // Обновляем баланс
                 balance = data.balance;
-                document.getElementById('headerBalance').innerText = getSym() + balance.toFixed(2);
-                document.getElementById('balanceDisplay').innerText = getSym() + balance.toFixed(2);
+                updateBalanceUI();
+                btn.disabled = false;
 
                 if (data.win > 0) {
-                    tg.showAlert(`🎉 Выигрыш! +${getSym()}${data.win.toFixed(2)}`);
+                    const overlay = document.getElementById('winOverlay');
+                    const txt = document.getElementById('winText');
+                    txt.innerText = '+' + getSym() + data.win.toFixed(2);
+                    overlay.classList.add('show');
+                    setTimeout(() => overlay.classList.remove('show'), 2500);
                 }
-
-                if (data.bonus) {
-                    await playBonus(data.bonus);
-                }
-
-                isSpinning = false;
-                document.getElementById('spinBtn').disabled = false;
-                document.getElementById('spinBtn').innerText = 'СДЕЛАТЬ СТАВКУ';
-            }, 500);
-        }
-
-        async function playBonus(bonus) {
-            const modal = document.getElementById('bonusModal');
-            const box = document.getElementById('bonusBox');
-            modal.classList.add('open');
-
-            if (bonus.type === 'green') {
-                // Pick Me
-                let html = `<h2>🟢 GREEN CHEST BONUS</h2><p>Выберите сундуки! У вас ${bonus.attempts} попыток.</p><div class="chest-grid" id="chestGrid"></div><div class="result-text" id="bonusResult"></div>`;
-                box.innerHTML = html;
-                const grid = document.getElementById('chestGrid');
-                let attempts = bonus.attempts;
-                let royalFound = 0;
-                let totalWin = 0;
-                for (let i = 0; i < 20; i++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'chest-cell';
-                    cell.innerHTML = '🎁';
-                    cell.dataset.index = i;
-                    cell.onclick = () => {
-                        if (cell.classList.contains('opened') || attempts <= 0) return;
-                        attempts--;
-                        cell.classList.add('opened');
-                        const prize = bonus.prizes[i];
-                        if (prize === 'ROYAL') {
-                            royalFound++;
-                            attempts += 1;
-                            cell.innerHTML = '💎';
-                            totalWin += 250 * currentBet;
-                        } else {
-                            totalWin += prize * currentBet;
-                            cell.innerHTML = `+${prize}`;
-                        }
-                        document.getElementById('bonusResult').innerText = `Выигрыш: ${getSym()}${totalWin.toFixed(2)} (осталось попыток: ${attempts})`;
-                    };
-                    grid.appendChild(cell);
-                }
-                // Кнопка завершения
-                const btn = document.createElement('button');
-                btn.className = 'bonus-btn';
-                btn.innerText = 'ЗАБРАТЬ ВЫИГРЫШ';
-                btn.onclick = () => finishBonus(totalWin);
-                box.appendChild(btn);
-
-            } else if (bonus.type === 'red') {
-                // Hold and Win
-                let html = `<h2>🔴 HOLD AND WIN</h2><div class="hold-grid" id="holdGrid"></div><div class="result-text" id="bonusResult"></div><button class="bonus-btn" id="holdFinishBtn" disabled>ЗАБРАТЬ</button>`;
-                box.innerHTML = html;
-                const grid = document.getElementById('holdGrid');
-                let totalWin = 0;
-                bonus.grid.forEach((row, r) => {
-                    row.forEach((cell, c) => {
-                        const div = document.createElement('div');
-                        div.className = 'hold-cell';
-                        if (cell === 'KING') div.classList.add('king');
-                        if (cell !== null && cell !== 'KING') div.classList.add('locked');
-                        if (cell === 'KING') div.innerHTML = '👑';
-                        else if (cell !== null) div.innerHTML = cell;
-                        else div.innerHTML = '?';
-                        grid.appendChild(div);
-                        if (cell !== null && cell !== 'KING') totalWin += cell;
-                    });
-                });
-                document.getElementById('bonusResult').innerText = `Текущий выигрыш: ${getSym()}${totalWin.toFixed(2)}`;
-                const finishBtn = document.getElementById('holdFinishBtn');
-                finishBtn.disabled = false;
-                finishBtn.onclick = () => finishBonus(totalWin);
-
-            } else if (bonus.type === 'purple') {
-                // Jackpot Collecting
-                let html = `<h2>🟣 JACKPOT COLLECTING</h2><div class="hold-grid" id="purpleGrid"></div><div class="result-text" id="bonusResult"></div><button class="bonus-btn" id="purpleFinishBtn">ЗАБРАТЬ</button>`;
-                box.innerHTML = html;
-                const grid = document.getElementById('purpleGrid');
-                let counts = { MIN: 0, MID: 0, MAX: 0, ULTRA: 0 };
-                bonus.grid.forEach(row => {
-                    row.forEach(cell => {
-                        const div = document.createElement('div');
-                        div.className = 'hold-cell';
-                        if (cell) {
-                            div.innerHTML = cell;
-                            counts[cell]++;
-                        } else {
-                            div.innerHTML = '?';
-                        }
-                        grid.appendChild(div);
-                    });
-                });
-                let totalWin = 0;
-                const jackpots = { ULTRA: 500, MAX: 200, MID: 50, MIN: 20 };
-                for (const [type, count] of Object.entries(counts)) {
-                    if (count >= 5) {
-                        totalWin += jackpots[type] * currentBet;
-                    }
-                }
-                document.getElementById('bonusResult').innerText = `Выигрыш: ${getSym()}${totalWin.toFixed(2)}`;
-                document.getElementById('purpleFinishBtn').onclick = () => finishBonus(totalWin);
-            }
-        }
-
-        async function finishBonus(winAmount) {
-            document.getElementById('bonusModal').classList.remove('open');
-            const res = await fetch('/api/fortune-chests/bonus-finish', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: user.id, win: winAmount, currency })
-            });
-            const data = await res.json();
-            if (data.balance !== undefined) {
-                balance = data.balance;
-                document.getElementById('headerBalance').innerText = getSym() + balance.toFixed(2);
-                document.getElementById('balanceDisplay').innerText = getSym() + balance.toFixed(2);
-                tg.showAlert(`🎉 Бонус завершён! Выигрыш: ${getSym()}${winAmount.toFixed(2)}`);
-            }
+            }, 800);
         }
 
         // Инициализация
-        (function initParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 20; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.width = `${Math.random() * 4 + 1}px`;
-                p.style.height = p.style.width;
-                p.style.left = `${Math.random() * 100}%`;
-                p.style.animationDuration = `${Math.random() * 10 + 5}s`;
-                p.style.animationDelay = `${Math.random() * 5}s`;
-                container.appendChild(p);
-            }
-        })();
-
-        loadUser().then(() => {
-            renderBetChips();
-        });
+        initReels();
+        loadUser();
     </script>
 </body>
 </html>
