@@ -2109,7 +2109,7 @@
 
     function openGame(gameId) {
         if (gameId === 'fortune_chests') {
-            window.open('/fortune-chests', '_blank');
+            window.open(`/fortune-chests?id=${user.id}&currency=${currentCurrency}`, '_blank');
             return;
         }
         if (state.loaded && !state.registered) { tg.showAlert(t('regRequired')); checkRegistration(); return; }
